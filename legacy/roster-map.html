@@ -1,0 +1,3027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roster Map — UW Women's Soccer Recruiting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f6f2;
+      --ink: #111111;
+      --muted: #888888;
+      --line: #c8c9c4;
+      --line-strong: #111111;
+      --panel: #ffffff;
+      --accent-player: #ff5f1f;
+      --accent-player-b: #0d8a7f;
+      --accent-team: #7b5ea7;
+      --accent-fit: #3d5a40;
+      --panel-w: min(400px, 36vw);
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --sans: "Space Grotesk", "Helvetica Neue", sans-serif;
+      --card-blue: #c5ced6;
+      --card-dark: #2a2a28;
+      --card-red: #e23d28;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    /* ——— Top chrome ——— */
+    .topbar {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      display: flex;
+      align-items: stretch;
+      background: #fff;
+      border: 1px solid var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 24px rgba(17,17,17,0.04);
+    }
+    .topbar-seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-right: 1px solid var(--ink);
+    }
+    .topbar-seg:last-child { border-right: 0; }
+    .topbar-title { padding: 10px 22px; white-space: nowrap; }
+    .brand-ball {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 40;
+      width: 36px;
+      height: 36px;
+      color: var(--ink);
+      pointer-events: none;
+      display: block;
+      overflow: visible;
+    }
+
+    /* ——— Bottom view dock ——— */
+    .dock {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      align-items: stretch;
+      background: #fff;
+      border: 1px solid var(--ink);
+      box-shadow: 0 10px 30px rgba(17,17,17,0.08);
+    }
+    .dock-btn {
+      width: 48px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-right: 1px solid var(--ink);
+      color: var(--ink);
+      transition: background 0.15s ease;
+    }
+    .dock-btn:last-child { border-right: 0; }
+    .dock-btn:hover { background: rgba(17,17,17,0.04); }
+    .dock-btn.is-active { background: #e8e8e3; }
+    .dock-btn svg { display: block; }
+    .dock-btn:disabled { opacity: 0.35; cursor: default; }
+
+    /* ——— Unstructured (graph) ——— */
+    .view-unstructured {
+      position: fixed;
+      inset: 0;
+      display: none;
+    }
+    body.mode-unstructured .view-unstructured { display: block; }
+
+    .map {
+      position: absolute;
+      inset: 0;
+      right: 0;
+      z-index: 1;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      transition: right 0.35s ease;
+    }
+    body.panel-open .map {
+      right: var(--panel-w);
+    }
+    .map.is-panning { cursor: grabbing; }
+    .map.is-dragging-node { cursor: grabbing; }
+
+    .map-inner {
+      position: absolute;
+      inset: 0;
+      transform-origin: 0 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .map-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .edge {
+      fill: none;
+      stroke: var(--line-strong);
+      stroke-width: 1.25;
+      transition: stroke 0.25s ease, opacity 0.25s ease, stroke-width 0.25s ease;
+    }
+    .edge.dashed { stroke-dasharray: 3 4; }
+    .edge.muted { stroke: var(--line); opacity: 0.7; }
+    .edge.fit-edge {
+      stroke: var(--accent-fit);
+      stroke-dasharray: 5 4;
+      stroke-width: 1.5;
+      animation: dash-move 1.2s linear infinite;
+    }
+    .edge.dimmed { opacity: 0.18; }
+    .edge.lit { stroke: var(--ink); stroke-width: 1.6; opacity: 1; }
+    .edge.wire-preview {
+      stroke: var(--ink);
+      stroke-width: 1.6;
+      stroke-dasharray: 4 5;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    @keyframes dash-move { to { stroke-dashoffset: -18; } }
+
+    .map.is-wiring { cursor: crosshair; }
+    .map.is-wiring .node.drop-target .shape {
+      outline: 2px solid var(--accent-fit);
+      outline-offset: 6px;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 72px;
+      right: 28px;
+      left: auto;
+      z-index: 5;
+      max-width: 260px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--muted);
+      pointer-events: none;
+      text-align: right;
+    }
+    .hint kbd {
+      display: inline-block;
+      padding: 1px 5px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      font-size: 11px;
+      color: var(--ink);
+    }
+
+    .node {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: visible;
+      cursor: pointer;
+      z-index: 3;
+      transition: opacity 0.25s ease, filter 0.25s ease;
+    }
+    .node.dimmed { opacity: 0.22; pointer-events: none; }
+    .node.is-dragging {
+      z-index: 20;
+      opacity: 0.92;
+      filter: drop-shadow(0 8px 18px rgba(17,17,17,0.18));
+    }
+    .node.drop-target .shape {
+      outline: 2px solid var(--accent-fit);
+      outline-offset: 6px;
+      animation: pulse-ring 1s ease infinite;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { outline-color: rgba(61, 90, 64, 0.9); }
+      50% { outline-color: rgba(61, 90, 64, 0.25); }
+    }
+
+    /* Shape sits on the node anchor (x,y); label hangs below — lines meet the shape, not the label */
+    .shape {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      display: grid;
+      place-items: center;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .node:hover .shape,
+    .node.is-active .shape { transform: translate(-50%, -50%) scale(1.08); }
+    .node.is-active .label-title { font-weight: 600; }
+    .shape .num {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .shape.circle {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink);
+      background: transparent;
+    }
+    .shape.circle.filled { background: #d9d9d4; border-color: #d9d9d4; }
+    .shape.circle.solid-fill { background: var(--ink); border-color: var(--ink); }
+    .shape.rect {
+      width: 22px; height: 16px;
+      border: 1.5px solid var(--ink);
+      background: #e8e8e3;
+    }
+    .shape.square {
+      width: 20px; height: 20px;
+      border: 1.5px solid var(--ink);
+      background: #ecece7;
+    }
+    .shape.square.filled {
+      background: #d4d4ce;
+      border-color: #d4d4ce;
+    }
+    .shape.square.team {
+      width: 22px; height: 22px;
+      background: #7b5ea7;
+      border-color: #7b5ea7;
+      box-shadow: 0 0 0 1px rgba(123, 94, 167, 0.35);
+    }
+    .shape.hex {
+      width: 24px; height: 24px;
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      background: #cfd1c8;
+    }
+    .shape.hex.outline {
+      background: transparent;
+      clip-path: none;
+      width: 22px; height: 22px;
+      border: 1.5px solid var(--ink);
+      border-radius: 3px;
+      transform: translate(-50%, -50%) rotate(30deg);
+    }
+    .node:hover .shape.hex.outline,
+    .node.is-active .shape.hex.outline { transform: translate(-50%, -50%) rotate(30deg) scale(1.08); }
+    .shape.hex.outline .num { transform: rotate(-30deg); }
+    .shape.triangle {
+      width: 22px;
+      height: 20px;
+      border: none;
+      background: var(--accent-player);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+    .shape.diamond {
+      width: 16px; height: 16px;
+      border: 1.5px solid var(--ink);
+      background: transparent;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    .node:hover .shape.diamond,
+    .node.is-active .shape.diamond { transform: translate(-50%, -50%) rotate(45deg) scale(1.08); }
+    .shape.diamond.filled {
+      background: #c8c9c4;
+      border-color: #c8c9c4;
+    }
+    .shape.diamond.kai {
+      background: var(--accent-player-b);
+      border-color: var(--accent-player-b);
+      width: 18px;
+      height: 18px;
+    }
+    .shape.dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ink);
+      border: none;
+    }
+    .shape.ring {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.75px solid var(--ink);
+      background: transparent;
+      box-shadow: inset 0 0 0 6px var(--bg);
+    }
+    .shape.cross {
+      width: 18px; height: 18px;
+      background:
+        linear-gradient(var(--ink), var(--ink)) center/1.5px 100% no-repeat,
+        linear-gradient(var(--ink), var(--ink)) center/100% 1.5px no-repeat;
+      border: none;
+    }
+    .shape.pill {
+      width: 26px;
+      height: 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--ink);
+      background: #e8e8e3;
+    }
+    .shape.players {
+      width: 26px; height: 16px;
+      border: 1.5px solid var(--ink);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 0 3px;
+    }
+    .shape.players i {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--ink);
+      display: block;
+    }
+
+    .label {
+      position: absolute;
+      top: 18px;
+      left: 0;
+      transform: translateX(-50%);
+      text-align: center;
+      max-width: 148px;
+      pointer-events: none;
+      white-space: normal;
+    }
+    .node.is-hub .label { top: 20px; }
+    .label-title {
+      display: inline;
+      font-size: 13px;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      background: var(--bg);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .label-sub {
+      display: block;
+      margin-top: 2px;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--bg);
+      padding: 1px 4px;
+      border-radius: 3px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .node:hover .label-sub,
+    .node.is-active .label-sub { opacity: 1; }
+
+    /* Artifact panel (Collection-inspired) */
+    .page {
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: var(--panel-w);
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 18px 80px;
+      pointer-events: none;
+    }
+    body.panel-open .page {
+      display: flex;
+    }
+
+    .artifact-stack {
+      pointer-events: none;
+      position: absolute;
+      inset: 48px 8px 72px;
+      z-index: 0;
+    }
+    .artifact-stack .ghost {
+      position: absolute;
+      border-radius: 2px;
+      opacity: 0.7;
+      pointer-events: none;
+      filter: grayscale(0.35) contrast(1.05);
+    }
+    .ghost.g1 {
+      width: 72%; height: 160px;
+      background:
+        linear-gradient(160deg, rgba(40,40,38,0.15), rgba(40,40,38,0.55)),
+        linear-gradient(145deg, #2a2a28 0%, #6b6558 45%, #c4b8a4 100%);
+      background-size: cover;
+      top: 4%; left: 2%;
+      transform: rotate(-3deg);
+      box-shadow: 0 12px 28px rgba(17,17,17,0.12);
+    }
+    .ghost.g2 {
+      width: 88px; height: 88px;
+      border-radius: 2px;
+      background:
+        radial-gradient(circle at 40% 35%, #8a9aa8 0%, #2a3038 55%, #111 100%);
+      top: 48%; right: 4%;
+      transform: rotate(4deg);
+      box-shadow: 0 10px 24px rgba(17,17,17,0.14);
+    }
+    .ghost.g3 {
+      width: 52%; height: 110px;
+      background:
+        linear-gradient(200deg, rgba(17,17,17,0.2), rgba(17,17,17,0.65)),
+        linear-gradient(120deg, #1a1a1a, #4a5560);
+      bottom: 8%; right: 8%;
+      transform: rotate(2deg);
+      box-shadow: 0 12px 28px rgba(17,17,17,0.16);
+    }
+
+    .page-card {
+      pointer-events: auto;
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-height: 100%;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 0;
+      box-shadow:
+        0 0 0 1px rgba(17,17,17,0.08),
+        0 22px 60px rgba(17,17,17,0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: card-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .page-card.theme-dark,
+    .page-card.theme-fit,
+    .page-card.theme-blue,
+    .page-card.theme-white {
+      background: #fff;
+      color: var(--ink);
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-media {
+      position: relative;
+      height: 108px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(17,17,17,0.1);
+    }
+    .page-media.has-none { display: none; }
+    .page-media-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(0.85) contrast(1.08);
+      opacity: 0.9;
+    }
+    .page-media-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .page-media-grid span {
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(0.85);
+    }
+    .visit-chip {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.94);
+      color: var(--ink);
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 0;
+      cursor: pointer;
+      pointer-events: auto;
+      border: 1px solid rgba(17,17,17,0.12);
+    }
+
+    .page-index {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid rgba(17,17,17,0.1);
+      flex-shrink: 0;
+    }
+    .page-index-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .page-index-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-player);
+      flex-shrink: 0;
+    }
+    .page-index-dot.is-team { background: var(--accent-team); }
+    .page-index-dot.is-kai { background: var(--accent-player-b); }
+    .page-index-dot.is-fit { background: var(--accent-fit); }
+    #resetView {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    #resetView:hover { opacity: 1; }
+
+    .page-typebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 0;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .page-typebar-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .page-type-mark {
+      font-size: 9px;
+      color: var(--ink);
+    }
+
+    .page-body {
+      padding: 8px 16px 18px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .page-title {
+      font-size: clamp(28px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin: 8px 0 10px;
+      text-transform: uppercase;
+    }
+    .page-subtitle {
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+    .page-copy {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      color: #222;
+    }
+    .page-link {
+      display: inline-block;
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-bottom: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .meta-row strong { font-weight: 500; opacity: 1; color: inherit; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .stat {
+      padding: 10px 12px;
+      background: rgba(17,17,17,0.06);
+      border-radius: 2px;
+    }
+    .page-card.theme-dark .stat { background: rgba(255,255,255,0.08); }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .fit-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .fit-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 28px;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .fit-track {
+      height: 3px;
+      background: rgba(17,17,17,0.12);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .fit-fill {
+      height: 100%;
+      background: var(--accent-fit);
+      width: 0;
+      transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .fit-score {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      opacity: 0.6;
+    }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .chip {
+      font-size: 11px;
+      padding: 5px 8px;
+      border: 1px solid rgba(17,17,17,0.2);
+      border-radius: 2px;
+    }
+    .chip.good {
+      border-color: rgba(61,90,64,0.4);
+      background: rgba(61,90,64,0.1);
+      color: var(--accent-fit);
+    }
+    .chip.warn {
+      border-color: rgba(255,95,31,0.4);
+      background: rgba(255,95,31,0.1);
+      color: var(--accent-player);
+    }
+
+    .action-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      border-radius: 2px;
+      border: 1px solid currentColor;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .page-card.theme-dark .btn.primary { background: #f2f2ef; color: var(--ink); border-color: #f2f2ef; }
+    .btn.danger {
+      color: #fff;
+      background: var(--accent-player);
+      border-color: var(--accent-player);
+    }
+    .btn.danger:hover { opacity: 0.9; }
+    .btn:hover { opacity: 0.88; }
+    .btn.danger-outline {
+      color: var(--accent-player);
+      border-color: rgba(255,95,31,0.55);
+      background: transparent;
+    }
+
+    .fit-banner {
+      position: absolute;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px 10px 14px;
+      background: #fff;
+      border: 1px solid var(--ink);
+      box-shadow: 0 10px 28px rgba(17,17,17,0.1);
+      font-size: 12px;
+      max-width: min(420px, calc(100% - 48px));
+    }
+    .fit-banner.is-visible { display: flex; }
+    .fit-banner-copy {
+      flex: 1;
+      line-height: 1.35;
+      color: #333;
+    }
+    .fit-banner-copy strong { color: var(--ink); }
+    .fit-banner .btn { flex-shrink: 0; white-space: nowrap; }
+    .fit-banner .btn.linkish {
+      border-color: transparent;
+      background: transparent;
+      text-decoration: underline;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+
+    .accordion { border-top: 1px dotted rgba(17,17,17,0.35); margin-top: 4px; }
+    .acc-item + .acc-item { border-top: 1px dotted rgba(17,17,17,0.35); }
+    .acc-head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: left;
+      cursor: pointer;
+    }
+    .acc-body {
+      display: none;
+      padding: 0 0 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #333;
+    }
+    .acc-item.open .acc-body { display: block; }
+    .acc-toggle {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1;
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+    .acc-item.open .acc-toggle::before { content: "−"; }
+    .acc-item:not(.open) .acc-toggle::before { content: "+"; }
+
+    .conn-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .conn-list li { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .conn-list .mini {
+      width: 10px; height: 10px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .depth-note {
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 10px 12px;
+      background: rgba(61, 90, 64, 0.1);
+      border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    body.depth-open {
+      --panel-w: min(520px, 48vw);
+    }
+    body.depth-open.compare-open {
+      --panel-w: min(760px, 62vw);
+    }
+
+    .depth-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 0 12px;
+      align-items: center;
+    }
+    .depth-toolbar .seg {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .depth-toolbar .seg button {
+      border: 0;
+      background: transparent;
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .depth-toolbar .seg button.is-on {
+      background: var(--ink);
+      color: #fff;
+    }
+    .depth-toolbar .place-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .depth-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .depth-pane-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .depth-pane-title.is-josie { color: var(--accent-player); }
+    .depth-pane-title.is-kai { color: var(--accent-player-b); }
+    .depth-compare .pitch {
+      aspect-ratio: 3 / 4.2;
+    }
+
+    .pitch-wrap {
+      margin-bottom: 14px;
+    }
+    .pitch-tray {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border: 1px dashed rgba(17,17,17,0.3);
+      border-radius: 2px;
+      min-height: 44px;
+      background: rgba(255,255,255,0.45);
+    }
+    .pitch-tray-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      width: 100%;
+    }
+    .pitch-tray.is-over {
+      border-color: var(--accent-player);
+      background: rgba(255,95,31,0.08);
+    }
+
+    .player-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: #fff;
+      border: 1px solid var(--ink);
+      border-radius: 2px;
+      font-size: 12px;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      box-shadow: 0 2px 8px rgba(17,17,17,0.06);
+    }
+    .player-chip.is-josie {
+      border-color: var(--accent-player);
+      color: var(--accent-player);
+      font-weight: 600;
+    }
+    .player-chip.is-kai {
+      border-color: var(--accent-player-b);
+      color: var(--accent-player-b);
+      font-weight: 600;
+    }
+    .pitch-slot.is-josie,
+    .pitch-slot.is-kai {
+      cursor: grab;
+    }
+    .pitch-slot.is-dragging {
+      opacity: 0.45;
+    }
+    .pitch-pos.is-drop {
+      outline: 2px solid var(--accent-fit);
+      outline-offset: 2px;
+      background: rgba(61, 90, 64, 0.12);
+    }
+    .player-chip .chip-pos {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.55;
+    }
+
+    .pitch {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4.1;
+      border-radius: 4px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(45,90,55,0.92), rgba(35,72,45,0.96)),
+        repeating-linear-gradient(
+          180deg,
+          transparent 0 12%,
+          rgba(255,255,255,0.04) 12% 12.4%
+        );
+      border: 1px solid rgba(17,17,17,0.2);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+    .pitch-markings {
+      position: absolute;
+      inset: 6%;
+      border: 1.5px solid rgba(255,255,255,0.28);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .pitch-markings::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 18%;
+      aspect-ratio: 1;
+      border: 1.5px solid rgba(255,255,255,0.28);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .pitch-markings::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 1.5px solid rgba(255,255,255,0.28);
+    }
+    .pitch-box-top,
+    .pitch-box-bot {
+      position: absolute;
+      left: 22%;
+      right: 22%;
+      height: 14%;
+      border: 1.5px solid rgba(255,255,255,0.28);
+      pointer-events: none;
+    }
+    .pitch-box-top { top: 0; border-top: 0; }
+    .pitch-box-bot { bottom: 0; border-bottom: 0; }
+
+    .pitch-pos {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      z-index: 2;
+      background: none;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+    }
+    .pitch-pos.has-josie .pitch-pos-label {
+      color: #ffb89a;
+    }
+    .pitch-pos.has-kai .pitch-pos-label {
+      color: #8fd4cd;
+    }
+    .pitch-pos.has-josie.has-kai .pitch-pos-label {
+      color: #f0d4a8;
+    }
+    .pitch-pos-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+    .pitch-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 100%;
+      min-height: 28px;
+      padding: 3px;
+      border-radius: 3px;
+      border: 1px dashed transparent;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .pitch-pos.is-over .pitch-slots {
+      border-color: rgba(255,95,31,0.95);
+      background: rgba(255,95,31,0.18);
+    }
+    .pitch-slot {
+      background: rgba(255,255,255,0.92);
+      color: var(--ink);
+      border-radius: 2px;
+      padding: 4px 5px;
+      font-size: 10px;
+      line-height: 1.2;
+      text-align: center;
+      border: 1px solid transparent;
+      cursor: default;
+    }
+    .pitch-slot.is-empty {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.55);
+      border: 1px dashed rgba(255,255,255,0.35);
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .pitch-slot.is-josie {
+      background: #fff;
+      border-color: var(--accent-player);
+      color: var(--accent-player);
+      font-weight: 600;
+      cursor: inherit;
+    }
+    .pitch-slot.is-kai {
+      background: #fff;
+      border-color: var(--accent-player-b);
+      color: var(--accent-player-b);
+      font-weight: 600;
+      cursor: inherit;
+    }
+    .pitch-slot .slot-tag {
+      display: block;
+      font-family: var(--mono);
+      font-size: 7px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-top: 1px;
+    }
+    .pitch-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .pitch-legend span::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 5px;
+      vertical-align: middle;
+      border-radius: 1px;
+    }
+    .pitch-legend .lg-starter::before { background: #fff; border: 1px solid #111; }
+    .pitch-legend .lg-open::before { background: transparent; border: 1px dashed #888; }
+    .pitch-legend .lg-josie::before { background: #fff; border: 1px solid var(--accent-player); }
+    .pitch-legend .lg-kai::before { background: #fff; border: 1px solid var(--accent-player-b); }
+
+    /* ——— Structured view ——— */
+    .view-structured {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 2;
+      padding: 88px 40px 100px;
+      overflow: auto;
+    }
+    body.mode-structured .view-structured { display: block; }
+    body.mode-structured .view-unstructured { display: none; }
+
+    .struct-intro {
+      max-width: 640px;
+      margin: 0 auto 36px;
+      text-align: center;
+    }
+    .struct-kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      color: var(--muted);
+    }
+    .struct-headline {
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+    .struct-intro-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+      min-height: 32px;
+    }
+    .struct-intro-actions .btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .struct-board {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 56px 1fr;
+      gap: 0;
+      min-height: 420px;
+    }
+
+    .struct-col { min-width: 0; }
+    .struct-col.is-right .struct-row { flex-direction: row-reverse; text-align: right; }
+    .struct-col.is-right .struct-meta { flex-direction: row-reverse; }
+    .struct-col.is-right .struct-expand { text-align: left; }
+
+    .struct-head {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      padding: 0 12px 10px;
+      border-bottom: 1px solid var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .struct-col.is-right .struct-head {
+      grid-template-columns: 1fr 88px;
+      text-align: right;
+    }
+
+    .struct-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      border-bottom: 1px dotted rgba(17,17,17,0.35);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      position: relative;
+    }
+    .struct-row:hover { background: rgba(17,17,17,0.025); }
+    .struct-row.is-active { background: rgba(17,17,17,0.04); }
+    .struct-row.is-linked .struct-title { font-weight: 600; }
+
+    .struct-body {
+      flex: 1;
+      padding: 14px 12px;
+      min-width: 0;
+    }
+    .struct-meta {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .struct-col.is-right .struct-meta {
+      grid-template-columns: 1fr 88px;
+    }
+    .struct-type {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .struct-title {
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+    }
+    .struct-expand {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #444;
+      display: none;
+    }
+    .struct-row.is-active .struct-expand { display: block; }
+    .struct-meta-line {
+      margin-top: 4px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .struct-node-col {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .struct-node-spacer {
+      height: 32px;
+      border-bottom: 1px solid transparent;
+    }
+    .struct-node-slot {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border-bottom: 1px dotted transparent;
+      position: relative;
+    }
+    .struct-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink);
+      background: transparent;
+      transition: background 0.15s ease, transform 0.15s ease;
+      z-index: 2;
+      position: relative;
+    }
+    .struct-dot.is-active,
+    .struct-dot.is-linked {
+      background: var(--ink);
+      transform: scale(1.15);
+    }
+
+    .struct-links {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 1;
+    }
+    .struct-links line {
+      stroke: var(--ink);
+      stroke-width: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 78px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--ink);
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 12px;
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 60;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      :root { --panel-w: 100%; }
+      .map { right: 0; height: 48vh; position: relative; }
+      .page { position: relative; width: 100%; height: 52vh; padding: 12px; }
+      .artifact-stack { display: none; }
+      .struct-board { grid-template-columns: 1fr; gap: 24px; }
+      .struct-node-col, .struct-links { display: none; }
+      .view-structured { padding: 80px 16px 100px; }
+      .hint { display: none; }
+      .topbar-title { font-size: 10px; padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body class="mode-unstructured">
+  <svg class="brand-ball" viewBox="0 0 100 100" width="36" height="36" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="soccerBallClip">
+        <circle cx="50" cy="50" r="46.5"/>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#soccerBallClip)">
+      <circle cx="50" cy="50" r="46.5" fill="#fff"/>
+      <path fill="currentColor" d="M70.16 22.25 L67.07 12.75 L75.16 6.87 L83.24 12.75 L80.15 22.25 Z"/>
+      <path fill="currentColor" d="M82.62 60.6 L90.71 54.73 L98.79 60.6 L95.7 70.1 L85.71 70.1 Z"/>
+      <path fill="currentColor" d="M50 84.3 L58.08 90.17 L55 99.68 L45 99.68 L41.92 90.17 Z"/>
+      <path fill="currentColor" d="M17.38 60.6 L14.29 70.1 L4.3 70.1 L1.21 60.6 L9.29 54.73 Z"/>
+      <path fill="currentColor" d="M29.84 22.25 L19.85 22.25 L16.76 12.75 L24.84 6.87 L32.93 12.75 Z"/>
+      <path fill="currentColor" d="M50 33.2 L65.98 44.81 L59.87 63.59 L40.13 63.59 L34.02 44.81 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M50 33.2 L65.98 44.81 L79.01 40.57 L82.56 26.77 L62.03 11.85 L50 19.5 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M65.98 44.81 L59.87 63.59 L67.93 74.68 L82.15 73.79 L90 49.65 L79.01 40.57 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M59.87 63.59 L40.13 63.59 L32.07 74.68 L37.31 87.93 L62.69 87.93 L67.93 74.68 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M40.13 63.59 L34.02 44.81 L20.99 40.57 L10 49.65 L17.85 73.79 L32.07 74.68 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M34.02 44.81 L50 33.2 L50 19.5 L37.97 11.85 L17.44 26.77 L20.99 40.57 Z"/>
+      <line x1="50" y1="19.5" x2="50" y2="3.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="79.01" y1="40.57" x2="94.22" y2="35.63" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="67.93" y1="74.68" x2="77.33" y2="87.62" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="32.07" y1="74.68" x2="22.67" y2="87.62" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="20.99" y1="40.57" x2="5.78" y2="35.63" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <circle cx="50" cy="50" r="46.5" fill="none" stroke="currentColor" stroke-width="2.5"/>
+  </svg>
+
+  <header class="topbar" aria-label="Roster map">
+    <div class="topbar-seg" aria-hidden="true">
+      <svg width="14" height="10" viewBox="0 0 14 10"><path d="M0 1h14M0 5h14M0 9h14" stroke="#111" stroke-width="1.4"/></svg>
+    </div>
+    <div class="topbar-title">Roster Map — UW Women's</div>
+    <button class="topbar-seg" type="button" id="infoBtn" title="About this prototype" aria-label="Info">i</button>
+  </header>
+
+  <!-- STRUCTURED -->
+  <section class="view-structured" id="viewStructured" aria-label="Structured view">
+    <div class="struct-intro">
+      <p class="struct-kicker">[ R-1 ] Recruits ↔ 2029 Lineup</p>
+      <h1 class="struct-headline">Select recruits or lineup spots to see fit connections. Click again to deselect — select several to compare at once.</h1>
+      <div class="struct-intro-actions">
+        <button type="button" class="btn" id="clearStructLinks" disabled title="Clear connection lines">Clear connections</button>
+      </div>
+    </div>
+    <div class="struct-board" id="structBoard">
+      <div class="struct-col is-left" id="structLeft"></div>
+      <div class="struct-node-col" id="structNodes"></div>
+      <div class="struct-col is-right" id="structRight"></div>
+    </div>
+  </section>
+
+  <!-- UNSTRUCTURED -->
+  <section class="view-unstructured" id="viewUnstructured" aria-label="Unstructured view">
+    <div class="map" id="map">
+      <div class="map-inner" id="mapInner">
+        <svg class="map-svg" id="edges" aria-hidden="true"></svg>
+        <div id="nodes"></div>
+      </div>
+    </div>
+    <p class="hint">
+      Click any node for details. Draw a line from <strong>Josie</strong> or <strong>Kai</strong> to the purple <strong>Huskies</strong> square to place them on the 2029 depth chart.
+      <br /><kbd>scroll</kbd> zoom · drag background to pan · click empty space to clear
+    </p>
+    <div class="fit-banner" id="fitBanner" role="status">
+      <p class="fit-banner-copy" id="fitBannerCopy"><strong>Recruit(s)</strong> on the 2029 depth chart.</p>
+      <button type="button" class="btn linkish" id="openDepthBanner">View depth</button>
+      <button type="button" class="btn danger" id="disconnectFitBanner">Disconnect all</button>
+    </div>
+    <div class="page" id="page">
+      <div class="artifact-stack" aria-hidden="true">
+        <div class="ghost g1"></div>
+        <div class="ghost g2"></div>
+        <div class="ghost g3"></div>
+      </div>
+      <article class="page-card theme-white" id="pageCard"></article>
+    </div>
+  </section>
+
+  <nav class="dock" aria-label="View modes">
+    <button class="dock-btn" type="button" id="dockPrev" title="Previous view" aria-label="Previous">
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M8 1L3 6l5 5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+    <button class="dock-btn" type="button" data-view="structured" title="Structured list" aria-label="Structured view" aria-pressed="false">
+      <svg width="16" height="14" viewBox="0 0 16 14">
+        <circle cx="2" cy="2.5" r="1.2" fill="currentColor"/>
+        <circle cx="2" cy="7" r="1.2" fill="currentColor"/>
+        <circle cx="2" cy="11.5" r="1.2" fill="currentColor"/>
+        <path d="M5 2.5h10M5 7h10M5 11.5h10" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+    </button>
+    <button class="dock-btn is-active" type="button" data-view="unstructured" title="Unstructured map" aria-label="Unstructured view" aria-pressed="true">
+      <svg width="15" height="14" viewBox="0 0 15 14">
+        <rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="6" y="5" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+    </button>
+    <button class="dock-btn" type="button" id="dockNext" title="Next view" aria-label="Next">
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const HOME = {
+      josie: { x: 240, y: 360 },
+      kai: { x: 760, y: 710 }
+    };
+    const VIEWS = ["structured", "unstructured"];
+
+    const PLAYERS = {
+      josie: {
+        id: "josie",
+        name: "Josie Smith",
+        short: "Josie",
+        defaultPos: "cam",
+        tag: "Recruit · AM",
+        slotClass: "is-josie",
+        park: { x: -120, y: 20 }
+      },
+      kai: {
+        id: "kai",
+        name: "Kai Mendoza",
+        short: "Kai",
+        defaultPos: "lw",
+        tag: "Recruit · Wing",
+        slotClass: "is-kai",
+        park: { x: -85, y: 78 }
+      }
+    };
+
+    /* Edge tips meet the shape centerline, then stop short so icons never sit on the stroke */
+    const EDGE_GAP = 5;
+    const SHAPE_RADIUS = {
+      triangle: 12,
+      square: 11,
+      "square-team": 13,
+      rect: 12,
+      circle: 11,
+      hex: 12,
+      "hex-outline": 12,
+      diamond: 11,
+      dot: 5,
+      ring: 12,
+      cross: 10,
+      pill: 12,
+      players: 14
+    };
+
+    const NODES = {
+      josie: {
+        id: "josie", cluster: "individual", x: 240, y: 360,
+        shape: "triangle", label: "Josie Smith", sub: "Recruit · Class of 2029",
+        type: "Player", typeLabel: "PLAYER", typeClass: "", code: "JS-29",
+        theme: "blue", draggable: true,
+        media: { kind: "portrait", bg: "linear-gradient(145deg, #2a2a28 0%, #6b6558 45%, #c4b8a4 100%)", visit: "Highlight reel ↗" },
+        meta: [["Position", "Attacking Mid"], ["Club", "Seattle United ECNL"], ["Hometown", "Bellevue, WA"], ["Grad year", "2029"]],
+        stats: [{ label: "Goals / Assists", value: "14 / 11" }, { label: "Height", value: "5'7\"" }, { label: "GPA", value: "3.9" }, { label: "ACT", value: "32" }],
+        chips: ["Left foot", "Press resistance", "Club captain"],
+        copy: "Two-way midfielder with high press recovery and composure in the final third. Coaches note her response after losses — resets quickly, lifts teammates.",
+        details: "Visited campus Feb 2026. Watched live at ECNL Phoenix showcase. Breakfast-test note: curious, grounded, asks about teammates’ majors.",
+        reading: "ECNL Phoenix clip · Seattle United season stats · Transcript summary",
+        connections: ["competitiveness", "work-ethic", "athleticism", "culture-fit", "academic", "financial", "history"]
+      },
+      /* Irregular radial layout — varied shapes (not a ring of circles) */
+      competitiveness: {
+        id: "competitiveness", cluster: "individual", x: 95, y: 220,
+        shape: "rect", num: "1", label: "Competitiveness", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "C-01", theme: "white",
+        copy: "Drive in big moments, willingness to take the ball in late phases, response when the scoreline turns.",
+        details: "Observed: won 1v1s late in a 1–1 draw; demanded the ball after a turnover.",
+        connections: ["josie", "history"]
+      },
+      "work-ethic": {
+        id: "work-ethic", cluster: "individual", x: 350, y: 190,
+        shape: "diamond", label: "Work Ethic", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "C-02", theme: "white",
+        copy: "Training habits, film study, off-ball recovery runs — the stuff that doesn’t show in highlight reels.",
+        details: "Club staff rate her among top 5% for session intensity.",
+        connections: ["josie"]
+      },
+      athleticism: {
+        id: "athleticism", cluster: "individual", x: 420, y: 340,
+        shape: "hex", label: "Athleticism", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "C-03", theme: "white",
+        copy: "Speed over 20–30m, change of direction, stamina across 90 minutes.",
+        details: "GPS average: 10.2 km/match. Explosive first step.",
+        connections: ["josie"]
+      },
+      "culture-fit": {
+        id: "culture-fit", cluster: "individual", x: 370, y: 510,
+        shape: "pill", label: "Culture Fit", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "C-04", theme: "dark",
+        copy: "How she sits in a locker room — coachability, peer leadership, the breakfast test.",
+        details: "Teammates describe her as the person who texts the group chat after a tough loss.",
+        connections: ["josie"]
+      },
+      academic: {
+        id: "academic", cluster: "individual", x: 115, y: 520,
+        shape: "square", label: "Academic", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "C-05", theme: "white",
+        copy: "Transcript strength, major interest, likelihood of thriving in UW coursework.",
+        details: "Interested in Public Health / Informatics. Weighted GPA 3.9.",
+        connections: ["josie"]
+      },
+      financial: {
+        id: "financial", cluster: "individual", x: 55, y: 370,
+        shape: "circle", solid: true, label: "Financial", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "C-06", theme: "white",
+        copy: "Aid package feasibility, competing offers, family cost sensitivity.",
+        details: "Exploring need-based + academic merit.",
+        connections: ["josie"]
+      },
+      history: {
+        id: "history", cluster: "individual", x: 20, y: 120,
+        shape: "cross", label: "History of Competitions Won", sub: "Signal",
+        type: "Signal", typeLabel: "SIGNAL", typeClass: "attr", code: "S-01", theme: "white",
+        copy: "State cup champion (2025). ECNL playoff appearances three consecutive years.",
+        details: "Useful as a competitiveness proxy when film is limited.",
+        connections: ["competitiveness"]
+      },
+
+      /* ——— Kai Mendoza: same six criteria, different radial order / shapes ——— */
+      kai: {
+        id: "kai", cluster: "individual-b", x: 760, y: 710,
+        shape: "diamond", filled: true, kai: true, label: "Kai Mendoza", sub: "Recruit · Class of 2029",
+        type: "Player", typeLabel: "PLAYER", typeClass: "", code: "KM-29",
+        theme: "blue", draggable: true,
+        media: { kind: "portrait", bg: "linear-gradient(145deg, #0d3a38 0%, #1a8a8a 50%, #9fd4cf 100%)", visit: "Highlight reel ↗" },
+        meta: [["Position", "Wing / Forward"], ["Club", "Crossfire ECNL"], ["Hometown", "Tacoma, WA"], ["Grad year", "2029"]],
+        stats: [{ label: "Goals / Assists", value: "18 / 7" }, { label: "Height", value: "5'6\"" }, { label: "GPA", value: "3.6" }, { label: "SAT", value: "1280" }],
+        chips: ["1v1 threat", "Right foot", "Transition speed"],
+        copy: "Direct wide forward who wins early duels and finishes from cutbacks. Less link-up midfielder than Josie — stronger pure replacement for Aisha’s wing minutes.",
+        details: "Staff saw her at ECNL SoCal. Family is open to Northwest; competing interest from Oregon and Santa Clara.",
+        reading: "Crossfire season tape · SoCal showcase notes · Aid worksheet",
+        connections: ["kai-athleticism", "kai-financial", "kai-culture-fit", "kai-competitiveness", "kai-work-ethic", "kai-academic", "kai-history", "kai-club"]
+      },
+      "kai-athleticism": {
+        id: "kai-athleticism", cluster: "individual-b", x: 620, y: 590,
+        shape: "hex", label: "Athleticism", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "K-03", theme: "white",
+        copy: "Speed over 20–30m, change of direction, stamina across 90 minutes — especially in wide channels.",
+        details: "GPS top speed 31.4 km/h; strong first step out of the press.",
+        connections: ["kai", "kai-club"]
+      },
+      "kai-financial": {
+        id: "kai-financial", cluster: "individual-b", x: 760, y: 560,
+        shape: "circle", solid: true, label: "Financial", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "K-06", theme: "white",
+        copy: "Aid package feasibility, competing offers, family cost sensitivity.",
+        details: "More aid-sensitive than Josie — package size may decide vs Oregon.",
+        connections: ["kai"]
+      },
+      "kai-culture-fit": {
+        id: "kai-culture-fit", cluster: "individual-b", x: 910, y: 600,
+        shape: "pill", label: "Culture Fit", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "K-04", theme: "dark",
+        copy: "How she sits in a locker room — coachability, peer leadership, the breakfast test.",
+        details: "Direct, competitive energy; staff note she lifts quieter teammates on travel days.",
+        connections: ["kai"]
+      },
+      "kai-competitiveness": {
+        id: "kai-competitiveness", cluster: "individual-b", x: 940, y: 730,
+        shape: "rect", num: "2", label: "Competitiveness", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "K-01", theme: "white",
+        copy: "Drive in big moments, willingness to take the ball in late phases, response when the scoreline turns.",
+        details: "Demands the ball in transition; hates sitting after a missed chance.",
+        connections: ["kai", "kai-history"]
+      },
+      "kai-work-ethic": {
+        id: "kai-work-ethic", cluster: "individual-b", x: 880, y: 850,
+        shape: "diamond", label: "Work Ethic", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "K-02", theme: "white",
+        copy: "Training habits, film study, off-ball recovery runs — the stuff that doesn’t show in highlight reels.",
+        details: "Tracks back hard on the weak side; club rates her session intensity highly.",
+        connections: ["kai"]
+      },
+      "kai-academic": {
+        id: "kai-academic", cluster: "individual-b", x: 620, y: 840,
+        shape: "square", label: "Academic", sub: "Criterion",
+        type: "Attribute", typeLabel: "CRITERION", typeClass: "attr", code: "K-05", theme: "white",
+        copy: "Transcript strength, major interest, likelihood of thriving in UW coursework.",
+        details: "GPA 3.6; interested in Business / Communications. Clears UW’s bar.",
+        connections: ["kai"]
+      },
+      "kai-history": {
+        id: "kai-history", cluster: "individual-b", x: 1040, y: 650,
+        shape: "cross", label: "History of Competitions Won", sub: "Signal",
+        type: "Signal", typeLabel: "SIGNAL", typeClass: "attr", code: "K-S1", theme: "white",
+        copy: "ECNL SoCal goal involvements and Crossfire playoff run — external validation beyond club season.",
+        details: "Useful competitiveness proxy when comparing wing profiles head-to-head with Josie’s AM tape.",
+        connections: ["kai-competitiveness"]
+      },
+      "kai-club": {
+        id: "kai-club", cluster: "individual-b", x: 510, y: 530,
+        shape: "ring", label: "Club Showcase Record", sub: "Signal",
+        type: "Signal", typeLabel: "SIGNAL", typeClass: "attr", code: "K-S2", theme: "white",
+        copy: "ECNL showcase minutes, ID camp invites, and live looks that put Kai on staff watchlists.",
+        details: "Strong SoCal showcase — several D1 staffs tracked her wing minutes live.",
+        connections: ["kai-athleticism"]
+      },
+
+      huskies: {
+        id: "huskies", cluster: "team", x: 1220, y: 130,
+        shape: "square-team", label: "2029 Huskies Roster", sub: "UW Women's Soccer",
+        type: "Team", typeLabel: "ROSTER", typeClass: "team", code: "UW-29", theme: "dark", dropTarget: true,
+        media: { kind: "grid", tiles: ["linear-gradient(120deg,#1a1a1a,#4a5560)","linear-gradient(160deg,#2c3a2e,#7a8f74)","linear-gradient(200deg,#3a3030,#8a7060)","linear-gradient(90deg,#222,#555)"] },
+        meta: [["Needs", "8–10 / cycle"], ["Style", "High press · 4-3-3"], ["Priority", "AM / Wing"]],
+        stats: [{ label: "Returning starters", value: "7" }, { label: "Open AM slots", value: "2" }, { label: "Roster target", value: "28" }, { label: "2029 commits", value: "3" }],
+        chips: ["Campus culture", "Academic rigor", "Northwest recruiting"],
+        copy: "The 2029 class picture: current players, committed recruits, and open needs. Draw a connection from Josie or Kai to this node to place them on the depth chart.",
+        details: "Soft spot: creative midfielders who can also press.",
+        reading: "Depth chart · Season review · Visit calendar",
+        connections: ["players", "budget", "values", "competitions", "rivals"]
+      },
+      players: {
+        id: "players", cluster: "team", x: 1050, y: 45,
+        shape: "players", label: "Current Team Players", sub: "On roster",
+        type: "Roster group", typeLabel: "GROUP", typeClass: "team", code: "TP-01", theme: "blue",
+        media: { kind: "grid", tiles: ["linear-gradient(145deg,#1e2420,#6d7f6a)","linear-gradient(145deg,#2a2230,#7a6a90)","linear-gradient(145deg,#2a2a28,#6b6558)","linear-gradient(145deg,#1a1a1a,#4a5560)"] },
+        meta: [["Count", "2 highlighted"], ["Focus", "Midfield pairing"]],
+        copy: "Players already in the program who shape how a 2029 recruit would fit day-to-day.",
+        details: "Maya Chen (Jr, CM) and Aisha Rahman (Sr, Wing) are the clearest connection points for an attacking mid like Josie.",
+        connections: ["huskies", "maya", "aisha"]
+      },
+      maya: {
+        id: "maya", cluster: "team", x: 910, y: 20,
+        shape: "hex-outline", num: "·", label: "Maya Chen", sub: "On roster · Jr · CM",
+        type: "Current player", typeLabel: "PLAYER", typeClass: "team", code: "MC-27", theme: "blue",
+        media: { kind: "portrait", bg: "linear-gradient(145deg,#1e2420,#6d7f6a)" },
+        meta: [["Position", "Central Mid"], ["Year", "Junior"], ["Minutes", "1,842"]],
+        chips: ["Pairs with Josie"],
+        copy: "Incumbent CM — technical distributor. A creative AM beside her unlocks underloaded half-spaces.",
+        details: "Complementary fit: Maya holds; Josie arrives late.",
+        connections: ["players", "huskies"]
+      },
+      aisha: {
+        id: "aisha", cluster: "team", x: 1095, y: 5,
+        shape: "diamond", filled: true, label: "Aisha Rahman", sub: "On roster · Sr · Wing",
+        type: "Current player", typeLabel: "PLAYER", typeClass: "team", code: "AR-26", theme: "dark",
+        media: { kind: "portrait", bg: "linear-gradient(145deg,#2a2230,#7a6a90)" },
+        meta: [["Position", "Wing"], ["Year", "Senior"], ["Minutes", "2,104"]],
+        copy: "Graduating attacker — leaves a creativity vacuum on the right side for 2029 planning.",
+        details: "Staff are modeling whether an AM who can drift wide covers this loss.",
+        connections: ["players", "huskies"]
+      },
+      budget: {
+        id: "budget", cluster: "team", x: 1380, y: 35,
+        shape: "circle", filled: true, label: "2029 Budget", sub: "Constraint",
+        type: "Team signal", typeLabel: "CONSTRAINT", typeClass: "team", code: "B-29", theme: "white",
+        copy: "Aid allocation across the 2029 class — how many packages can stretch to a player like Josie.",
+        details: "Placeholder: 3 meaningful packages remaining for field players.",
+        connections: ["huskies"]
+      },
+      values: {
+        id: "values", cluster: "team", x: 1405, y: 195,
+        shape: "hex", num: "·", label: "Team Values", sub: "Culture",
+        type: "Team signal", typeLabel: "CULTURE", typeClass: "team", code: "V-01", theme: "white",
+        copy: "Accountability, curiosity, competitive joy — language coaches use in living-room visits.",
+        details: "Culture prompt: “Tell us about a time you sat a teammate down.”",
+        connections: ["huskies"]
+      },
+      competitions: {
+        id: "competitions", cluster: "team", x: 1330, y: 330,
+        shape: "rect", label: "Upcoming Competitions", sub: "Calendar",
+        type: "Team signal", typeLabel: "CALENDAR", typeClass: "team", code: "K-01", theme: "white",
+        copy: "Showcase & campus visit windows that still matter for 2029 decisions.",
+        details: "ECNL SoCal · ID camp on campus · Fall unofficial visits.",
+        connections: ["huskies"]
+      },
+      rivals: {
+        id: "rivals", cluster: "team", x: 1085, y: 340,
+        shape: "ring", label: "Biggest Rivals", sub: "Landscape",
+        type: "Team signal", typeLabel: "LANDSCAPE", typeClass: "team", code: "R-01", theme: "white",
+        copy: "Programs competing for the same midfield profile — Stanford, UCLA, Santa Clara, Oregon.",
+        details: "Josie has taken unofficial visits to two of four.",
+        connections: ["huskies"]
+      }
+    };
+
+    const EDGES = [
+      { from: "josie", to: "competitiveness", style: "dashed", route: "soft" },
+      { from: "josie", to: "work-ethic", style: "dashed", route: "arc", bulge: 0.28 },
+      { from: "josie", to: "athleticism", style: "solid", route: "soft" },
+      { from: "josie", to: "culture-fit", style: "solid", route: "arc", bulge: -0.24 },
+      { from: "josie", to: "academic", style: "dashed", route: "arc", bulge: 0.18 },
+      { from: "josie", to: "financial", style: "solid", route: "soft" },
+      { from: "competitiveness", to: "history", style: "dashed", route: "elbow", elbow: "v" },
+      { from: "kai", to: "kai-athleticism", style: "solid", route: "soft" },
+      { from: "kai", to: "kai-financial", style: "solid", route: "arc", bulge: 0.22 },
+      { from: "kai", to: "kai-culture-fit", style: "dashed", route: "soft" },
+      { from: "kai", to: "kai-competitiveness", style: "dashed", route: "arc", bulge: -0.2 },
+      { from: "kai", to: "kai-work-ethic", style: "solid", route: "arc", bulge: 0.18 },
+      { from: "kai", to: "kai-academic", style: "dashed", route: "soft" },
+      { from: "kai-competitiveness", to: "kai-history", style: "dashed", route: "elbow", elbow: "h" },
+      { from: "kai-athleticism", to: "kai-club", style: "dashed", route: "elbow", elbow: "v" },
+      { from: "huskies", to: "players", style: "solid", route: "elbow", elbow: "h" },
+      { from: "players", to: "maya", style: "solid", route: "arc", bulge: 0.2 },
+      { from: "players", to: "aisha", style: "dashed", route: "soft" },
+      { from: "huskies", to: "budget", style: "solid", route: "arc", bulge: -0.26 },
+      { from: "huskies", to: "values", style: "dashed", route: "soft" },
+      { from: "huskies", to: "competitions", style: "dashed", route: "arc", bulge: 0.22 },
+      { from: "huskies", to: "rivals", style: "dashed", route: "soft" }
+      // Cross-cluster links only appear after a recruit is dropped onto the roster (fitMode)
+    ];
+
+    /* Formation depth chart — 4-3-3, attack at top */
+    const FORMATION = {
+      id: "4-3-3",
+      positions: [
+        { id: "lw",  label: "LW",  x: 22, y: 14 },
+        { id: "st",  label: "ST",  x: 50, y: 10 },
+        { id: "rw",  label: "RW",  x: 78, y: 14 },
+        { id: "lcm", label: "LCM", x: 28, y: 36 },
+        { id: "cam", label: "CAM", x: 50, y: 32 },
+        { id: "rcm", label: "RCM", x: 72, y: 36 },
+        { id: "lb",  label: "LB",  x: 16, y: 58 },
+        { id: "lcb", label: "LCB", x: 38, y: 62 },
+        { id: "rcb", label: "RCB", x: 62, y: 62 },
+        { id: "rb",  label: "RB",  x: 84, y: 58 },
+        { id: "gk",  label: "GK",  x: 50, y: 84 }
+      ]
+    };
+
+    const DEPTH_BASE = {
+      lw:  [{ name: "Aisha Rahman", tag: "Sr · graduating" }, { name: "Open", empty: true }],
+      st:  [{ name: "Nora Ellis", tag: "Potential · 2029" }, { name: "Open", empty: true }],
+      rw:  [{ name: "Open", empty: true }, { name: "Open", empty: true }],
+      lcm: [{ name: "Maya Chen", tag: "Jr · CM" }, { name: "Open", empty: true }],
+      cam: [{ name: "Open", empty: true }, { name: "Open", empty: true }],
+      rcm: [{ name: "Open", empty: true }],
+      lb:  [{ name: "Taylor Brooks", tag: "Current · Jr" }],
+      lcb: [{ name: "Jordan Lee", tag: "Committed · 2029" }, { name: "Open", empty: true }],
+      rcb: [{ name: "Open", empty: true }],
+      rb:  [{ name: "Open", empty: true }],
+      gk:  [{ name: "Riley Okonkwo", tag: "Committed · 2029" }, { name: "Sam Park", tag: "Current · So" }]
+    };
+
+    const FIT_PROFILE = {
+      title: "Josie × 2029 Huskies",
+      subtitle: "Roster fit preview",
+      type: "Fit analysis",
+      typeClass: "fit",
+      code: "FIT-01",
+      theme: "fit",
+      kicker: "OUTPUT [ FIT-01 ]",
+      media: { kind: "portrait", bg: "linear-gradient(120deg, #ff5f1f 0%, #5b4b8a 55%, #3d5a40 100%)", visit: "Compare depth ↗", visitAction: "depth" },
+      meta: [["Scenario", "Offer + AM depth"], ["Confidence", "High"], ["Risk", "Aid timing"]],
+      copy: "Josie plugs the creative midfield gap as Aisha graduates, while pairing with Maya Chen’s holding profile.",
+      bars: [
+        { label: "Tactical fit", score: 88 }, { label: "Culture fit", score: 92 },
+        { label: "Academic", score: 90 }, { label: "Roster need", score: 85 },
+        { label: "Financial", score: 70 }, { label: "Development", score: 86 }
+      ],
+      chips: [
+        { text: "Fills AM need", kind: "good" },
+        { text: "Pairs with Maya", kind: "good" },
+        { text: "Aid timing risk", kind: "warn" }
+      ],
+      details: "What-if: if Josie commits, staff can deprioritize two overlapping wing profiles.",
+      reading: "Depth chart delta · Rival offer tracker",
+      connections: ["josie", "huskies", "players", "maya", "aisha", "budget"],
+      showFitActions: true
+    };
+
+    const RECRUITS = [
+      {
+        id: "josie",
+        type: "AM",
+        title: "Josie Smith",
+        meta: "Seattle United ECNL · Class of 2029",
+        copy: "Creative attacking mid — press-resistant, late runs into the box. Strong academic profile. Natural fit ahead of Maya Chen; can also cover wing as Aisha graduates.",
+        fits: ["cam", "lw", "maya", "aisha-gap", "academic-fit"]
+      },
+      {
+        id: "kai",
+        type: "WING",
+        title: "Kai Mendoza",
+        meta: "Crossfire ECNL · Class of 2029",
+        copy: "Direct wide forward with 1v1 threat. Less link-up than Josie; stronger pure wing replacement for Aisha’s minutes.",
+        fits: ["lw", "rw", "aisha-gap", "st"]
+      },
+      {
+        id: "priya",
+        type: "CM",
+        title: "Priya Shah",
+        meta: "Washington Timbers · Class of 2029",
+        copy: "Box-to-box eight with high work rate. Could partner Maya rather than play ahead of her — different midfield geometry than Josie.",
+        fits: ["lcm", "rcm", "maya", "cam"]
+      },
+      {
+        id: "elena",
+        type: "ST",
+        title: "Elena Vargas",
+        meta: "Solar ECNL · Class of 2030",
+        copy: "Target forward / hold-up nine. Addresses striker depth more than the creative mid gap. Longer timeline (2030).",
+        fits: ["st", "lw"]
+      },
+      {
+        id: "morgan",
+        type: "DM",
+        title: "Morgan Blake",
+        meta: "PDA ECNL · Class of 2029",
+        copy: "Holding mid / destroyer profile. Stabilizes midfield if staff want Maya pushed higher — opposite problem from Josie’s AM need.",
+        fits: ["rcm", "lcm", "maya"]
+      },
+      {
+        id: "jordan-r",
+        type: "CB",
+        title: "Reese Okada",
+        meta: "Seattle Celtic · Class of 2029",
+        copy: "Left-sided center back. Helps defensive depth; not a solution for the AM/wing creativity gap.",
+        fits: ["lcb", "rcb", "lb"]
+      }
+    ];
+
+    const LINEUP = [
+      { id: "cam", type: "NEED", title: "CAM — Attacking Mid", meta: "Open · priority for 2029", copy: "Primary creative vacancy. Staff want a late runner who can press." },
+      { id: "lw", type: "GAP", title: "LW — Left Wing", meta: "Aisha Rahman graduating", copy: "Senior wing minutes coming off the board — need a wide or inverted attacker." },
+      { id: "rw", type: "NEED", title: "RW — Right Wing", meta: "Open", copy: "Secondary wide lane; less urgent than CAM/LW but still thin." },
+      { id: "st", type: "WATCH", title: "ST — Striker", meta: "Nora Ellis · potential", copy: "Forward depth in evaluation — not locked." },
+      { id: "maya", type: "ROSTER", title: "LCM — Maya Chen", meta: "Junior · on roster", copy: "Holding distributor. Needs a complementary AM who arrives late, not another holder." },
+      { id: "lcm", type: "NEED", title: "CM — Central Mid", meta: "Open depth", copy: "Additional midfield rotation behind Maya." },
+      { id: "rcm", type: "NEED", title: "RCM — Right 8", meta: "Open", copy: "Opposite-side midfielder; box-to-box or destroyer profiles compete here." },
+      { id: "aisha-gap", type: "GAP", title: "Attacking depth loss", meta: "Aisha · Sr wing", copy: "Creativity vacuum when she graduates — AM who can drift wide helps." },
+      { id: "lcb", type: "COMMIT", title: "LCB — Jordan Lee", meta: "Committed · 2029", copy: "Defensive commit already in the class picture." },
+      { id: "rcb", type: "NEED", title: "RCB — Center Back", meta: "Open", copy: "Still hunting CB depth for the cycle." },
+      { id: "lb", type: "ROSTER", title: "LB — Taylor Brooks", meta: "Junior · on roster", copy: "Returning fullback." },
+      { id: "academic-fit", type: "FILTER", title: "Academic / culture bar", meta: "UW constraint", copy: "Transcript + breakfast-test bar every 2029 offer has to clear." }
+    ];
+
+    const RECRUIT_MAP = Object.fromEntries(RECRUITS.map(r => [r.id, r]));
+    const LINEUP_MAP = Object.fromEntries(LINEUP.map(r => [r.id, r]));
+    const LEFT_IDS = RECRUITS.map(r => r.id);
+    const RIGHT_IDS = LINEUP.map(r => r.id);
+
+    const state = {
+      view: "unstructured",
+      active: null,
+      panelMode: "none",
+      fitMode: false,
+      depthPos: { josie: null, kai: null },
+      depthView: "combined", // combined | compare
+      activeDepthPlayer: "josie",
+      pan: { x: 0, y: 0 },
+      scale: 1,
+      dragging: null,
+      wiring: null,
+      panning: false,
+      panStart: null,
+      positions: {},
+      structSelected: new Set()
+    };
+
+    Object.values(NODES).forEach(n => { state.positions[n.id] = { x: n.x, y: n.y }; });
+
+    const mapEl = document.getElementById("map");
+    const mapInner = document.getElementById("mapInner");
+    const nodesEl = document.getElementById("nodes");
+    const edgesEl = document.getElementById("edges");
+    const pageCard = document.getElementById("pageCard");
+    const toast = document.getElementById("toast");
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function setView(view) {
+      if (!VIEWS.includes(view)) return;
+      state.view = view;
+      document.body.classList.toggle("mode-structured", view === "structured");
+      document.body.classList.toggle("mode-unstructured", view === "unstructured");
+      document.querySelectorAll(".dock-btn[data-view]").forEach(btn => {
+        const on = btn.dataset.view === view;
+        btn.classList.toggle("is-active", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      if (view === "structured") {
+        renderStructured();
+      } else {
+        centerMap();
+        renderNodes();
+        renderEdges();
+        dimNodes();
+      }
+      syncFitBanner();
+    }
+
+    function cycleView(dir) {
+      const i = VIEWS.indexOf(state.view);
+      setView(VIEWS[(i + dir + VIEWS.length) % VIEWS.length]);
+    }
+
+    document.querySelectorAll(".dock-btn[data-view]").forEach(btn => {
+      btn.addEventListener("click", () => setView(btn.dataset.view));
+    });
+    document.getElementById("dockPrev").addEventListener("click", () => cycleView(-1));
+    document.getElementById("dockNext").addEventListener("click", () => cycleView(1));
+    document.getElementById("infoBtn").addEventListener("click", () => {
+      showToast("Prototype — structured list ↔ unstructured map for Capstone demos");
+    });
+    document.getElementById("disconnectFitBanner").addEventListener("click", disconnectFit);
+    document.getElementById("openDepthBanner").addEventListener("click", () => openDepthPanel());
+    document.getElementById("clearStructLinks").addEventListener("click", clearStructConnections);
+
+    /* ——— Structured ——— */
+    function structItem(id) {
+      return RECRUIT_MAP[id] || LINEUP_MAP[id] || null;
+    }
+
+    function crossConnections(id) {
+      const recruit = RECRUIT_MAP[id];
+      if (recruit) return [...(recruit.fits || [])];
+      // Selecting a lineup row — fan back to recruits who fit there
+      return RECRUITS.filter(r => (r.fits || []).includes(id)).map(r => r.id);
+    }
+
+    function toggleStructSelection(id) {
+      if (state.structSelected.has(id)) state.structSelected.delete(id);
+      else state.structSelected.add(id);
+      renderStructured();
+    }
+
+    function clearStructConnections() {
+      if (!state.structSelected.size) return;
+      state.structSelected.clear();
+      renderStructured();
+      showToast("Connections cleared");
+    }
+
+    function syncStructClearBtn() {
+      const btn = document.getElementById("clearStructLinks");
+      if (!btn) return;
+      btn.disabled = state.structSelected.size === 0;
+    }
+
+    /** Endpoints linked by any current selection (for highlight), excluding the selected ids themselves */
+    function structLinkedSet() {
+      const linked = new Set();
+      state.structSelected.forEach(id => {
+        crossConnections(id).forEach(cid => {
+          if (!state.structSelected.has(cid)) linked.add(cid);
+        });
+      });
+      return linked;
+    }
+
+    /** Deduped edge pairs between selected nodes and their fits */
+    function structEdgePairs() {
+      const pairs = [];
+      const seen = new Set();
+      state.structSelected.forEach(id => {
+        const isLeft = LEFT_IDS.includes(id);
+        crossConnections(id).forEach(cid => {
+          const a = isLeft ? id : cid;
+          const b = isLeft ? cid : id;
+          // Only draw recruit ↔ lineup edges
+          if (!LEFT_IDS.includes(a) || !RIGHT_IDS.includes(b)) return;
+          const key = `${a}::${b}`;
+          if (seen.has(key)) return;
+          seen.add(key);
+          pairs.push([a, b]);
+        });
+      });
+      return pairs;
+    }
+
+    function ensureStructSvg() {
+      const board = document.getElementById("structBoard");
+      let svg = board.querySelector(":scope > .struct-links");
+      // Drop any leaked duplicates from earlier renders
+      board.querySelectorAll(".struct-links").forEach(el => {
+        if (el !== svg) el.remove();
+      });
+      document.querySelectorAll("#structNodes .struct-links").forEach(el => el.remove());
+      if (!svg) {
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.classList.add("struct-links");
+        svg.id = "structLinks";
+        svg.setAttribute("aria-hidden", "true");
+        board.appendChild(svg);
+      }
+      return svg;
+    }
+
+    function renderStructured() {
+      const left = document.getElementById("structLeft");
+      const right = document.getElementById("structRight");
+      const nodesCol = document.getElementById("structNodes");
+      const selected = state.structSelected;
+      const linked = structLinkedSet();
+
+      left.innerHTML = `
+        <div class="struct-head"><span>Pos</span><span>Recruit</span></div>
+        ${LEFT_IDS.map(id => structRowHTML(id, "left", selected, linked)).join("")}`;
+
+      right.innerHTML = `
+        <div class="struct-head"><span>2029 lineup</span><span>Status</span></div>
+        ${RIGHT_IDS.map(id => structRowHTML(id, "right", selected, linked)).join("")}`;
+
+      const maxRows = Math.max(LEFT_IDS.length, RIGHT_IDS.length);
+      nodesCol.innerHTML = `
+        <div class="struct-node-spacer"></div>
+        ${Array.from({ length: maxRows }, () => `<div class="struct-node-slot"></div>`).join("")}`;
+
+      left.querySelectorAll(".struct-row").forEach(row => attachRowHandlers(row));
+      right.querySelectorAll(".struct-row").forEach(row => attachRowHandlers(row));
+
+      injectGutterDots(selected, linked);
+      syncStructClearBtn();
+      // Double rAF so row expand/collapse layout settles before measuring dots
+      requestAnimationFrame(() => requestAnimationFrame(drawStructLinks));
+    }
+
+    function structRowHTML(id, side, selected, linked) {
+      const n = structItem(id);
+      if (!n) return "";
+      const isActive = selected.has(id);
+      const isLinked = linked.has(id);
+      const typeFirst = side === "left";
+      const expand = `<div class="struct-expand">${n.copy}</div>`;
+      const metaLine = n.meta ? `<div class="struct-meta-line">${n.meta}</div>` : "";
+      return `
+        <div class="struct-row ${isActive ? "is-active" : ""} ${isLinked ? "is-linked" : ""}" data-id="${id}" data-side="${side}">
+          <div class="struct-body">
+            <div class="struct-meta">
+              ${typeFirst
+                ? `<span class="struct-type">${n.type}</span><span class="struct-title">${n.title}</span>`
+                : `<span class="struct-title">${n.title}</span><span class="struct-type">${n.type}</span>`}
+            </div>
+            ${metaLine}
+            ${expand}
+          </div>
+        </div>`;
+    }
+
+    function injectGutterDots(selected, linked) {
+      const board = document.getElementById("structBoard");
+      board.querySelectorAll(".gutter-dot").forEach(el => el.remove());
+
+      const place = (ids, side) => {
+        ids.forEach(id => {
+          const row = document.querySelector(`.struct-row[data-id="${id}"]`);
+          if (!row) return;
+          const rect = row.getBoundingClientRect();
+          const boardRect = board.getBoundingClientRect();
+          const dot = document.createElement("button");
+          dot.className = `struct-dot gutter-dot ${selected.has(id) ? "is-active" : linked.has(id) ? "is-linked" : ""}`;
+          dot.dataset.id = id;
+          dot.type = "button";
+          dot.style.position = "absolute";
+          dot.style.top = (rect.top - boardRect.top + rect.height / 2 - 5) + "px";
+          dot.style.left = side === "left"
+            ? (boardRect.width / 2 - 28) + "px"
+            : (boardRect.width / 2 + 18) + "px";
+          dot.style.zIndex = "3";
+          dot.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleStructSelection(id);
+          });
+          board.appendChild(dot);
+        });
+      };
+      place(LEFT_IDS, "left");
+      place(RIGHT_IDS, "right");
+    }
+
+    function attachRowHandlers(row) {
+      row.addEventListener("click", () => {
+        toggleStructSelection(row.dataset.id);
+      });
+    }
+
+    function drawStructLinks() {
+      const board = document.getElementById("structBoard");
+      const svg = ensureStructSvg();
+      svg.style.position = "absolute";
+      svg.style.inset = "0";
+      svg.style.width = "100%";
+      svg.style.height = "100%";
+      svg.style.pointerEvents = "none";
+      svg.style.zIndex = "2";
+
+      const boardRect = board.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${boardRect.width} ${boardRect.height}`);
+      svg.setAttribute("width", boardRect.width);
+      svg.setAttribute("height", boardRect.height);
+
+      const pairs = structEdgePairs();
+      if (!pairs.length) {
+        svg.innerHTML = "";
+        return;
+      }
+
+      const centerOf = (id) => {
+        const dot = board.querySelector(`.gutter-dot[data-id="${id}"]`);
+        if (!dot) return null;
+        const b = dot.getBoundingClientRect();
+        return {
+          x: b.left - boardRect.left + b.width / 2,
+          y: b.top - boardRect.top + b.height / 2
+        };
+      };
+
+      svg.innerHTML = pairs.map(([from, to]) => {
+        const a = centerOf(from);
+        const b = centerOf(to);
+        if (!a || !b) return "";
+        return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" />`;
+      }).join("");
+    }
+
+    window.addEventListener("resize", () => {
+      if (state.view === "structured") {
+        renderStructured();
+      } else {
+        centerMap();
+      }
+    });
+
+    /* ——— Unstructured graph ——— */
+    function shapeHTML(node) {
+      const num = node.num != null ? `<span class="num">${node.num}</span>` : "";
+      switch (node.shape) {
+        case "triangle": return `<div class="shape triangle"></div>`;
+        case "square-team": return `<div class="shape square team"></div>`;
+        case "square": {
+          const cls = ["shape", "square"];
+          if (node.filled) cls.push("filled");
+          return `<div class="${cls.join(" ")}">${num}</div>`;
+        }
+        case "rect": return `<div class="shape rect">${num}</div>`;
+        case "hex": return `<div class="shape hex">${num}</div>`;
+        case "hex-outline": return `<div class="shape hex outline">${num}</div>`;
+        case "diamond": {
+          const cls = ["shape", "diamond"];
+          if (node.kai) cls.push("kai");
+          else if (node.filled) cls.push("filled");
+          return `<div class="${cls.join(" ")}"></div>`;
+        }
+        case "cross": return `<div class="shape cross"></div>`;
+        case "pill": return `<div class="shape pill"></div>`;
+        case "dot": return `<div class="shape dot"></div>`;
+        case "ring": return `<div class="shape ring"></div>`;
+        case "players": return `<div class="shape players"><i></i><i></i><i></i></div>`;
+        default: {
+          const cls = ["shape", "circle"];
+          if (node.filled) cls.push("filled");
+          if (node.solid) cls.push("solid-fill");
+          return `<div class="${cls.join(" ")}">${num}</div>`;
+        }
+      }
+    }
+
+    function renderNodes() {
+      nodesEl.innerHTML = Object.values(NODES).map(n => {
+        const pos = state.positions[n.id];
+        const hub = PLAYERS[n.id] || n.id === "huskies" ? "is-hub" : "";
+        const active = state.active === n.id || (state.fitMode && (PLAYERS[n.id] || n.id === "huskies" || n.id === "players")) ? "is-active" : "";
+        return `
+          <button class="node ${hub} ${active}" data-id="${n.id}"
+            style="left:${pos.x}px;top:${pos.y}px" title="${n.label}">
+            ${shapeHTML(n)}
+            <span class="label">
+              <span class="label-title">${n.label}</span>
+              <span class="label-sub">${n.sub || ""}</span>
+            </span>
+          </button>`;
+      }).join("");
+
+      nodesEl.querySelectorAll(".node").forEach(el => {
+        const id = el.dataset.id;
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (state._blockClick) {
+            state._blockClick = false;
+            return;
+          }
+          selectNode(id);
+        });
+        if (PLAYERS[id]) {
+          el.addEventListener("pointerdown", (e) => startWire(e, id));
+        }
+      });
+    }
+
+    function shapeRadius(id) {
+      const n = NODES[id];
+      return (n && SHAPE_RADIUS[n.shape]) || 11;
+    }
+
+    /* Pull endpoints back so the stroke aims at the shape center but stops before overlapping it */
+    function insetPair(ax, ay, bx, by, fromId, toId) {
+      const dx = bx - ax;
+      const dy = by - ay;
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
+      const ra = shapeRadius(fromId) + EDGE_GAP;
+      const rb = shapeRadius(toId) + EDGE_GAP;
+      if (len <= ra + rb + 2) {
+        return { x1: ax + ux * (len * 0.35), y1: ay + uy * (len * 0.35), x2: bx - ux * (len * 0.35), y2: by - uy * (len * 0.35) };
+      }
+      return {
+        x1: ax + ux * ra,
+        y1: ay + uy * ra,
+        x2: bx - ux * rb,
+        y2: by - uy * rb
+      };
+    }
+
+    function elbowPath(ax, ay, bx, by, fromId, toId, mode) {
+      const dx = Math.abs(bx - ax);
+      const dy = Math.abs(by - ay);
+      const horizFirst = mode === "h" || (mode !== "v" && dx >= dy);
+      const ra = shapeRadius(fromId) + EDGE_GAP;
+      const rb = shapeRadius(toId) + EDGE_GAP;
+
+      let x1, y1, x2, y2, midX, midY;
+      if (horizFirst) {
+        midX = (ax + bx) / 2;
+        midY = ay;
+        // start travels horizontally toward mid
+        const dir = Math.sign(midX - ax) || Math.sign(bx - ax) || 1;
+        x1 = ax + dir * ra;
+        y1 = ay;
+        // end arrives horizontally from mid
+        const dirEnd = Math.sign(bx - midX) || Math.sign(bx - ax) || 1;
+        x2 = bx - dirEnd * rb;
+        y2 = by;
+        const r = Math.min(16, Math.abs(midX - x1) * 0.5, Math.abs(by - ay) * 0.4);
+        if (r < 5 || Math.abs(by - ay) < 10) {
+          return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${by} L ${x2} ${y2}`;
+        }
+        const sy = by >= ay ? 1 : -1;
+        const sx = bx >= ax ? 1 : -1;
+        return `M ${x1} ${y1} L ${midX - sx * r} ${y1} Q ${midX} ${y1} ${midX} ${y1 + sy * r} L ${midX} ${by - sy * r} Q ${midX} ${by} ${midX + sx * r} ${by} L ${x2} ${y2}`;
+      }
+
+      midY = (ay + by) / 2;
+      midX = ax;
+      const dir = Math.sign(midY - ay) || Math.sign(by - ay) || 1;
+      x1 = ax;
+      y1 = ay + dir * ra;
+      const dirEnd = Math.sign(by - midY) || Math.sign(by - ay) || 1;
+      x2 = bx;
+      y2 = by - dirEnd * rb;
+      const r = Math.min(16, Math.abs(midY - y1) * 0.5, Math.abs(bx - ax) * 0.4);
+      if (r < 5 || Math.abs(bx - ax) < 10) {
+        return `M ${x1} ${y1} L ${x1} ${midY} L ${bx} ${midY} L ${x2} ${y2}`;
+      }
+      const sx = bx >= ax ? 1 : -1;
+      const sy = by >= ay ? 1 : -1;
+      return `M ${x1} ${y1} L ${x1} ${midY - sy * r} Q ${x1} ${midY} ${x1 + sx * r} ${midY} L ${bx - sx * r} ${midY} Q ${bx} ${midY} ${bx} ${midY + sy * r} L ${x2} ${y2}`;
+    }
+
+    function arcPath(x1, y1, x2, y2, bulge) {
+      const mx = (x1 + x2) / 2;
+      const my = (y1 + y2) / 2;
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len = Math.hypot(dx, dy) || 1;
+      const amp = (bulge != null ? bulge : 0.22) * len;
+      const cx = mx - (dy / len) * amp;
+      const cy = my + (dx / len) * amp;
+      return `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+    }
+
+    function softPath(x1, y1, x2, y2) {
+      const mx = (x1 + x2) / 2;
+      return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+    }
+
+    function edgePath(e, a, b) {
+      const route = e.route || (e.style === "fit-edge" ? "elbow" : "soft");
+      if (route === "elbow") {
+        return elbowPath(a.x, a.y, b.x, b.y, e.from, e.to, e.elbow);
+      }
+      const { x1, y1, x2, y2 } = insetPair(a.x, a.y, b.x, b.y, e.from, e.to);
+      if (route === "arc") return arcPath(x1, y1, x2, y2, e.bulge);
+      if (route === "straight") return `M ${x1} ${y1} L ${x2} ${y2}`;
+      return softPath(x1, y1, x2, y2);
+    }
+
+    function renderEdges() {
+      const w = 1520, h = 1020;
+      edgesEl.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      edgesEl.style.width = w + "px";
+      edgesEl.style.height = h + "px";
+
+      const active = state.active;
+      const connected = new Set();
+      if (active && NODES[active]) {
+        (NODES[active].connections || []).forEach(id => connected.add(id));
+        connected.add(active);
+      }
+
+      const edgeList = [...EDGES].filter(e => {
+        // Cross-cluster edges only after a recruit is dropped onto the roster
+        if (state.fitMode) return true;
+        const aNode = NODES[e.from];
+        const bNode = NODES[e.to];
+        return aNode && bNode && aNode.cluster === bNode.cluster;
+      });
+      if (state.fitMode) {
+        if (state.depthPos.josie) {
+          edgeList.push(
+            { from: "josie", to: "huskies", style: "fit-edge", route: "elbow", id: "fit-josie" },
+            { from: "josie", to: "maya", style: "fit-edge", route: "arc", bulge: 0.18, id: "fit-maya" },
+            { from: "josie", to: "players", style: "dashed", route: "soft", id: "fit-players" }
+          );
+        }
+        if (state.depthPos.kai) {
+          edgeList.push(
+            { from: "kai", to: "huskies", style: "fit-edge", route: "soft", id: "fit-kai" },
+            { from: "kai", to: "aisha", style: "fit-edge", route: "arc", bulge: -0.2, id: "fit-aisha" },
+            { from: "kai", to: "players", style: "dashed", route: "soft", id: "fit-kai-players" }
+          );
+        }
+      }
+
+      edgesEl.innerHTML = edgeList.map(e => {
+        const a = state.positions[e.from];
+        const b = state.positions[e.to];
+        if (!a || !b) return "";
+        let cls = "edge";
+        if (e.style === "dashed") cls += " dashed";
+        if (e.style === "muted") cls += " muted dashed";
+        if (e.style === "fit-edge") cls += " fit-edge";
+
+        const involves = !active || state.fitMode || e.from === active || e.to === active ||
+          (connected.has(e.from) && connected.has(e.to));
+        if (active && !state.fitMode && !involves) cls += " dimmed";
+        else if (active && (e.from === active || e.to === active)) cls += " lit";
+
+        return `<path class="${cls}" d="${edgePath(e, a, b)}" fill="none" />`;
+      }).join("");
+
+      if (state.wiring) {
+        const from = state.positions[state.wiring.id];
+        if (from) {
+          edgesEl.innerHTML += `<path class="edge wire-preview" d="M ${from.x} ${from.y} L ${state.wiring.x} ${state.wiring.y}" fill="none" />`;
+        }
+      }
+    }
+
+    function rosteredIds() {
+      return Object.keys(PLAYERS).filter(id => state.depthPos[id]);
+    }
+
+    function anyRostered() {
+      return rosteredIds().length > 0;
+    }
+
+    function syncFitMode() {
+      state.fitMode = anyRostered();
+      if (!state.fitMode) state.depthView = "combined";
+    }
+
+    function dimNodes() {
+      const active = state.active;
+      const connected = new Set(active && NODES[active] ? NODES[active].connections || [] : []);
+      if (active) connected.add(active);
+      if (state.fitMode) {
+        rosteredIds().forEach(id => connected.add(id));
+        ["huskies", "players", "maya", "aisha", "budget", "values"].forEach(id => connected.add(id));
+      }
+      nodesEl.querySelectorAll(".node").forEach(el => {
+        const id = el.dataset.id;
+        el.classList.toggle("dimmed", !!active && !state.fitMode && !connected.has(id));
+        el.classList.toggle(
+          "is-active",
+          !!active && (id === active || (state.fitMode && (PLAYERS[id] || id === "huskies" || id === "players")))
+        );
+      });
+    }
+
+    function depthRoster(onlyId = null) {
+      const chart = {};
+      Object.keys(DEPTH_BASE).forEach(pos => {
+        chart[pos] = DEPTH_BASE[pos].map(s => ({ ...s }));
+      });
+      const inject = (playerId) => {
+        if (onlyId && playerId !== onlyId) return;
+        const pos = state.depthPos[playerId];
+        if (!pos || !chart[pos]) return;
+        const p = PLAYERS[playerId];
+        const slots = chart[pos];
+        const slot = { name: p.name, tag: p.tag, recruit: playerId };
+        const emptyIdx = slots.findIndex(s => s.empty);
+        if (emptyIdx >= 0) slots[emptyIdx] = slot;
+        else slots.unshift(slot);
+      };
+      inject("josie");
+      inject("kai");
+      return chart;
+    }
+
+    function depthNoteText() {
+      const ids = rosteredIds();
+      if (!ids.length) return "No recruits on the depth chart yet.";
+      const bits = ids.map(id => {
+        const pos = state.depthPos[id];
+        const label = FORMATION.positions.find(p => p.id === pos)?.label || pos.toUpperCase();
+        return `<strong>${PLAYERS[id].short}</strong> at ${label}`;
+      });
+      if (ids.length === 2 && state.depthView === "compare") {
+        return `Side-by-side: ${bits.join(" · ")}. Click a position on either pitch to move that recruit.`;
+      }
+      if (ids.length === 2) {
+        return `Combined roster: ${bits.join(" and ")}. Click a position to place <strong>${PLAYERS[state.activeDepthPlayer].short}</strong> there — or switch the active recruit above.`;
+      }
+      const id = ids[0];
+      const notes = {
+        josie: {
+          cam: "Natural AM fit ahead of Maya Chen.",
+          lw: "Alternate lane — covers Aisha’s graduating wing minutes.",
+          rw: "Alternate wing — opens a different attacking pattern.",
+          st: "Higher line — more goal threat, less link-up with Maya."
+        },
+        kai: {
+          lw: "Natural wing replacement as Aisha graduates.",
+          rw: "Opposite wing — stretches the back line the other way.",
+          st: "Pushed central — more finisher, less wide 1v1.",
+          cam: "Crowds Josie’s AM lane — useful only as a what-if."
+        }
+      };
+      const pos = state.depthPos[id];
+      const label = FORMATION.positions.find(p => p.id === pos)?.label || pos;
+      const extra = (notes[id] && notes[id][pos]) || "Click another position to try a different lane.";
+      return `${PLAYERS[id].name} is on the <strong>2029 depth chart at ${label}</strong>. ${extra}`;
+    }
+
+    function pitchHTML(chart, { playerId = null, title = null } = {}) {
+      const positions = FORMATION.positions.map(p => {
+        const slots = chart[p.id] || [];
+        const hasJosie = slots.some(s => s.recruit === "josie");
+        const hasKai = slots.some(s => s.recruit === "kai");
+        const cls = ["pitch-pos"];
+        if (hasJosie) cls.push("has-josie");
+        if (hasKai) cls.push("has-kai");
+        const who = playerId ? PLAYERS[playerId].short : "recruit";
+        return `
+          <button type="button" class="${cls.join(" ")}" data-pos="${p.id}" ${playerId ? `data-player="${playerId}"` : ""} style="left:${p.x}%;top:${p.y}%" title="Place ${who} at ${p.label}">
+            <div class="pitch-pos-label">${p.label}</div>
+            <div class="pitch-slots">
+              ${slots.map(s => {
+                if (s.recruit) {
+                  const pl = PLAYERS[s.recruit];
+                  return `<div class="pitch-slot ${pl.slotClass}">${pl.name}<span class="slot-tag">${s.tag}</span></div>`;
+                }
+                if (s.empty) return `<div class="pitch-slot is-empty">Open</div>`;
+                return `<div class="pitch-slot">${s.name}<span class="slot-tag">${s.tag || ""}</span></div>`;
+              }).join("")}
+            </div>
+          </button>`;
+      }).join("");
+
+      const legendRecruit = playerId
+        ? `<span class="lg-${playerId}">${PLAYERS[playerId].short} (dropped)</span>`
+        : `${rosteredIds().includes("josie") ? `<span class="lg-josie">Josie</span>` : ""}${rosteredIds().includes("kai") ? `<span class="lg-kai">Kai</span>` : ""}`;
+
+      return `
+        ${title ? `<div class="depth-pane-title ${playerId ? `is-${playerId}` : ""}">${title}</div>` : ""}
+        <div class="pitch-wrap">
+          <div class="pitch">
+            <div class="pitch-markings">
+              <div class="pitch-box-top"></div>
+              <div class="pitch-box-bot"></div>
+            </div>
+            ${positions}
+          </div>
+          <div class="pitch-legend">
+            <span class="lg-starter">On roster / commit</span>
+            <span class="lg-open">Open need</span>
+            ${legendRecruit}
+          </div>
+        </div>`;
+    }
+
+    function depthToolbarHTML() {
+      const ids = rosteredIds();
+      const both = ids.length === 2;
+      const viewSeg = both ? `
+        <div class="seg" role="group" aria-label="Depth chart layout">
+          <button type="button" data-depth-view="combined" class="${state.depthView === "combined" ? "is-on" : ""}">Combined</button>
+          <button type="button" data-depth-view="compare" class="${state.depthView === "compare" ? "is-on" : ""}">Side by side</button>
+        </div>` : "";
+      const placeSeg = (both && state.depthView === "combined") ? `
+        <span class="place-label">Place</span>
+        <div class="seg" role="group" aria-label="Active recruit">
+          ${ids.map(id => `
+            <button type="button" data-active-player="${id}" class="${state.activeDepthPlayer === id ? "is-on" : ""}">${PLAYERS[id].short}</button>
+          `).join("")}
+        </div>` : "";
+      const removeBtns = ids.map(id => `
+        <button type="button" class="btn danger" data-remove-player="${id}">Remove ${PLAYERS[id].short}</button>
+      `).join("");
+      return `<div class="depth-toolbar">${viewSeg}${placeSeg}${removeBtns}</div>`;
+    }
+
+    function depthTrayHTML(playerId = null) {
+      const ids = playerId ? [playerId] : rosteredIds();
+      if (!ids.length) return "";
+      return `
+        <div class="pitch-tray" id="pitchTray">
+          <div class="pitch-tray-label">Drag onto a pitch position</div>
+          ${ids.map(id => {
+            const pos = state.depthPos[id];
+            const label = FORMATION.positions.find(p => p.id === pos)?.label || "";
+            return `<div class="player-chip ${PLAYERS[id].slotClass}" draggable="true" data-chip-player="${id}">
+              ${PLAYERS[id].name}<span class="chip-pos">${label}</span>
+            </div>`;
+          }).join("")}
+        </div>`;
+    }
+
+    function depthChartHTML() {
+      const ids = rosteredIds();
+      if (ids.length === 2 && state.depthView === "compare") {
+        return `
+          ${depthToolbarHTML()}
+          <div class="depth-note">${depthNoteText()}</div>
+          <div class="depth-compare">
+            <div>${depthTrayHTML("josie")}${pitchHTML(depthRoster("josie"), { playerId: "josie", title: "Josie Smith" })}</div>
+            <div>${depthTrayHTML("kai")}${pitchHTML(depthRoster("kai"), { playerId: "kai", title: "Kai Mendoza" })}</div>
+          </div>`;
+      }
+      return `
+        ${depthToolbarHTML()}
+        <div class="depth-note">${depthNoteText()}</div>
+        ${depthTrayHTML()}
+        ${pitchHTML(depthRoster())}`;
+    }
+
+    function placeRecruitAtPos(playerId, pos) {
+      if (!PLAYERS[playerId] || !pos || !state.depthPos[playerId]) return;
+      if (state.depthPos[playerId] === pos) return;
+      state.depthPos[playerId] = pos;
+      state.activeDepthPlayer = playerId;
+      refreshDepthPanel();
+      showToast(`${PLAYERS[playerId].short} → ${FORMATION.positions.find(p => p.id === pos)?.label}`);
+    }
+
+    function bindDepthInteractions() {
+      pageCard.querySelectorAll("[data-depth-view]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.depthView = btn.dataset.depthView;
+          if (state.depthView === "compare") document.body.classList.add("compare-open");
+          else document.body.classList.remove("compare-open");
+          refreshDepthPanel();
+        });
+      });
+      pageCard.querySelectorAll("[data-active-player]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.activeDepthPlayer = btn.dataset.activePlayer;
+          refreshDepthPanel();
+        });
+      });
+      pageCard.querySelectorAll("[data-remove-player]").forEach(btn => {
+        btn.addEventListener("click", () => disconnectPlayer(btn.dataset.removePlayer));
+      });
+      pageCard.querySelectorAll(".pitch-pos").forEach(el => {
+        el.addEventListener("click", () => {
+          const pos = el.dataset.pos;
+          const playerId = el.dataset.player || (rosteredIds().length === 1 ? rosteredIds()[0] : state.activeDepthPlayer);
+          placeRecruitAtPos(playerId, pos);
+        });
+        el.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          el.classList.add("is-drop");
+        });
+        el.addEventListener("dragleave", () => el.classList.remove("is-drop"));
+        el.addEventListener("drop", (e) => {
+          e.preventDefault();
+          el.classList.remove("is-drop");
+          const playerId = e.dataTransfer.getData("text/player") || el.dataset.player;
+          placeRecruitAtPos(playerId, el.dataset.pos);
+        });
+      });
+      pageCard.querySelectorAll("[data-chip-player]").forEach(el => {
+        el.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/player", el.dataset.chipPlayer);
+          e.dataTransfer.effectAllowed = "move";
+          el.classList.add("is-dragging");
+        });
+        el.addEventListener("dragend", () => el.classList.remove("is-dragging"));
+      });
+      pageCard.querySelectorAll(".pitch-slot.is-josie, .pitch-slot.is-kai").forEach(el => {
+        el.setAttribute("draggable", "true");
+        el.style.cursor = "grab";
+        el.addEventListener("dragstart", (e) => {
+          const id = el.classList.contains("is-josie") ? "josie" : "kai";
+          e.dataTransfer.setData("text/player", id);
+          e.dataTransfer.effectAllowed = "move";
+          el.classList.add("is-dragging");
+        });
+        el.addEventListener("dragend", () => el.classList.remove("is-dragging"));
+      });
+    }
+
+    function refreshDepthPanel() {
+      openDepthPanel({ silent: true });
+    }
+
+    function placePlayerOnRoster(id) {
+      if (!PLAYERS[id]) return;
+      state.depthPos[id] = state.depthPos[id] || PLAYERS[id].defaultPos;
+      state.activeDepthPlayer = id;
+      syncFitMode();
+      if (rosteredIds().length === 2) state.depthView = state.depthView || "combined";
+      openDepthPanel();
+    }
+
+    function openDepthPanel({ silent = false } = {}) {
+      syncFitMode();
+      if (!state.fitMode) return clearPanel();
+      state.panelMode = "depth";
+      const ids = rosteredIds();
+      if (!ids.includes(state.activeDepthPlayer)) state.activeDepthPlayer = ids[0];
+      state.active = state.activeDepthPlayer;
+      document.body.classList.add("depth-open");
+      document.body.classList.toggle("compare-open", state.depthView === "compare" && ids.length === 2);
+
+      const names = ids.map(id => PLAYERS[id].short).join(" + ");
+      const subtitle = ids.length === 2
+        ? (state.depthView === "compare" ? "Side-by-side what-if · 4-3-3" : "Combined 2029 roster · 4-3-3")
+        : `4-3-3 · ${PLAYERS[ids[0]].name} linked to the roster`;
+
+      renderPanel({
+        title: "2029 Depth Chart",
+        subtitle,
+        type: "Depth comparison",
+        typeLabel: "DEPTH",
+        code: "DC-29",
+        theme: "fit",
+        copy: ids.length === 2
+          ? "Both recruits are linked to the Huskies cluster. Use Combined to see them on one pitch, or Side by side to compare each scenario alone. Drag chips onto positions to rearrange."
+          : `Linked by drawing a line from ${PLAYERS[ids[0]].short} to the Huskies cluster. Drag their chip onto a position — or draw a line from the other recruit to compare.`,
+        depthHTML: depthChartHTML(),
+        showDepthActions: true,
+        hideAccordion: true
+      });
+      bindDepthInteractions();
+      renderNodes(); renderEdges(); dimNodes();
+      syncFitBanner();
+      if (!silent) showToast(`${names} on the 2029 depth chart`);
+    }
+
+    function themeClass(theme) {
+      if (theme === "dark") return "theme-dark";
+      if (theme === "fit") return "theme-fit";
+      if (theme === "blue") return "theme-blue";
+      return "theme-white";
+    }
+
+    function typeMarkFor(data) {
+      const t = (data.typeLabel || data.type || "").toUpperCase();
+      if (t.includes("PLAYER") || data.shape === "triangle" || data.shape === "diamond") return "▲";
+      if (t.includes("ROSTER") || t.includes("TEAM") || data.shape === "square-team") return "■";
+      if (t.includes("DEPTH")) return "◆";
+      if (t.includes("CRITERION") || t.includes("SIGNAL") || t.includes("ATTRIBUTE")) return "●";
+      return "▲";
+    }
+
+    function indexDotClass(data) {
+      if (data.id === "kai" || data.kai) return "is-kai";
+      if (data.id === "huskies" || (data.typeLabel || "").toUpperCase() === "ROSTER") return "is-team";
+      if (data.theme === "fit" || (data.typeLabel || "").toUpperCase() === "DEPTH") return "is-fit";
+      return "";
+    }
+
+    function clearPanel() {
+      state.active = null;
+      state.panelMode = "none";
+      state.fitMode = false;
+      state.depthPos = { josie: null, kai: null };
+      state.depthView = "combined";
+      Object.keys(PLAYERS).forEach(id => {
+        if (HOME[id]) state.positions[id] = { ...HOME[id] };
+      });
+      document.body.classList.remove("panel-open", "depth-open", "compare-open");
+      pageCard.innerHTML = "";
+      pageCard.className = "page-card theme-white";
+      renderNodes();
+      renderEdges();
+      dimNodes();
+      syncFitBanner();
+      centerMap();
+    }
+
+    function showPanel() {
+      document.body.classList.add("panel-open");
+      centerMap();
+    }
+
+    function renderPanel(data) {
+      showPanel();
+      pageCard.className = `page-card ${themeClass(data.theme)}`;
+
+      const media = data.media;
+      let mediaHTML = "";
+      if (media && media.kind === "grid") {
+        mediaHTML = `<div class="page-media"><div class="page-media-grid">${media.tiles.map(t => `<span style="background-image:${t}"></span>`).join("")}</div></div>`;
+      } else if (media && media.kind === "portrait") {
+        const visitAttr = media.visitAction ? `data-visit-action="${media.visitAction}"` : "";
+        mediaHTML = `
+          <div class="page-media">
+            <div class="page-media-bg" style="background-image:${media.bg}"></div>
+            ${media.visit ? `<button type="button" class="visit-chip" ${visitAttr}>${media.visit}</button>` : ""}
+          </div>`;
+      }
+
+      const stats = data.stats ? `<div class="stat-grid">${data.stats.map(s => `<div class="stat"><div class="stat-label">${s.label}</div><div class="stat-value">${s.value}</div></div>`).join("")}</div>` : "";
+      const bars = data.bars ? `<div class="fit-bars">${data.bars.map(b => `<div class="fit-row"><span>${b.label}</span><div class="fit-track"><div class="fit-fill" data-score="${b.score}"></div></div><span class="fit-score">${b.score}</span></div>`).join("")}</div>` : "";
+      const chips = data.chips ? `<div class="chip-row">${data.chips.map(c => typeof c === "string" ? `<span class="chip">${c}</span>` : `<span class="chip ${c.kind || ""}">${c.text}</span>`).join("")}</div>` : "";
+      const meta = data.meta ? `<div class="meta-row">${data.meta.map(([k, v]) => `<span>${k} <strong>${v}</strong></span>`).join("")}</div>` : "";
+      const actions = data.showFitActions ? `<div class="action-row"><button type="button" class="btn primary" id="compareDepth">View depth chart</button><button type="button" class="btn danger" id="disconnectFit">Disconnect</button></div>` : "";
+      const depthActions = data.showDepthActions ? `<div class="action-row"><button type="button" class="btn danger" id="disconnectFit">Disconnect all</button></div>` : "";
+      const rosterLink = data.showRosterLink ? `<div class="action-row"><button type="button" class="btn primary" id="compareDepth">View depth chart</button></div>` : "";
+      const connIds = data.connections || [];
+      const connHTML = connIds.length ? `<ul class="conn-list">${connIds.map(id => NODES[id] ? `<li><span class="mini"></span>${NODES[id].label}</li>` : "").join("")}</ul>` : "<p>No linked nodes.</p>";
+      const typeLabel = (data.typeLabel || data.type || "ITEM").toUpperCase();
+      const subLine = (data.subtitle || data.sub)
+        ? `<p class="page-subtitle">${String(data.subtitle || data.sub).toUpperCase()}</p>`
+        : "";
+
+      pageCard.innerHTML = `
+        <div class="page-index">
+          <div class="page-index-left">
+            <span class="page-index-dot ${indexDotClass(data)}"></span>
+            <span>Index</span>
+          </div>
+          <button type="button" id="resetView" aria-label="Back">←</button>
+        </div>
+        ${mediaHTML}
+        <div class="page-typebar">
+          <div class="page-typebar-left">
+            <span class="page-type-mark">${typeMarkFor(data)}</span>
+            <span>${typeLabel}</span>
+          </div>
+          ${data.code ? `<span>${data.code}</span>` : ""}
+        </div>
+        <div class="page-body">
+          <h1 class="page-title">${data.title || data.label}</h1>
+          ${subLine}
+          ${actions}${depthActions}${rosterLink}
+          ${meta}
+          <p class="page-copy">${data.copy || ""}</p>
+          ${data.showFitActions || data.media?.visitAction === "depth" ? `<button type="button" class="page-link" id="findOutMore">Find out more</button>` : ""}
+          ${stats}${bars}${chips}
+          ${data.depthHTML || ""}
+          ${data.hideAccordion ? "" : `
+          <div class="accordion">
+            <div class="acc-item open"><button class="acc-head" type="button"><span>Details</span><span class="acc-toggle"></span></button><div class="acc-body">${data.details || "—"}</div></div>
+            <div class="acc-item"><button class="acc-head" type="button"><span>Further reading</span><span class="acc-toggle"></span></button><div class="acc-body">${data.reading || "—"}</div></div>
+            <div class="acc-item"><button class="acc-head" type="button"><span>Connections</span><span class="acc-toggle"></span></button><div class="acc-body">${connHTML}</div></div>
+          </div>`}
+        </div>`;
+
+      pageCard.querySelectorAll(".acc-head").forEach(btn => {
+        btn.addEventListener("click", () => btn.parentElement.classList.toggle("open"));
+      });
+      pageCard.querySelector("#resetView")?.addEventListener("click", () => {
+        if (state.panelMode === "node" && state.fitMode) return openDepthPanel({ silent: true });
+        if (state.panelMode === "depth") {
+          state.active = null;
+          state.panelMode = "none";
+          document.body.classList.remove("panel-open", "depth-open", "compare-open");
+          pageCard.innerHTML = "";
+          pageCard.className = "page-card theme-white";
+          renderNodes(); renderEdges(); dimNodes();
+          syncFitBanner();
+          centerMap();
+          return;
+        }
+        clearPanel();
+      });
+      pageCard.querySelector("#compareDepth")?.addEventListener("click", () => openDepthPanel());
+      pageCard.querySelector("#findOutMore")?.addEventListener("click", () => openDepthPanel());
+      pageCard.querySelector("[data-visit-action='depth']")?.addEventListener("click", () => openDepthPanel());
+      pageCard.querySelector("#disconnectFit")?.addEventListener("click", disconnectFit);
+      syncFitBanner();
+
+      requestAnimationFrame(() => {
+        pageCard.querySelectorAll(".fit-fill").forEach(el => { el.style.width = el.dataset.score + "%"; });
+      });
+    }
+
+    function syncFitBanner() {
+      const banner = document.getElementById("fitBanner");
+      const copy = document.getElementById("fitBannerCopy");
+      if (!banner) return;
+      const ids = rosteredIds();
+      banner.classList.toggle("is-visible", state.fitMode && state.view === "unstructured");
+      if (copy) {
+        if (ids.length === 2) copy.innerHTML = `<strong>Josie</strong> & <strong>Kai</strong> are on the 2029 depth chart.`;
+        else if (ids.length === 1) copy.innerHTML = `<strong>${PLAYERS[ids[0]].short}</strong> is on the 2029 depth chart.`;
+        else copy.innerHTML = `<strong>Recruit(s)</strong> on the 2029 depth chart.`;
+      }
+      copy?.classList.toggle("is-clickable", state.fitMode);
+    }
+
+    function openFitPanel() {
+      state.panelMode = "fit";
+      syncFitMode();
+      state.active = state.activeDepthPlayer || rosteredIds()[0] || "josie";
+      document.body.classList.remove("depth-open", "compare-open");
+      renderPanel({ ...FIT_PROFILE });
+      renderNodes(); renderEdges(); dimNodes();
+      syncFitBanner();
+    }
+
+    function disconnectPlayer(id) {
+      if (!PLAYERS[id]) return;
+      state.depthPos[id] = null;
+      state.positions[id] = { ...HOME[id] };
+      syncFitMode();
+      if (!state.fitMode) {
+        document.body.classList.remove("depth-open", "compare-open");
+        clearPanel();
+        showToast(`${PLAYERS[id].short} disconnected`);
+        return;
+      }
+      if (state.activeDepthPlayer === id) state.activeDepthPlayer = rosteredIds()[0];
+      openDepthPanel({ silent: true });
+      showToast(`${PLAYERS[id].short} removed from roster`);
+    }
+
+    function disconnectFit() {
+      Object.keys(PLAYERS).forEach(id => {
+        state.depthPos[id] = null;
+        state.positions[id] = { ...HOME[id] };
+      });
+      document.body.classList.remove("depth-open", "compare-open");
+      clearPanel();
+      showToast("Disconnected — clusters separated again");
+    }
+
+    function selectNode(id, { fit = false } = {}) {
+      state.active = id;
+      state.structSelected = new Set(id && (RECRUIT_MAP[id] || LINEUP_MAP[id]) ? [id] : []);
+      if (fit && PLAYERS[id]) return placePlayerOnRoster(id);
+
+      // Always show the selected node's own detail panel (including 2029 Huskies Roster)
+      state.panelMode = "node";
+      document.body.classList.remove("depth-open", "compare-open");
+      const data = { ...NODES[id] };
+      if (PLAYERS[id] && state.depthPos[id]) data.showRosterLink = true;
+      if (id === "huskies" && state.fitMode) data.showRosterLink = true;
+      renderPanel(data);
+      renderNodes(); renderEdges(); dimNodes();
+      syncFitBanner();
+    }
+
+    function clientToMap(clientX, clientY) {
+      const rect = mapEl.getBoundingClientRect();
+      return {
+        x: (clientX - rect.left - state.pan.x) / state.scale,
+        y: (clientY - rect.top - state.pan.y) / state.scale
+      };
+    }
+
+    function nearHuskies(mapPt) {
+      const team = state.positions.huskies;
+      return Math.hypot(mapPt.x - team.x, mapPt.y - team.y) < 100;
+    }
+
+    function startWire(e, id) {
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      state._didWire = false;
+      const pt = clientToMap(e.clientX, e.clientY);
+      state.wiring = { id, x: pt.x, y: pt.y };
+      mapEl.classList.add("is-wiring");
+      nodesEl.querySelector(`[data-id="huskies"]`)?.classList.add("drop-target");
+      mapEl.setPointerCapture?.(e.pointerId);
+      renderEdges();
+    }
+
+    mapEl.addEventListener("pointermove", (e) => {
+      if (!state.wiring) return;
+      const pt = clientToMap(e.clientX, e.clientY);
+      const from = state.positions[state.wiring.id];
+      if (Math.hypot(pt.x - from.x, pt.y - from.y) > 8) state._didWire = true;
+      state.wiring.x = pt.x;
+      state.wiring.y = pt.y;
+      nodesEl.querySelector(`[data-id="huskies"]`)?.classList.toggle("drop-target", nearHuskies(pt));
+      renderEdges();
+    });
+
+    mapEl.addEventListener("pointerup", () => {
+      if (!state.wiring) return;
+      const id = state.wiring.id;
+      const end = { x: state.wiring.x, y: state.wiring.y };
+      const didWire = state._didWire;
+      const linked = nearHuskies(end);
+      state.wiring = null;
+      state._didWire = false;
+      mapEl.classList.remove("is-wiring");
+      nodesEl.querySelectorAll(".drop-target").forEach(n => n.classList.remove("drop-target"));
+      renderEdges();
+
+      // Pointer capture cancels the button's click — open the profile here on tap
+      state._blockClick = true;
+      if (didWire && linked && PLAYERS[id]) placePlayerOnRoster(id);
+      else selectNode(id);
+    });
+
+    mapEl.addEventListener("pointercancel", () => {
+      if (!state.wiring) return;
+      state.wiring = null;
+      state._didWire = false;
+      mapEl.classList.remove("is-wiring");
+      nodesEl.querySelectorAll(".drop-target").forEach(n => n.classList.remove("drop-target"));
+      renderEdges();
+    });
+
+    function applyTransform() {
+      mapInner.style.transform = `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.scale})`;
+    }
+
+    mapEl.addEventListener("pointerdown", (e) => {
+      if (state.wiring) return;
+      if (e.target.closest(".node")) return;
+      if (!state.fitMode && state.active) {
+        clearPanel();
+      }
+      state.panning = true;
+      state.panStart = { x: e.clientX - state.pan.x, y: e.clientY - state.pan.y };
+      mapEl.classList.add("is-panning");
+      mapEl.setPointerCapture(e.pointerId);
+    });
+    mapEl.addEventListener("pointermove", (e) => {
+      if (!state.panning || state.wiring) return;
+      state.pan.x = e.clientX - state.panStart.x;
+      state.pan.y = e.clientY - state.panStart.y;
+      applyTransform();
+    });
+    mapEl.addEventListener("pointerup", () => {
+      state.panning = false;
+      mapEl.classList.remove("is-panning");
+    });
+    mapEl.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      state.scale = Math.min(1.55, Math.max(0.5, state.scale + (e.deltaY > 0 ? -0.06 : 0.06)));
+      applyTransform();
+    }, { passive: false });
+
+    function centerMap() {
+      const mapW = mapEl.clientWidth;
+      const mapH = mapEl.clientHeight;
+      state.scale = Math.min(1, Math.max(0.4, mapW / 1520));
+      state.pan.x = (mapW - 1450 * state.scale) / 2;
+      state.pan.y = (mapH - 860 * state.scale) / 2 + 4;
+      applyTransform();
+    }
+
+    /* Init — empty canvas: two clusters, no selection, no panel */
+    renderNodes();
+    renderEdges();
+    dimNodes();
+    centerMap();
+    setView("unstructured");
+    mapInner.style.opacity = "0";
+    requestAnimationFrame(() => { mapInner.style.opacity = "1"; });
+  </script>
+</body>
+</html>

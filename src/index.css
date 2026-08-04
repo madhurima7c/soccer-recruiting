@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "SF Pro Text", "IBM Plex Sans", "Helvetica Neue", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono: "SF Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Fraunces", "Times New Roman", serif;
+
+  --color-canvas: #eef0eb;
+  --color-field: #d7e4cf;
+  --color-ink: #141414;
+  --color-muted: #6b6f68;
+  --color-line: #d5d8d1;
+  --color-panel: #ffffff;
+  --color-panel-soft: #f7f8f5;
+  --color-accent: #e85d04;
+  --color-accent-soft: #fff1e6;
+  --color-ok: #2f6b4f;
+  --color-warn: #e85d04;
+  --color-pill: #1a1a1a;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: #0e1410;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .pressable {
+    transition: transform 140ms var(--ease-out);
+  }
+
+  .pressable:active {
+    transform: scale(0.97);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .dock-item:hover {
+      transform: translateY(-6px) scale(1.08);
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
