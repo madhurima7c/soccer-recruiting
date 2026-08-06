@@ -76,6 +76,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
 /* ── Plot primitives ─────────────────── */
 .plotwrap{position:relative}
 .plot{position:relative;height:340px;margin:30px 8px 48px 40px;border-left:1px solid var(--border);border-bottom:1px solid var(--border)}
+.plot.tall{height:430px}
 .gline{position:absolute;left:0;right:0;height:1px;background:var(--border-soft)}
 .refline{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--tert)}
 .refline.solid{border-top-style:solid}
@@ -87,18 +88,22 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
 .ytick{position:absolute;left:-34px;width:28px;text-align:right;font-size:10px;color:var(--tert);transform:translateY(-50%)}
 .xtick{position:absolute;bottom:-20px;font-size:10px;color:var(--tert);transform:translateX(-50%)}
 .axis-title{position:absolute;font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--mute)}
-.pdot{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);z-index:2}
+.pdot{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);z-index:2;transition:opacity .14s,box-shadow .14s}
 .pdot.green{background:var(--green);border:2px solid #fff;box-shadow:0 0 0 1px rgba(22,163,74,.4)}
 .pdot.hollow{width:10px;height:10px;background:#fff;border:2px solid var(--tert)}
 .pdot.hollow.greenline{border-color:var(--green)}
-.plabel{position:absolute;transform:translateY(-50%);font-size:10.5px;white-space:nowrap;color:var(--mute);z-index:3}
+.pdot.ring{width:10px;height:10px;background:#fff;border:2px solid var(--green);box-shadow:0 0 0 4px rgba(22,163,74,.18)}
+.pdot.dim{opacity:.22}
+.plabel{position:absolute;transform:translateY(-50%);font-size:10.5px;white-space:nowrap;color:var(--mute);z-index:3;transition:opacity .14s}
 .plabel.strong{color:var(--ink);font-weight:600}
 .plabel.left{transform:translate(-100%,-50%)}
+.plabel.dim{opacity:.28}
 .legend{position:absolute;top:-22px;right:0;display:flex;gap:14px;font-size:11px;color:var(--mute);align-items:center}
 .legend .li{display:flex;align-items:center;gap:6px}
 .ldot{width:10px;height:10px;border-radius:50%}
 .ldot.green{background:var(--green)}
 .ldot.hollow{background:#fff;border:2px solid var(--tert)}
+.ldot.ring{background:#fff;border:2px solid var(--green);box-shadow:0 0 0 3px rgba(22,163,74,.18)}
 
 /* ── PC-01 ───────────────────────────── */
 .src-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;margin-top:18px}
@@ -189,9 +194,15 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
 /* ── TO-01 ───────────────────────────── */
 .market{padding:20px 22px;margin-top:18px}
 .scen-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
-.scard{padding:14px 16px;cursor:pointer;position:relative;transition:border-color .12s}
-.scard:hover{border-color:#d4d4d8}
+.scard{padding:14px 16px;cursor:pointer;position:relative;transition:border-color .12s,box-shadow .12s,transform .12s}
+.scard:hover{border-color:#a1a1aa;box-shadow:0 4px 14px rgba(9,9,11,.09);transform:translateY(-1px)}
 .scard.sel{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset;background:linear-gradient(180deg,#f7fef9,#fff 60%)}
+.scard.sel:hover{box-shadow:0 0 0 1px var(--green) inset,0 4px 14px rgba(22,163,74,.16)}
+.scard .lineup{font-size:11px;color:var(--tert);margin-top:3px;line-height:1.35}
+.scard .lineup b{color:#3f3f46;font-weight:600}
+.ex-wrap{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.ex-chip{padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:12px;color:#3f3f46}
+.ex-chip:hover{border-color:var(--green);color:var(--green-deep);background:var(--soft-green)}
 .scard .stag{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--green-deep);background:var(--soft-green);padding:2px 8px;border-radius:999px;display:inline-block}
 .scard .stag.gray{color:var(--mute);background:var(--muted)}
 .scard .cbx{position:absolute;top:12px;right:12px;width:16px;height:16px;border-radius:4px;border:1.5px solid #d4d4d8;background:#fff;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
@@ -328,10 +339,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
 .rerun{display:flex;align-items:center;gap:12px;padding:14px 18px;margin-top:16px}
 .rerun .rt{flex:1;color:var(--mute);font-size:12px}
 
-/* ── Toast & quick nav ───────────────── */
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#18181b;color:#fff;padding:11px 18px;border-radius:10px;font-size:12.5px;display:flex;gap:12px;align-items:center;opacity:0;pointer-events:none;transition:all .22s;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
-.toast button{color:#4ade80;font-weight:600}
+/* ── Quick nav ───────────────────────── */
 .qnav{position:fixed;right:18px;bottom:18px;z-index:70}
 .qnav .qbtn{background:#18181b;color:#fff;border-radius:999px;padding:9px 16px;font-size:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .qnav .qmenu{position:absolute;right:0;bottom:44px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.16);padding:6px;display:none;width:250px}
@@ -474,7 +482,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
           <span class="chip">ECNL</span><span class="chip">Transfer Portal</span><span class="chip">Tracked Excel</span>
           <span style="flex:1"></span>
           <button class="btn btn-ghost">View evidence</button>
-          <button class="btn btn-primary" onclick="savePc()">Save this result</button>
+          <button class="btn btn-primary" onclick="openModal('pc')">Save this result</button>
         </div>
       </div></section>
 
@@ -485,19 +493,25 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
         <div class="card market">
           <div class="plothead">
             <div class="pt"><h3>Recruit market · ceiling vs scholarship ask</h3>
-            <div class="psub">Every dot is one recommended recruit · ceilings rated 1–5 · asks shown against your $100K budget.</div></div>
+            <div class="psub" id="market-sub">Every dot is one recommended recruit · ceilings rated 1–5 · asks shown against your $100K budget. Hover a roster below to light up who it signs.</div></div>
           </div>
-          <div class="plotwrap"><div class="plot" id="plot-market"></div></div>
+          <div class="plotwrap"><div class="plot tall" id="plot-market"></div></div>
         </div>
         <div class="scen-row" id="scen-row"></div>
         <div class="card composer">
           <h3>Ask a roster trade-off question</h3>
           <textarea id="q-input">How should we spend $100K to improve chance creation without leaving the back line exposed?</textarea>
+          <div class="ex-wrap">
+            <span class="eyebrow tert">TRY AN EXAMPLE</span>
+            <button class="ex-chip" onclick="useExample(0)">Balance immediate impact vs. upside</button>
+            <button class="ex-chip" onclick="useExample(1)">Protect budget for next season</button>
+            <button class="ex-chip" onclick="useExample(2)">Replace a graduating starter</button>
+          </div>
           <div class="comp-foot">
-            <span class="chip">$100K budget</span><span class="chip" id="scen-chip">4 scenarios</span>
+            <span class="chip">$100K budget</span><span class="chip" id="scen-chip">4 of 4 scenarios</span>
             <span class="sp"></span>
             <button class="btn btn-ghost">Add a constraint</button>
-            <button class="btn btn-primary" onclick="go('to02')">Run trade-off</button>
+            <button class="btn btn-primary" id="btn-run" onclick="runTradeoff()">Run trade-off</button>
           </div>
         </div>
       </div></section>
@@ -505,22 +519,22 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
       <!-- ── TO-02 ── -->
       <section class="screen" id="s-to02"><div class="page-inner">
         <h1>Compare roster trade-offs</h1>
-        <p class="lead">Your four scenarios scored against the question you asked — and the one constraint that breaks.</p>
+        <p class="lead" id="to02-lead">Your four scenarios scored against the question you asked — and the one constraint that breaks.</p>
         <div class="card qstrip">
           <div class="qq"><span class="eyebrow tert">YOUR QUESTION</span>
-            <span class="qt">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</span></div>
-          <span class="chip">$100K budget</span><span class="chip">4 scenarios</span>
+            <span class="qt" id="to02-q">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</span></div>
+          <span class="chip">$100K budget</span><span class="chip" id="to02-chip">4 scenarios</span>
           <button class="btn btn-ghost" onclick="go('to01')">Edit question</button>
         </div>
         <div class="hero answer-hero">
           <div class="ht">
             <span class="eyebrow">ROSTERMIND ANSWER · CONFIDENCE 4.4/5</span>
-            <h2>Strong Double Midfield</h2>
-            <div class="hs">Best chance creation of your four scenarios, and it holds the back line at 4.2 — with $16K still unspent.</div>
+            <h2 id="h2-name">Strong Double Midfield</h2>
+            <div class="hs" id="h2-sub">Best question fit of your four scenarios — chance creation 4.8, back line held at 4.2, with $16K still unspent.</div>
           </div>
-          <div class="statbox"><div class="sv green">4.8</div><div class="sk">chance creation</div></div>
-          <div class="statbox"><div class="sv">4.2</div><div class="sk">back line held</div></div>
-          <div class="statbox"><div class="sv">$16K</div><div class="sk">left unspent</div></div>
+          <div class="statbox"><div class="sv green" id="h2-cc">4.8</div><div class="sk">chance creation</div></div>
+          <div class="statbox"><div class="sv" id="h2-bls">4.2</div><div class="sk">back line held</div></div>
+          <div class="statbox"><div class="sv" id="h2-left">$16K</div><div class="sk">left unspent</div></div>
         </div>
         <div class="card plotcard">
           <div class="plothead">
@@ -541,7 +555,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
               <div class="railcard breaks" id="rail-breaks">
                 <span class="eyebrow red">WHAT BREAKS · STRIKER MINIMUM</span>
                 <div class="bv"><span class="bn">2.4</span><span class="btrack"><i></i></span><span class="bs">/ 5</span></div>
-                <div class="bnote">Striker depth sits below the question-safe floor. Cover it with the $16K reserve or trade back one midfield slot.</div>
+                <div class="bnote" id="break-note">Striker depth sits below the question-safe floor. Cover it with the $16K reserve or trade back one midfield slot.</div>
                 <div class="bok">✓ 6 other constraints clear</div>
               </div>
               <div class="railcard roster-card" id="rail-roster" style="display:none">
@@ -555,7 +569,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
           <div class="nt"><span class="eyebrow tert">NEXT STEP</span>
             Save this to bring to staff, or re-run the question with striker depth as a hard constraint.</div>
           <button class="btn btn-ghost" onclick="go('to01')">Ask another</button>
-          <button class="btn btn-primary" onclick="openModal()">Save this result</button>
+          <button class="btn btn-primary" onclick="openModal('to')">Save this result</button>
         </div>
       </div></section>
 
@@ -570,24 +584,24 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
           <button class="fchip" data-f="to" onclick="setFilter('to')">Trade-off board 3</button>
           <button class="fchip" data-f="pc" onclick="setFilter('pc')">Player comparison 2</button>
         </div>
-        <div class="card saveditem" data-kind="to" data-text="midfield center-back plan how should we spend 100k strong double midfield">
-          <div class="sirow"><span class="tag-team" id="sv1-tag">TEAM</span><span class="simeta">Trade-off board · Saved just now · by you</span></div>
+        <div class="card saveditem" id="sv1-item" data-kind="to" data-text="midfield center-back plan how should we spend 100k strong double midfield">
+          <div class="sirow"><span class="tag-team" id="sv1-tag">TEAM</span><span class="simeta" id="sv1-meta">Trade-off board · Saved just now · by you</span></div>
           <h3 id="sv1-name">Midfield + center-back plan</h3>
-          <div class="siq">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
-          <div class="sians"><span class="eyebrow green">ANSWER</span><b>Strong Double Midfield · fit 4.7 · $84K</b><span class="flag">Striker 2.4 flagged</span></div>
+          <div class="siq" id="sv1-q">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
+          <div class="sians"><span class="eyebrow green">ANSWER</span><b id="sv1-ans">Strong Double Midfield · fit 4.7 · $84K</b><span class="flag">Striker 2.4 flagged</span></div>
           <div class="act"><button class="btn btn-primary" onclick="go('to05')">Reopen</button></div>
         </div>
-        <div class="card saveditem" data-kind="pc" data-text="replace graduating center back which defender safest 2027 floor okafor">
-          <div class="sirow"><span class="tag-private">PRIVATE</span><span class="simeta">Player comparison · Saved Aug 2 · 10:05 AM</span></div>
-          <h3>Replace graduating center back</h3>
+        <div class="card saveditem" id="sv2-item" data-kind="pc" data-text="replace graduating center back which defender safest 2027 floor okafor">
+          <div class="sirow"><span class="tag-private" id="sv2-tag">PRIVATE</span><span class="simeta" id="sv2-meta">Player comparison · Saved Aug 2 · 10:05 AM</span></div>
+          <h3 id="sv2-name">Replace graduating center back</h3>
           <div class="siq">“Which defender gives us the safest 2027 floor under a $70K year-one budget?”</div>
           <div class="sians"><span class="eyebrow green">ANSWER</span><b>D. Okafor · role match 4.6 · $39K</b><span class="clear">All constraints clear</span></div>
           <div class="act"><button class="btn btn-ghost" onclick="go('pc02')">Open</button></div>
         </div>
         <div class="eyebrow tert earlier-label" id="earlier-label">EARLIER</div>
-        <div class="card erow" data-kind="to" data-text="immediate scoring development upside brooks alvarez">
+        <div class="card erow" data-kind="to" data-text="immediate scoring development upside brooks rivera">
           <h4>Immediate scoring vs. development upside</h4>
-          <span class="esub">Trade-off board</span><span class="em">E. Brooks + M. Alvarez · $97K</span><span class="tag-team">TEAM</span><span class="em">Jul 29</span><span class="chev">›</span>
+          <span class="esub">Trade-off board</span><span class="em">E. Brooks + C. Rivera · $57K</span><span class="tag-team">TEAM</span><span class="em">Jul 29</span><span class="chev">›</span>
         </div>
         <div class="card erow" data-kind="to" data-text="protect 2028 scholarship flexibility okafor">
           <h4>Protect 2028 scholarship flexibility</h4>
@@ -604,17 +618,17 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
         <h1>Reopened saved result</h1>
         <p class="lead">The question, answer, and trade-offs restored exactly as saved — with a heads-up when the data underneath has moved.</p>
         <div class="restored">✓&nbsp; <b>Saved snapshot restored · <span id="sv5-name">Midfield + center-back plan</span></b>
-          <span style="flex:1"></span><span class="tag-team">TEAM</span>
+          <span style="flex:1"></span><span class="tag-team" id="sv5-tag">TEAM</span>
           <span class="meta">Trade-off board · saved Aug 6 · reopened Aug 20 · read-only</span></div>
         <div class="stale"><b>DATA CHANGED</b><span class="sp">2 scholarship asks moved since this was saved. The snapshot below is unchanged — re-run to see today’s answer.</span>
           <button class="btn btn-ghost">See what changed</button></div>
         <div class="snapgrid">
           <div class="card snapmain">
             <span class="eyebrow tert">ORIGINAL QUESTION &amp; ANSWER</span>
-            <div class="oq">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
-            <div class="ansline"><span class="eyebrow green">ANSWER</span><b>Strong Double Midfield · fit 4.7 · $84K</b><span class="conf">confidence 4.4 / 5</span></div>
+            <div class="oq" id="sv5-q">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
+            <div class="ansline"><span class="eyebrow green">ANSWER</span><b id="sv5-ans">Strong Double Midfield · fit 4.7 · $84K</b><span class="conf">confidence 4.4 / 5</span></div>
             <div class="staffnote"><b>STAFF NOTE</b><span id="sv5-note">Discuss with staff before the August recruiting weekend.</span></div>
-            <div class="snapmeta">4 scenarios scored · data as of Aug 6, 2026 · saved by you</div>
+            <div class="snapmeta" id="sv5-meta">4 scenarios scored · data as of Aug 6, 2026 · saved by you</div>
           </div>
           <div class="card snaprail">
             <span class="eyebrow tert">TRADE-OFF AS SAVED</span>
@@ -633,18 +647,18 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
   </div>
 </div>
 
-<!-- ═══ TO-03 modal ═══ -->
+<!-- ═══ Save modal · shared by TO-03 and PC-02 ═══ -->
 <div class="overlay" id="overlay">
   <div class="dialog">
     <div class="dhead"><h3>Save this result</h3><button class="x" onclick="closeModal()">✕</button></div>
-    <div class="dlead">Freeze this comparison so you can reopen it later or share it with staff.</div>
+    <div class="dlead" id="d-lead">Freeze this comparison so you can reopen it later or share it with staff.</div>
     <div class="snapshot">
-      <div class="sq1">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
-      <div class="arow"><span class="eyebrow green">ANSWER</span><b style="font-size:12px">Strong Double Midfield · fit 4.7 · $84K</b></div>
-      <div class="meta">Keeps all four scenarios, the striker flag, and the Aug 6, 2026 data snapshot.</div>
+      <div class="sq1" id="d-q">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
+      <div class="arow"><span class="eyebrow green">ANSWER</span><b style="font-size:12px" id="d-ans">Strong Double Midfield · fit 4.7 · $84K</b></div>
+      <div class="meta" id="d-meta">Keeps all four scenarios, the striker flag, and the Aug 6, 2026 data snapshot.</div>
     </div>
     <div class="fld">
-      <div class="flr"><label>COMPARISON NAME</label></div>
+      <div class="flr"><label id="d-namelab">COMPARISON NAME</label></div>
       <input type="text" id="f-name" value="Midfield + center-back plan">
     </div>
     <div class="fld">
@@ -669,8 +683,6 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
     </div>
   </div>
 </div>
-
-<div class="toast" id="toast"><span id="toast-text"></span><button id="toast-act" style="display:none"></button></div>
 
 <div class="qnav" id="qnav">
   <button class="qbtn" onclick="document.getElementById('qnav').classList.toggle('open')">Screens ▾</button>
@@ -709,38 +721,53 @@ const TRAITS=[
  {t:'Speed and recovery',         h:3, ok:4, od:3}];
 
 /* Trade-off market pool · ceiling 1–5 · ask $K of the $100K budget
-   mside = label side override on the TO-01 market chart (collision control) */
+   CB asks match PC-01 exactly (Okafor 39, Odom 55, Marsh 20, Sørensen 30, Whitaker 42)
+   mside = label side override on the market chart (collision control) */
 const POOL=[
- {n:'M. Alvarez', pos:'CM',   ceil:4.6, ask:45, mside:'right'},
- {n:'N. Patel',   pos:'DM',   ceil:4.2, ask:39, mside:'left'},
- {n:'D. Okafor',  pos:'CB',   ceil:4.6, ask:39, mside:'left'},
- {n:'J. Rossi',   pos:'AM',   ceil:3.6, ask:37},
- {n:'T. Williams',pos:'LW',   ceil:4.4, ask:37},
- {n:'C. Rivera',  pos:'ST',   ceil:4.0, ask:36},
- {n:'M. Rowe',    pos:'GK',   ceil:4.4, ask:51},
- {n:'D. Marsh',   pos:'CB',   ceil:4.2, ask:20},
- {n:'A. Chen',    pos:'LB',   ceil:4.3, ask:28},
- {n:'E. Brooks',  pos:'ST',   ceil:4.5, ask:52},
- {n:'L. Martinez',pos:'RB',   ceil:4.2, ask:44, mside:'right'},
+ {n:'D. Okafor',  pos:'CB',   ceil:4.6, ask:39},
+ {n:'M. Alvarez', pos:'CM',   ceil:4.6, ask:58, mside:'left'},
+ {n:'A. Chen',    pos:'LB',   ceil:4.5, ask:26},
+ {n:'B. Odom',    pos:'CB',   ceil:4.4, ask:55, mside:'left'},
+ {n:'T. Williams',pos:'LW',   ceil:4.3, ask:49, mside:'left'},
+ {n:'E. Brooks',  pos:'ST',   ceil:4.3, ask:33},
+ {n:'N. Patel',   pos:'DM',   ceil:4.2, ask:26},
+ {n:'D. Marsh',   pos:'CB',   ceil:4.2, ask:20, mside:'left'},
+ {n:'L. Martinez',pos:'RB',   ceil:4.1, ask:47, mside:'left'},
+ {n:'K. Sørensen',pos:'CB',   ceil:4.1, ask:30},
+ {n:'M. Rowe',    pos:'GK',   ceil:4.0, ask:51, mside:'left'},
+ {n:'C. Rivera',  pos:'ST',   ceil:4.0, ask:24},
+ {n:'N. Barros',  pos:'AM',   ceil:3.9, ask:38},
+ {n:'J. Rossi',   pos:'AM',   ceil:3.9, ask:21, mside:'left'},
  {n:'S. Whitaker',pos:'CB/LB',ceil:3.8, ask:42}];
 
-/* Returning core next season (Halvorsen & Lund graduate) · share = current scholarship % */
+/* Squad returning next season (Halvorsen & Lund graduate)
+   share = that player's current scholarship as % of the same $100K reference */
 const RETURNING=[
- {n:'E. Trent',     pos:'CB', ceil:3.7, share:10},
- {n:'O. Fitzgerald',pos:'DM', ceil:3.5, share:8, dy:-16},
- {n:'J. Pike',      pos:'ST', ceil:3.5, share:9, dy:14}];
+ {n:'E. Trent',     pos:'CB', ceil:3.7, share:16},
+ {n:'P. Nguyen',    pos:'CM', ceil:3.6, share:8},
+ {n:'O. Fitzgerald',pos:'DM', ceil:3.5, share:20},
+ {n:'J. Pike',      pos:'ST', ceil:3.5, share:30},
+ {n:'S. Bailey',    pos:'GK', ceil:3.3, share:12},
+ {n:'A. Mensah',    pos:'CB', ceil:3.1, share:5}];
 const BEST_RETURNING=3.7;
 
+/* Each scenario keeps the returning squad and signs these recruits · asks sum to cost */
 const SCEN=[
  {key:'sdm', name:'Strong Double Midfield', tag:'BEST PERFORMANCE', cost:84, fit:4.7, ceil:4.4, cc:4.8, bls:4.2, recruits:['M. Alvarez','N. Patel']},
- {key:'mb',  name:'Most Balanced',                              cost:76, fit:4.4, ceil:4.1, cc:4.35,bls:4.55,recruits:['D. Okafor','J. Rossi']},
+ {key:'mb',  name:'Most Balanced',                              cost:76, fit:4.4, ceil:4.1, cc:4.35,bls:4.55,recruits:['B. Odom','J. Rossi']},
  {key:'pot', name:'Potential',                                  cost:73, fit:4.1, ceil:4.2, cc:4.5, bls:3.4, recruits:['T. Williams','C. Rivera']},
  {key:'bg',  name:'Best Gatekeeper', tag2:'BEST FOR BUDGET',    cost:71, fit:3.8, ceil:4.3, cc:4.05,bls:4.75,recruits:['M. Rowe','D. Marsh']}];
 
+const EXAMPLES=[
+ 'Balance immediate impact against 2028 upside — which roster wins now without mortgaging next year?',
+ 'Protect budget for next season: what is the strongest roster we can build for under $75K?',
+ 'Replace a graduating starter: who covers R. Halvorsen at CB without weakening the midfield?'];
+
 /* ═══════════ State ═══════════ */
-const state={screen:'pc01', plotView:'q', roster:'sdm', vis:'team',
+const state={screen:'pc01', plotView:'q', roster:'sdm', vis:'team', saveKind:'to', hoverScen:null,
   savedName:'Midfield + center-back plan', savedNote:'Discuss with staff before the August recruiting weekend.',
-  benchmark:'R. Halvorsen', recSel:new Set(['D. Okafor','B. Odom']), scenSel:new Set(['sdm']), filter:'all'};
+  benchmark:'R. Halvorsen', recSel:new Set(['D. Okafor','B. Odom']),
+  scenSel:new Set(['sdm','mb','pot','bg']), filter:'all'};
 
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
@@ -758,10 +785,12 @@ function go(sc){
   $('#nav-sv').classList.toggle('active', sc==='to04'||sc==='to05');
   $('#content').scrollTop=0;
   $('#qnav').classList.remove('open');
+  /* plots need a visible container to lay their labels out */
+  if(sc==='to01') renderMarket();
   if(sc==='to02') renderMainPlot();
 }
 function qgo(sc){
-  if(sc==='to03'){ go('to02'); openModal(); return; }
+  if(sc==='to03'){ go('to02'); openModal('to'); return; }
   closeModal(); go(sc);
 }
 $$('.nav-item[data-nav]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.nav)));
@@ -798,10 +827,6 @@ function toggleRec(n){
   else if(state.recSel.size<4) state.recSel.add(n);
   renderPc01();
 }
-function savePc(){
-  toast('✓ Saved as “Replace graduating center back” · Private','View in Saved results',()=>go('to04'));
-}
-
 /* ═══════════ PC-02 traits ═══════════ */
 function sq(v,rec){ let s='<span class="sq'+(rec?' rec':'')+'">'; for(let i=1;i<=5;i++) s+=`<i class="${i<=v?'f':''}"></i>`; return s+'</span>'; }
 function delta(v,base){
@@ -816,15 +841,64 @@ $('#tgrid').innerHTML=TRAITS.map(t=>`
   </div>`).join('');
 
 /* ═══════════ Plot helpers ═══════════ */
-function dotHtml(xp,yp,cls,label,labelSide,strong,dy){
-  const top = dy? `calc(${yp}% + ${dy}px)` : yp+'%';
-  const lb= label? `<span class="plabel ${strong?'strong':''} ${labelSide==='left'?'left':''}" style="left:calc(${xp}% ${labelSide==='left'?'- 12px':'+ 12px'});top:${top}">${label}</span>`:'';
+function dotHtml(xp,yp,cls,label,labelSide,strong,dy,dimCls){
+  const side = labelSide==='left'?'left':'right';
+  const base = dy||0;
+  const lb= label? `<span class="plabel ${strong?'strong':''} ${side==='left'?'left':''}${dimCls||''}"`
+    + ` data-x="${xp}" data-y="${yp}" data-dy="${base}" data-side="${side}" data-strong="${strong?1:0}"`
+    + ` style="left:calc(${xp}% ${side==='left'?'- 12px':'+ 12px'});top:calc(${yp}% + ${base}px)">${label}</span>`:'';
   return `<span class="pdot ${cls}" style="left:${xp}%;top:${yp}%"></span>`+lb;
 }
 
-/* TO-01 market plot · x 0–60% ask · y 3.0–5.0 ceiling */
+/* Labels are dense on these charts, so nudge/flip any that would overlap.
+   Strong labels are placed first and keep the best position. */
+function placeLabel(lb,dy,side){
+  lb.classList.toggle('left', side==='left');
+  lb.style.left=`calc(${lb.dataset.x}% ${side==='left'?'- 12px':'+ 12px'})`;
+  lb.style.top=`calc(${lb.dataset.y}% + ${dy}px)`;
+}
+function layoutLabels(sel){
+  const host=document.querySelector(sel);
+  if(!host || !host.offsetWidth) return;
+  const hr=host.getBoundingClientRect();
+  const overlap=(a,b)=>!(a.right<b.left-4||a.left>b.right+4||a.bottom<b.top-1||a.top>b.bottom+1);
+  const labels=Array.from(host.querySelectorAll('.plabel'))
+    .sort((a,b)=>(+b.dataset.strong)-(+a.dataset.strong));
+  const placed=Array.from(host.querySelectorAll('.pdot')).map(d=>d.getBoundingClientRect());
+  labels.forEach(lb=>{
+    const dy0=+lb.dataset.dy, first=lb.dataset.side;
+    const sides = first==='left' ? ['left','right'] : ['right','left'];
+    const offsets=[0,-14,14,-27,27,-40,40];
+    let done=false;
+    for(const off of offsets){
+      for(const sd of sides){
+        placeLabel(lb,dy0+off,sd);
+        const r=lb.getBoundingClientRect();
+        if(r.left<hr.left-6 || r.right>hr.right+14) continue;
+        if(r.top<hr.top-14 || r.bottom>hr.bottom+16) continue;
+        if(!placed.some(p=>overlap(r,p))){ done=true; break; }
+      }
+      if(done) break;
+    }
+    if(!done) placeLabel(lb,dy0,first);
+    placed.push(lb.getBoundingClientRect());
+  });
+}
+
+/* TO-01 market plot · x 0–60% ask · y 3.0–5.0 ceiling
+   Hovering (or selecting) a roster lights up the recruits it signs and dims the rest. */
+function highlightedRecruits(){
+  if(state.hoverScen){
+    const s=SCEN.find(x=>x.key===state.hoverScen);
+    return { set:new Set(s.recruits), scoped:true };
+  }
+  const set=new Set();
+  SCEN.forEach(s=>{ if(state.scenSel.has(s.key)) s.recruits.forEach(n=>set.add(n)); });
+  return { set, scoped:state.scenSel.size>0 && state.scenSel.size<SCEN.length };
+}
 function renderMarket(){
   const X=v=>v/60*100, Y=c=>(5-c)/2*100;
+  const { set, scoped } = highlightedRecruits();
   let h='';
   h+=`<div class="band" style="left:${X(40)}%;right:0"></div><span class="band-label" style="left:calc(${X(40)}% + 8px)">PREMIUM ASK</span>`;
   [3.5,4.0,4.5,5.0].forEach(g=>h+=`<div class="gline" style="top:${Y(g)}%"></div>`);
@@ -832,29 +906,58 @@ function renderMarket(){
   [0,15,30,45,60].forEach(v=>h+=`<span class="xtick" style="left:${X(v)}%">${v}%</span>`);
   h+=`<div class="refline" style="top:${Y(4.1)}%"></div><span class="reflab" style="left:8px;top:${Y(4.1)}%">R. HALVORSEN REPLACEMENT BAR · RATED 4.1</span>`;
   POOL.forEach(p=>{
-    const side = p.mside || (X(p.ask)>72?'left':'right');
-    h+=dotHtml(X(p.ask),Y(p.ceil),'hollow',`${p.n} · ${p.pos}`,side);
+    const on=set.has(p.n);
+    const dim=(state.hoverScen||scoped) && !on ? ' dim' : '';
+    const side = p.mside || (X(p.ask)>74?'left':'right');
+    h+=dotHtml(X(p.ask),Y(p.ceil),(on?'green':'hollow')+dim,`${p.n} · ${p.pos} · $${p.ask}K`,side,on,0,dim);
   });
   h+=`<span class="axis-title" style="top:-22px;left:0">CEILING ↑ (1–5)</span><span class="axis-title" style="bottom:-38px;left:50%;transform:translateX(-50%)">SCHOLARSHIP ASK → (% OF $100K)</span>`;
+  h+=`<div class="legend" style="top:-26px"><span class="li"><span class="ldot green"></span>In a highlighted roster</span><span class="li"><span class="ldot hollow"></span>Other recruit</span></div>`;
   $('#plot-market').innerHTML=h;
+  layoutLabels('#plot-market');
 }
 
-/* TO-01 scenario cards */
+/* TO-01 scenario cards · hover previews, click toggles selection (restored Figma logic) */
 function renderScen(){
-  $('#scen-row').innerHTML=SCEN.map(s=>`
-    <div class="card scard ${state.scenSel.has(s.key)?'sel':''}" onclick="toggleScen('${s.key}')">
+  $('#scen-row').innerHTML=SCEN.map(s=>{
+    const on=state.scenSel.has(s.key);
+    const asks=s.recruits.map(n=>{ const p=POOL.find(x=>x.n===n); return `${p.n} (${p.pos}) $${p.ask}K`; }).join(' · ');
+    return `
+    <div class="card scard ${on?'sel':''}" data-k="${s.key}" onclick="toggleScen('${s.key}')"
+         onmouseenter="hoverScen('${s.key}')" onmouseleave="hoverScen(null)">
       ${s.tag?`<span class="stag">${s.tag}</span>`:s.tag2?`<span class="stag gray">${s.tag2}</span>`:'<span class="stag gray" style="visibility:hidden">·</span>'}
-      <span class="cbx">${state.scenSel.has(s.key)?'✓':''}</span>
+      <span class="cbx">${on?'✓':''}</span>
       <h4>${s.name} Roster</h4>
-      <div style="font-size:11px;color:var(--tert);margin-top:2px">${s.recruits.join(' + ')}</div>
+      <div class="lineup"><b>Signs</b> ${asks}<br><b>Keeps</b> ${RETURNING.length} returning players</div>
       <div class="kv">
         <div class="kb"><div class="kk">YEAR 1 COST</div><div class="vv">$${s.cost}K</div></div>
         <div class="kb"><div class="kk">CEILING</div><div class="vv">${s.ceil.toFixed(1)}</div></div>
       </div>
-    </div>`).join('');
-  $('#scen-chip').textContent='4 scenarios';
+    </div>`;}).join('');
+  syncScenFoot();
 }
-function toggleScen(k){ state.scenSel.has(k)?state.scenSel.delete(k):state.scenSel.add(k); renderScen(); }
+function syncScenFoot(){
+  const n=state.scenSel.size;
+  $('#scen-chip').textContent=`${n} of ${SCEN.length} scenarios`;
+  const run=$('#btn-run');
+  run.disabled=n===0;
+  run.textContent=n===0?'Pick a roster to compare':`Run trade-off · ${n} roster${n===1?'':'s'}`;
+  $('#market-sub').textContent = n===0
+    ? 'Every dot is one recommended recruit · ceilings rated 1–5 · asks shown against your $100K budget. Select the rosters you want compared.'
+    : 'Every dot is one recommended recruit · ceilings rated 1–5 · asks shown against your $100K budget. Hover a roster below to light up who it signs.';
+}
+function hoverScen(k){ state.hoverScen=k; renderMarket(); }
+/* update in place so the card under the cursor keeps its hover state */
+function toggleScen(k){
+  const was=state.scenSel.has(k);
+  was?state.scenSel.delete(k):state.scenSel.add(k);
+  const card=document.querySelector(`.scard[data-k="${k}"]`);
+  card.classList.toggle('sel',!was);
+  card.querySelector('.cbx').textContent = was?'':'✓';
+  syncScenFoot(); renderMarket();
+}
+function useExample(i){ $('#q-input').value=EXAMPLES[i]; $('#q-input').focus(); }
+function runTradeoff(){ if(state.scenSel.size===0) return; go('to02'); }
 
 /* TO-02 main plot */
 function setView(v){
@@ -863,30 +966,56 @@ function setView(v){
   $('#seg-c').classList.toggle('on',v==='c');
   renderMainPlot();
 }
+/* Selecting a roster never changes the active view — it re-focuses whichever plot is open. */
 function setRoster(k){
   state.roster=k;
-  if(state.plotView!=='c'){ state.plotView='c'; $('#seg-q').classList.remove('on'); $('#seg-c').classList.add('on'); }
   renderMainPlot();
 }
+/* Scenarios carried over from TO-01 · SCEN is ordered by question fit */
+function activeScen(){
+  const a=SCEN.filter(s=>state.scenSel.has(s.key));
+  return a.length?a:SCEN.slice();
+}
+function renderAnswer(){
+  const a=activeScen(), top=a[0], left=100-top.cost;
+  if(!state.scenSel.has(state.roster)) state.roster=top.key;
+  $('#to02-q').textContent=`“${$('#q-input').value.trim()}”`;
+  $('#to02-chip').textContent=`${a.length} scenario${a.length===1?'':'s'}`;
+  $('#to02-lead').textContent = a.length===1
+    ? 'The scenario you selected, scored against the question you asked — and the one constraint that breaks.'
+    : `Your ${a.length} scenarios scored against the question you asked — and the one constraint that breaks.`;
+  $('#h2-name').textContent=top.name;
+  $('#h2-sub').textContent=`Best question fit of your ${a.length} scenario${a.length===1?'':'s'} — chance creation ${top.cc.toFixed(1)}, back line held at ${top.bls.toFixed(1)}, with $${left}K still unspent.`;
+  $('#h2-cc').textContent=top.cc.toFixed(1);
+  $('#h2-bls').textContent=top.bls.toFixed(1);
+  $('#h2-left').textContent=`$${left}K`;
+  $('#break-note').textContent=`Striker depth sits below the question-safe floor. Cover it with the $${left}K reserve or trade back one midfield slot.`;
+}
 function renderMainPlot(){
+  renderAnswer();
   renderRank();
   if(state.plotView==='q'){
+    const cur=SCEN.find(x=>x.key===state.roster);
     $('#plot-title').textContent='Chance creation vs back-line safety';
-    $('#plot-sub').textContent='Each dot is one scenario. No one clears 4.5 on both axes — pick which side of the trade-off to live with.';
+    $('#plot-sub').textContent=`Each dot is one scenario. No one clears 4.5 on both axes — ${cur.name} sits at chance creation ${cur.cc.toFixed(1)} and back-line safety ${cur.bls.toFixed(1)}.`;
     $('#rail-breaks').style.display='';
     $('#rail-roster').style.display='none';
     const X=v=>(v-3)/2*100, Y=v=>(5-v)/2*100;
     let h=`<div class="redzone" style="top:${Y(4.0)}%"></div><span class="redzone-label">BACK LINE EXPOSED · BELOW 4.0</span>`;
     [3.5,4.0,4.5,5.0].forEach(g=>h+=`<div class="gline" style="top:${Y(g)}%"></div>`);
     [3.0,3.5,4.0,4.5,5.0].forEach(g=>{h+=`<span class="ytick" style="top:${Y(g)}%">${g.toFixed(1)}</span>`;h+=`<span class="xtick" style="left:${X(g)}%">${g.toFixed(1)}</span>`});
-    SCEN.forEach(s=>{
-      const rec=s.key==='sdm';
+    const a=activeScen();
+    a.forEach((s,i)=>{
+      const rec=i===0, on=s.key===state.roster;
       const side = X(s.cc)>70?'left':'right';
-      h+=dotHtml(X(s.cc),Y(s.bls),rec?'green':'hollow',`${s.name} · $${s.cost}K`,side,rec);
+      const cls = rec?'green':(on?'ring':'hollow');
+      h+=dotHtml(X(s.cc),Y(s.bls),cls,`${s.name} · $${s.cost}K`,side,rec||on);
     });
     h+=`<span class="axis-title" style="top:-22px;left:0">BACK-LINE SAFETY ↑ (1–5)</span><span class="axis-title" style="bottom:-38px;left:50%;transform:translateX(-50%)">CHANCE CREATION → (1–5)</span>`;
-    h+=`<div class="legend" style="top:-26px"><span class="li"><span class="ldot green"></span>Recommended</span><span class="li"><span class="ldot hollow"></span>Other scenario</span></div>`;
+    const ring = state.roster!==a[0].key ? '<span class="li"><span class="ldot ring"></span>Selected</span>' : '';
+    h+=`<div class="legend" style="top:-26px"><span class="li"><span class="ldot green"></span>Recommended</span>${ring}<span class="li"><span class="ldot hollow"></span>Other scenario</span></div>`;
     $('#plot-main').innerHTML=h;
+    layoutLabels('#plot-main');
   } else {
     const s=SCEN.find(x=>x.key===state.roster);
     $('#plot-title').textContent='Ceiling vs scholarship ask';
@@ -894,29 +1023,31 @@ function renderMainPlot(){
     $('#rail-breaks').style.display='none';
     $('#rail-roster').style.display='';
     renderRosterCard(s);
-    const X=v=>(v-5)/50*100, Y=c=>(5-c)/2*100;
+    const X=v=>v/60*100, Y=c=>(5-c)/2*100;
     let h='';
     h+=`<div class="band" style="left:${X(40)}%;right:0"></div><span class="band-label" style="left:calc(${X(40)}% + 8px)">PREMIUM ASK</span>`;
     [3.5,4.0,4.5,5.0].forEach(g=>h+=`<div class="gline" style="top:${Y(g)}%"></div>`);
     [3.0,3.5,4.0,4.5,5.0].forEach(g=>h+=`<span class="ytick" style="top:${Y(g)}%">${g.toFixed(1)}</span>`);
-    [5,15,25,35,45,55].forEach(v=>h+=`<span class="xtick" style="left:${X(v)}%">${v}%</span>`);
-    h+=`<div class="refline" style="top:${Y(BEST_RETURNING)}%"></div><span class="reflab" style="right:8px;top:${Y(BEST_RETURNING)}%">BEST RETURNING CEILING · ${BEST_RETURNING}</span>`;
+    [0,15,30,45,60].forEach(v=>h+=`<span class="xtick" style="left:${X(v)}%">${v}%</span>`);
+    h+=`<div class="refline" style="top:${Y(BEST_RETURNING)}%"></div><span class="reflab" style="right:8px;top:${Y(BEST_RETURNING)}%">BEST RETURNING CEILING · ${BEST_RETURNING.toFixed(1)}</span>`;
     RETURNING.forEach(p=>{
-      h+=dotHtml(X(p.share),Y(p.ceil),'hollow',`${p.n} · ${p.pos}`,'right',false,p.dy);
+      const side = X(p.share)>74?'left':'right';
+      h+=dotHtml(X(p.share),Y(p.ceil),'hollow',`${p.n} · ${p.pos} · ${p.share}%`,side,false,p.dy);
     });
     s.recruits.forEach(nm=>{
       const p=POOL.find(x=>x.n===nm);
-      const side = X(p.ask)>72?'left':'right';
+      const side = X(p.ask)>74?'left':'right';
       h+=dotHtml(X(p.ask),Y(p.ceil),'green',`${p.n} · ${p.pos} · $${p.ask}K`,side,true);
     });
     h+=`<span class="axis-title" style="top:-22px;left:0">CEILING ↑ (1–5)</span><span class="axis-title" style="bottom:-38px;left:50%;transform:translateX(-50%)">SCHOLARSHIP ASK → (% OF $100K)</span>`;
     h+=`<div class="legend" style="top:-26px"><span class="li"><span class="ldot green"></span>Potential recruits</span><span class="li"><span class="ldot hollow"></span>Returning roster</span></div>`;
     $('#plot-main').innerHTML=h;
+    layoutLabels('#plot-main');
   }
 }
 function renderRank(){
-  $('#rank-list').innerHTML=SCEN.map((s,i)=>`
-    <div class="rrow ${state.plotView==='c'&&state.roster===s.key?'on':''}" onclick="setRoster('${s.key}')">
+  $('#rank-list').innerHTML=activeScen().map((s,i)=>`
+    <div class="rrow ${state.roster===s.key?'on':''}" onclick="setRoster('${s.key}')">
       <span class="rk">${i+1}</span><span class="rn">${s.name}</span>
       <span class="rc">$${s.cost}K</span><span class="rf">${s.fit.toFixed(1)}</span>
     </div>`).join('');
@@ -925,11 +1056,43 @@ function renderRosterCard(s){
   $('#roster-rows').innerHTML=s.recruits.map(nm=>{
     const p=POOL.find(x=>x.n===nm);
     return `<div class="rrw"><span class="rrn">${p.n} · ${p.pos}</span><span class="rra">$${p.ask}K</span><span class="rrc">${p.ceil.toFixed(1)}</span></div>`;
-  }).join('')+`<div class="rsum">Combined ceiling ${s.ceil.toFixed(1)} · uses ${s.cost}% of budget</div>`;
+  }).join('')+`<div class="rsum">Combined ceiling ${s.ceil.toFixed(1)} · uses ${s.cost}% of budget · keeps ${RETURNING.length} returning players</div>`;
 }
 
-/* ═══════════ TO-03 modal ═══════════ */
-function openModal(){ $('#overlay').classList.add('on'); }
+/* ═══════════ Save modal · TO-03 over TO-02, same pop-up reused by PC-02 ═══════════ */
+const SAVE_CTX={
+  to:{ lead:'Freeze this comparison so you can reopen it later or share it with staff.',
+       q:'“How should we spend $100K to improve chance creation without leaving the back line exposed?”',
+       ans:'Strong Double Midfield · fit 4.7 · $84K',
+       meta:'Keeps all four scenarios, the striker flag, and the Aug 6, 2026 data snapshot.',
+       name:'Midfield + center-back plan',
+       note:'Discuss with staff before the August recruiting weekend.' },
+  pc:{ lead:'Freeze this comparison so you can reopen it later or share it with staff.',
+       q:'“Which defender gives us the safest 2027 floor under a $70K year-one budget?”',
+       ans:'D. Okafor · role match 4.6 · $39K',
+       meta:'Keeps both recruits, the trait-by-trait breakdown, and the Aug 6, 2026 data snapshot.',
+       name:'Replace graduating center back',
+       note:'Confirm leadership and pressure reads on the live visit.' }
+};
+function openModal(kind){
+  state.saveKind = kind || 'to';
+  const c=SAVE_CTX[state.saveKind];
+  $('#d-lead').textContent=c.lead;
+  if(state.saveKind==='to'){
+    const a=activeScen(), top=a[0];
+    $('#d-q').textContent=`“${$('#q-input').value.trim()}”`;
+    $('#d-ans').textContent=`${top.name} · fit ${top.fit.toFixed(1)} · $${top.cost}K`;
+    $('#d-meta').textContent=`Keeps all ${a.length} scenario${a.length===1?'':'s'}, the striker flag, and the Aug 6, 2026 data snapshot.`;
+  } else {
+    $('#d-q').textContent=c.q;
+    $('#d-ans').textContent=c.ans;
+    $('#d-meta').textContent=c.meta;
+  }
+  $('#f-name').value=c.name;
+  $('#f-note').value=c.note;
+  $('#f-cnt').textContent=`${c.note.length} / 240`;
+  $('#overlay').classList.add('on');
+}
 function closeModal(){ $('#overlay').classList.remove('on'); }
 $('#overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
 $('#f-note').addEventListener('input',e=>{ $('#f-cnt').textContent=`${e.target.value.length} / 240`; });
@@ -940,15 +1103,40 @@ function setVis(v){
   $('#f-dest').textContent = v==='team' ? 'Will appear in Saved results · Team workspace' : 'Will appear in Saved results · Only me';
 }
 function publish(){
-  state.savedName=$('#f-name').value.trim()||'Untitled comparison';
-  state.savedNote=$('#f-note').value.trim()||'—';
+  const name=$('#f-name').value.trim()||'Untitled comparison';
+  const note=$('#f-note').value.trim()||'—';
+  const team=state.vis==='team';
+  const p=state.saveKind==='pc';
   closeModal();
-  $('#sv1-name').textContent=state.savedName;
-  $('#sv5-name').textContent=state.savedName;
-  $('#sv5-note').textContent=state.savedNote;
-  $('#sv1-tag').textContent = state.vis==='team'?'TEAM':'PRIVATE';
-  $('#sv1-tag').className = state.vis==='team'?'tag-team':'tag-private';
-  $('#save-banner-text').textContent = `“${state.savedName}” saved and ${state.vis==='team'?'published to Team workspace':'kept private to you'}`;
+
+  if(p){
+    $('#sv2-name').textContent=name;
+    $('#sv2-meta').textContent='Player comparison · Saved just now · by you';
+    $('#sv2-tag').textContent = team?'TEAM':'PRIVATE';
+    $('#sv2-tag').className = team?'tag-team':'tag-private';
+  } else {
+    const a=activeScen(), top=a[0];
+    state.savedName=name; state.savedNote=note;
+    $('#sv1-name').textContent=name;
+    $('#sv1-meta').textContent='Trade-off board · Saved just now · by you';
+    $('#sv1-tag').textContent = team?'TEAM':'PRIVATE';
+    $('#sv1-tag').className = team?'tag-team':'tag-private';
+    $('#sv1-q').textContent=$('#d-q').textContent;
+    $('#sv1-ans').textContent=`${top.name} · fit ${top.fit.toFixed(1)} · $${top.cost}K`;
+    $('#sv5-name').textContent=name;
+    $('#sv5-note').textContent=note;
+    $('#sv5-tag').textContent = team?'TEAM':'PRIVATE';
+    $('#sv5-tag').className = team?'tag-team':'tag-private';
+    $('#sv5-q').textContent=$('#d-q').textContent;
+    $('#sv5-ans').textContent=`${top.name} · fit ${top.fit.toFixed(1)} · $${top.cost}K`;
+    $('#sv5-meta').textContent=`${a.length} scenario${a.length===1?'':'s'} scored · data as of Aug 6, 2026 · saved by you`;
+    renderSavedRank();
+  }
+  /* the result just saved leads the list */
+  const first=$(p?'#sv2-item':'#sv1-item'), second=$(p?'#sv1-item':'#sv2-item');
+  second.parentNode.insertBefore(first, second);
+
+  $('#save-banner-text').textContent = `“${name}” saved and ${team?'published to Team workspace':'kept private to you'}`;
   go('to04');
 }
 
@@ -972,31 +1160,30 @@ function filterSaved(){
 }
 
 /* ═══════════ TO-05 saved rank ═══════════ */
-$('#saved-rank').innerHTML=SCEN.map((s,i)=>`
-  <div class="rrow ${i===0?'on':''}" style="cursor:default">
-    <span class="rk">${i+1}</span><span class="rn">${s.name}</span>
-    <span class="rc">$${s.cost}K</span><span class="rf">${s.fit.toFixed(1)}</span>
-  </div>`).join('');
-
-/* ═══════════ Toast ═══════════ */
-let toastTimer=null;
-function toast(msg,actLabel,actFn){
-  $('#toast-text').textContent=msg;
-  const a=$('#toast-act');
-  if(actLabel){ a.style.display=''; a.textContent=actLabel; a.onclick=()=>{ hideToast(); actFn(); }; }
-  else a.style.display='none';
-  $('#toast').classList.add('on');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(hideToast,4500);
+function renderSavedRank(){
+  $('#saved-rank').innerHTML=activeScen().map((s,i)=>`
+    <div class="rrow ${i===0?'on':''}" style="cursor:default">
+      <span class="rk">${i+1}</span><span class="rn">${s.name}</span>
+      <span class="rc">$${s.cost}K</span><span class="rf">${s.fit.toFixed(1)}</span>
+    </div>`).join('');
 }
-function hideToast(){ $('#toast').classList.remove('on'); }
 
 /* ═══════════ Init ═══════════ */
 renderPc01();
-renderMarket();
 renderScen();
+renderMarket();
 renderMainPlot();
+renderSavedRank();
 go('pc01');
+
+let rzTimer=null;
+addEventListener('resize',()=>{
+  clearTimeout(rzTimer);
+  rzTimer=setTimeout(()=>{
+    if(state.screen==='to01') renderMarket();
+    if(state.screen==='to02') renderMainPlot();
+  },160);
+});
 </script>
 </body>
 </html>
