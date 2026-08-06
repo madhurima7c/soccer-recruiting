@@ -435,11 +435,11 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
             <div class="fgroup">
               <label>POSITION FIT</label>
               <div class="chips">
-                <button class="fchip on" data-pos="cb" onclick="togglePos('cb')">Center back</button>
+                <button class="fchip on" data-pos="exact" onclick="togglePos('exact')">Center back</button>
                 <button class="fchip on" data-pos="hybrid" onclick="togglePos('hybrid')">CB hybrids</button>
                 <button class="fchip" data-pos="adjacent" onclick="togglePos('adjacent')">Adjacent defenders</button>
               </div>
-              <div class="hint">Benchmark R. Halvorsen plays CB.</div>
+              <div class="hint" id="f-pos-hint">Benchmark R. Halvorsen plays CB.</div>
             </div>
             <div class="fgroup">
               <label>RECRUITING CLASS</label>
@@ -464,7 +464,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
                 <input type="range" id="f-ask" min="15" max="60" step="1" value="60" oninput="setMaxAsk(this.value)">
                 <span class="val" id="f-ask-val">$60K</span>
               </div>
-              <div class="hint">R. Halvorsen’s scholarship frees $44K.</div>
+              <div class="hint" id="f-ask-hint">Asks in this pool run $20K–$55K.</div>
             </div>
             <div class="fgroup">
               <label>MINIMUM ROLE MATCH</label>
@@ -472,7 +472,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
                 <input type="range" id="f-rate" min="3" max="5" step="0.1" value="3" oninput="setMinRate(this.value)">
                 <span class="val" id="f-rate-val">3.0</span>
               </div>
-              <div class="hint">Benchmark rates 4.1 on the same 1–5 scale.</div>
+              <div class="hint" id="f-rate-hint">Benchmark rates 4.1 on the same 1–5 scale.</div>
             </div>
             <div class="fgroup">
               <label>EVIDENCE STRENGTH</label>
@@ -513,10 +513,10 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
       <!-- ── PC-02 ── -->
       <section class="screen" id="s-pc02"><div class="page-inner">
         <h1>Comparison results</h1>
-        <p class="lead">Okafor or Odom as the like-for-like replacement for R. Halvorsen — here is the call and what separates them.</p>
+        <p class="lead" id="pc02-lead">Okafor or Odom as the like-for-like replacement for R. Halvorsen — here is the call and what separates them.</p>
         <div class="card ctxbar">
-          <span class="chip plain">Benchmark · R. Halvorsen · CB · graduating</span>
-          <span class="chip plain">2 recruits · rated 1–5 · ranked by role fit</span>
+          <span class="chip plain" id="pc02-chip-bench">Benchmark · R. Halvorsen · CB · graduating</span>
+          <span class="chip plain" id="pc02-chip-count">2 recruits · rated 1–5 · ranked by role fit</span>
           <span class="sp"></span>
           <span style="color:var(--tert);font-size:11px">Updated just now</span>
           <button class="btn btn-ghost" onclick="go('pc01')">Edit selection</button>
@@ -524,46 +524,23 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
         <div class="hero">
           <div class="ht">
             <span class="eyebrow">ROSTERMIND RECOMMENDATION</span>
-            <h2>Call D. Okafor first</h2>
-            <div class="hs">Keeps the aerial standard, adds recovery speed, and costs $16K less than B. Odom.</div>
+            <h2 id="pc02-h2">Call D. Okafor first</h2>
+            <div class="hs" id="pc02-hs">Keeps the aerial standard, adds recovery speed, and costs $16K less than B. Odom.</div>
           </div>
-          <div class="statbox"><div class="sv green">4.6</div><div class="sk">role match · 1–5</div></div>
-          <div class="statbox"><div class="sv">$39K</div><div class="sk">scholarship ask</div></div>
-          <div class="statbox"><div class="sv green">−$16K</div><div class="sk">vs B. Odom</div></div>
+          <div id="pc02-stats" style="display:flex;gap:12px"></div>
         </div>
-        <div class="duo">
-          <div class="card pcard rec">
-            <span class="badge">Recommended</span>
-            <h3>D. Okafor</h3><div class="psub">CB · 2027 · rated 4.6 vs benchmark 4.1</div>
-            <div class="big">4.6</div>
-            <div class="mbar"><i style="width:92%"></i></div>
-            <div class="cap">role match vs R. Halvorsen · 1–5</div>
-            <div class="chips"><span class="chip">$39K ask</span><span class="chip">High · 3 sources</span><span class="chip up">+1 recovery speed</span></div>
-          </div>
-          <div class="card pcard alt">
-            <span class="badge">Alternative</span>
-            <h3>B. Odom</h3><div class="psub">CB · 2027 · rated 4.4 vs benchmark 4.1</div>
-            <div class="big">4.4</div>
-            <div class="mbar"><i style="width:88%"></i></div>
-            <div class="cap">role match vs R. Halvorsen · 1–5</div>
-            <div class="chips"><span class="chip">$55K ask</span><span class="chip">High · 3 sources</span><span class="chip down">−1 aerial duel</span></div>
-          </div>
-        </div>
+        <div class="duo" id="pc02-duo"></div>
         <div class="card traits">
           <div class="th">
-            <div><h3>Where they differ from R. Halvorsen</h3><div class="tsub">Only three of six traits separate these recruits. Scale is 1–5.</div></div>
-            <span class="chip plain">Identical: ball-winning, 1v1, final third</span>
+            <div><h3 id="pc02-th">Where they differ from R. Halvorsen</h3><div class="tsub" id="pc02-tsub">Only three of six traits separate these recruits. Scale is 1–5.</div></div>
+            <span class="chip plain" id="pc02-identical">Identical: ball-winning, 1v1, final third</span>
           </div>
           <div class="tgrid" id="tgrid"></div>
         </div>
-        <div class="trio">
-          <div class="notecard ok"><b>WHY OKAFOR</b>Same aerial ceiling as Halvorsen, +1 recovery speed, and $16K cheaper.</div>
-          <div class="notecard info"><b>WHEN ODOM INSTEAD</b>Better on the ball under pressure. Pick him if build-out matters more than aerials.</div>
-          <div class="notecard warn"><b>VERIFY BEFORE OFFER</b>Leadership and pressure reads are inferred, not observed. Confirm on a live visit.</div>
-        </div>
+        <div class="trio" id="pc02-notes"></div>
         <div class="card evrow">
           <span class="eyebrow green">EVIDENCE USED</span>
-          <span class="chip">ECNL</span><span class="chip">Transfer Portal</span><span class="chip">Tracked Excel</span>
+          <span id="pc02-ev" style="display:flex;gap:6px"></span>
           <span style="flex:1"></span>
           <button class="btn btn-ghost">View evidence</button>
           <button class="btn btn-primary" onclick="openModal('pc')">Save this result</button>
@@ -678,8 +655,8 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
         <div class="card saveditem" id="sv2-item" data-kind="pc" data-text="replace graduating center back which defender safest 2027 floor okafor">
           <div class="sirow"><span class="tag-private" id="sv2-tag">PRIVATE</span><span class="simeta" id="sv2-meta">Player comparison · Saved Aug 2 · 10:05 AM</span></div>
           <h3 id="sv2-name">Replace graduating center back</h3>
-          <div class="siq">“Which defender gives us the safest 2027 floor under a $70K year-one budget?”</div>
-          <div class="sians"><span class="eyebrow green">ANSWER</span><b>D. Okafor · role match 4.6 · $39K</b><span class="clear">All constraints clear</span></div>
+          <div class="siq" id="sv2-q">“Which defender gives us the safest 2027 floor under a $70K year-one budget?”</div>
+          <div class="sians"><span class="eyebrow green">ANSWER</span><b id="sv2-ans">D. Okafor · role match 4.6 · $39K</b><span class="clear">All constraints clear</span></div>
           <div class="act"><button class="btn btn-ghost" onclick="go('pc02')">Open</button></div>
         </div>
         <div class="eyebrow tert earlier-label" id="earlier-label">EARLIER</div>
@@ -785,53 +762,48 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
 
 <script>
 /* ═══════════ Canonical data (single source of truth) ═══════════ */
-const ROSTER=[
- {n:'R. Halvorsen',pos:'CB',cls:'Senior ’26',grad:true, rate:4.1,note:'Captain. Four-year starter. Graduates in May.'},
- {n:'T. Lund',pos:'GK',cls:'Senior ’26',grad:true, rate:3.9,note:'Three-year starter. Graduation creates a roster hole.'},
- {n:'E. Trent',pos:'CB',cls:'Senior ’27',rate:3.7,note:'Starts every week. Strong aerial reference point.'},
- {n:'O. Fitzgerald',pos:'DM',cls:'Senior ’27',rate:3.5,note:'Reliable rotation piece; stabilizes transitions.'},
- {n:'J. Pike',pos:'ST',cls:'Senior ’27',rate:3.5,note:'Nine goals last year; strong box presence.'}];
+/* Traits are scored 1–5 and read against the trait set for that player's unit,
+   so a keeper is never compared on aerial duels. tr = the six scores in order. */
+const UNIT={GK:'gk',CB:'def',LB:'def',RB:'def',DM:'mid',CM:'mid',AM:'mid',LW:'att',ST:'att'};
+const TRAIT_SET={
+ def:['On the ball under pressure','Aerial & physical duels','Speed and recovery','Ball-winning & tackling','1v1 defending','Final-third contribution'],
+ mid:['On the ball under pressure','Progressive passing','Speed and recovery','Ball-winning & tackling','Chance creation','Final-third contribution'],
+ att:['On the ball under pressure','Aerial & physical duels','Speed and recovery','Finishing','Chance creation','Pressing workrate'],
+ gk :['Shot stopping','Aerial command','Distribution under pressure','1v1 saves','Sweeping behind the line','Communication']};
+const POS_NAME={GK:'Goalkeeper',CB:'Center back',LB:'Left back',RB:'Right back',DM:'Defensive mid',CM:'Center mid',AM:'Attacking mid',LW:'Left wing',ST:'Striker'};
+const UNIT_NAME={gk:'keepers',def:'defenders',mid:'midfielders',att:'forwards'};
 
-/* Recruit pool for the CB benchmark · rate = role match vs R. Halvorsen (1–5)
-   group: cb = pure center back, hybrid = covers CB plus another slot,
-   adjacent = other defenders the coach can widen the search to
-   srcs = which connected feeds carry this recruit · asks match the trade-off market */
-const CB_RECRUITS=[
- {n:'D. Okafor',   pos:'CB',    ask:39, rate:4.6, group:'cb',       cls:'2027', srcs:['ecnl','portal'],  nsrc:3, loc:'Atlanta, GA'},
- {n:'B. Odom',     pos:'CB',    ask:55, rate:4.4, group:'cb',       cls:'2027', srcs:['portal','excel'], nsrc:3, loc:'Cary, NC'},
- {n:'D. Marsh',    pos:'CB',    ask:20, rate:4.2, group:'cb',       cls:'2028', srcs:['ecnl'],           nsrc:2, loc:'Boise, ID'},
- {n:'K. Sørensen', pos:'CB',    ask:30, rate:4.1, group:'cb',       cls:'2027', srcs:['excel'],          nsrc:2, loc:'Aarhus, DK'},
- {n:'S. Whitaker', pos:'CB/LB', ask:42, rate:3.8, group:'hybrid',   cls:'2028', srcs:['ecnl','portal'],  nsrc:3, loc:'Denver, CO'},
- {n:'A. Chen',     pos:'LB',    ask:26, rate:3.6, group:'adjacent', cls:'2028', srcs:['ecnl','portal'],  nsrc:2, loc:'Sacramento, CA'},
- {n:'L. Martinez', pos:'RB',    ask:47, rate:3.3, group:'adjacent', cls:'2027', srcs:['portal'],         nsrc:2, loc:'Houston, TX'}];
+const ROSTER=[
+ {n:'R. Halvorsen',pos:'CB',cls:'Senior ’26',grad:true, rate:4.1,tr:[4,5,3,4,4,3],note:'Captain. Four-year starter. Graduates in May.'},
+ {n:'T. Lund',pos:'GK',cls:'Senior ’26',grad:true, rate:3.9,tr:[4,4,4,4,3,4],note:'Three-year starter. Graduation creates a roster hole.'},
+ {n:'E. Trent',pos:'CB',cls:'Senior ’27',rate:3.7,tr:[3,5,3,4,3,2],note:'Starts every week. Strong aerial reference point.'},
+ {n:'O. Fitzgerald',pos:'DM',cls:'Senior ’27',rate:3.5,tr:[3,3,3,4,3,3],note:'Reliable rotation piece; stabilizes transitions.'},
+ {n:'J. Pike',pos:'ST',cls:'Senior ’27',rate:3.5,tr:[3,4,3,4,3,3],note:'Nine goals last year; strong box presence.'}];
+
 const SRC_SHORT={ecnl:'ECNL',portal:'Portal',excel:'Tracked Excel'};
 const SRC_LABEL={ecnl:'ECNL',portal:'Transfer Portal',excel:'Tracked Excel'};
 const SRC_META={ecnl:'214 recruits',portal:'live feed',excel:'Jul 30'};
 
-const TRAITS=[
- {t:'On the ball under pressure', h:4, ok:3, od:4},
- {t:'Aerial & physical duels',    h:5, ok:5, od:4},
- {t:'Speed and recovery',         h:3, ok:4, od:3}];
-
-/* Trade-off market pool · ceiling 1–5 · ask $K of the $100K budget
-   CB asks match PC-01 exactly (Okafor 39, Odom 55, Marsh 20, Sørensen 30, Whitaker 42)
+/* One recruit market feeds both workflows.
+   ceil = upside 1–5 (trade-off board) · ask = $K against the $100K budget
+   fit  = role match 1–5 against the position this recruit is scouted to cover
    mside = label side override on the market chart (collision control) */
 const POOL=[
- {n:'D. Okafor',  pos:'CB',   ceil:4.6, ask:39},
- {n:'M. Alvarez', pos:'CM',   ceil:4.6, ask:58, mside:'left'},
- {n:'A. Chen',    pos:'LB',   ceil:4.5, ask:26},
- {n:'B. Odom',    pos:'CB',   ceil:4.4, ask:55, mside:'left'},
- {n:'T. Williams',pos:'LW',   ceil:4.3, ask:49, mside:'left'},
- {n:'E. Brooks',  pos:'ST',   ceil:4.3, ask:33},
- {n:'N. Patel',   pos:'DM',   ceil:4.2, ask:26},
- {n:'D. Marsh',   pos:'CB',   ceil:4.2, ask:20, mside:'left'},
- {n:'L. Martinez',pos:'RB',   ceil:4.1, ask:47, mside:'left'},
- {n:'K. Sørensen',pos:'CB',   ceil:4.1, ask:30},
- {n:'M. Rowe',    pos:'GK',   ceil:4.0, ask:51, mside:'left'},
- {n:'C. Rivera',  pos:'ST',   ceil:4.0, ask:24},
- {n:'N. Barros',  pos:'AM',   ceil:3.9, ask:38},
- {n:'J. Rossi',   pos:'AM',   ceil:3.9, ask:21, mside:'left'},
- {n:'S. Whitaker',pos:'CB/LB',ceil:3.8, ask:42}];
+ {n:'D. Okafor',  pos:'CB',   ceil:4.6, ask:39, fit:4.6, tr:[3,5,4,4,4,3], cls:'2027', srcs:['ecnl','portal'],  nsrc:3, loc:'Atlanta, GA'},
+ {n:'M. Alvarez', pos:'CM',   ceil:4.6, ask:58, fit:4.0, tr:[5,5,3,3,5,4], cls:'2027', srcs:['ecnl','portal'],  nsrc:3, loc:'Guadalajara, MX', mside:'left'},
+ {n:'A. Chen',    pos:'LB',   ceil:4.5, ask:26, fit:3.6, tr:[4,2,5,3,4,4], cls:'2028', srcs:['ecnl','portal'],  nsrc:2, loc:'Sacramento, CA'},
+ {n:'B. Odom',    pos:'CB',   ceil:4.4, ask:55, fit:4.4, tr:[4,4,3,4,4,3], cls:'2027', srcs:['portal','excel'], nsrc:3, loc:'Cary, NC', mside:'left'},
+ {n:'T. Williams',pos:'LW',   ceil:4.3, ask:49, fit:3.7, tr:[5,2,5,3,5,3], cls:'2028', srcs:['portal'],        nsrc:2, loc:'Portland, OR', mside:'left'},
+ {n:'E. Brooks',  pos:'ST',   ceil:4.3, ask:33, fit:4.3, tr:[3,4,4,5,3,4], cls:'2027', srcs:['ecnl','excel'],   nsrc:3, loc:'Columbus, OH'},
+ {n:'N. Patel',   pos:'DM',   ceil:4.2, ask:26, fit:4.4, tr:[4,4,4,5,3,3], cls:'2028', srcs:['ecnl','portal'],  nsrc:3, loc:'Frisco, TX'},
+ {n:'D. Marsh',   pos:'CB',   ceil:4.2, ask:20, fit:4.2, tr:[4,4,4,3,4,2], cls:'2028', srcs:['ecnl'],           nsrc:2, loc:'Boise, ID', mside:'left'},
+ {n:'L. Martinez',pos:'RB',   ceil:4.1, ask:47, fit:3.3, tr:[3,2,4,3,3,4], cls:'2027', srcs:['portal'],         nsrc:2, loc:'Houston, TX', mside:'left'},
+ {n:'K. Sørensen',pos:'CB',   ceil:4.1, ask:30, fit:4.1, tr:[5,4,2,4,3,3], cls:'2027', srcs:['excel'],          nsrc:2, loc:'Aarhus, DK'},
+ {n:'M. Rowe',    pos:'GK',   ceil:4.0, ask:51, fit:4.2, tr:[5,4,3,4,4,4], cls:'2027', srcs:['portal','excel'], nsrc:2, loc:'Chicago, IL', mside:'left'},
+ {n:'C. Rivera',  pos:'ST',   ceil:4.0, ask:24, fit:4.0, tr:[4,3,5,4,3,3], cls:'2028', srcs:['ecnl'],           nsrc:2, loc:'Tempe, AZ'},
+ {n:'N. Barros',  pos:'AM',   ceil:3.9, ask:38, fit:3.4, tr:[4,3,3,2,4,4], cls:'2027', srcs:['portal'],         nsrc:2, loc:'Miami, FL'},
+ {n:'J. Rossi',   pos:'AM',   ceil:3.9, ask:21, fit:3.5, tr:[4,4,4,2,4,4], cls:'2028', srcs:['ecnl','excel'],   nsrc:3, loc:'Kansas City, MO', mside:'left'},
+ {n:'S. Whitaker',pos:'CB/LB',ceil:3.8, ask:42, fit:3.8, tr:[4,3,5,3,4,4], cls:'2028', srcs:['ecnl','portal'],  nsrc:3, loc:'Denver, CO'}];
 
 /* Squad returning next season (Halvorsen & Lund graduate)
    share = that player's current scholarship as % of the same $100K reference */
@@ -862,8 +834,9 @@ const state={screen:'pc01', plotView:'q', roster:'sdm', vis:'team', saveKind:'to
   benchmark:'R. Halvorsen', recSel:new Set(['D. Okafor','B. Odom']),
   scenSel:new Set(['sdm','mb','pot','bg']), filter:'all'};
 
-/* PC-01 recruit filters · defaults keep the system's recommended CB shortlist */
-const RF_DEFAULT={pos:['cb','hybrid'], cls:['2027','2028'], srcs:['ecnl','portal','excel'], maxAsk:60, minRate:3, verified:false};
+/* PC-01 recruit filters · defaults keep the system's recommended shortlist:
+   the benchmark's own position plus recruits who cover it as a second slot */
+const RF_DEFAULT={pos:['exact','hybrid'], cls:['2027','2028'], srcs:['ecnl','portal','excel'], maxAsk:60, minRate:3, verified:false};
 const rf={pos:new Set(RF_DEFAULT.pos), cls:new Set(RF_DEFAULT.cls), srcs:new Set(RF_DEFAULT.srcs),
   maxAsk:RF_DEFAULT.maxAsk, minRate:RF_DEFAULT.minRate, verified:RF_DEFAULT.verified};
 
@@ -909,8 +882,8 @@ function renderPc01(){
       <span class="ctrl">${state.recSel.has(r.n)?'✓':''}</span>
       <span class="pinfo"><span class="pname">${r.n} &nbsp;<span class="pmeta">${r.pos} · ${r.cls} · asks $${r.ask}K</span></span>
       <div class="psub">${srcLine(r)}</div></span>
-      <span class="pbar"><i style="width:${r.rate/5*100}%"></i></span>
-      <span class="prate">${r.rate.toFixed(1)}</span>
+      <span class="pbar"><i style="width:${r.fit/5*100}%"></i></span>
+      <span class="prate">${r.fit.toFixed(1)}</span>
     </div>`).join('')
     : `<div class="empty">No recruits match these filters.<button onclick="resetFilters()">Reset filters</button></div>`;
 
@@ -930,20 +903,38 @@ function renderPc01(){
   const feeds=[...rf.srcs].map(s=>SRC_LABEL[s]);
   const feedText=feeds.length>1 ? feeds.slice(0,-1).join(', ')+' and '+feeds.slice(-1)+' connected' : feeds.length? feeds[0]+' connected' : 'no sources connected';
   $('#ready-title').textContent=n?`Ready to compare · ${state.benchmark} benchmark + ${n} recruit${n===1?'':'s'}`:'Pick at least one recruit to compare';
-  $('#ready-sub').textContent=n?`${names.join(' and ')} · ${feedText}`:'Recruits recommended for your benchmark are listed on the right.';
+  $('#ready-sub').textContent=n?`${listOf(names)} · ${feedText}`:'Recruits recommended for your benchmark are listed on the right.';
+  renderPc02();
+}
+function listOf(a){
+  return a.length>1 ? a.slice(0,-1).join(', ')+' and '+a.slice(-1) : (a[0]||'');
 }
 function srcLine(r){
   return `${r.srcs.map(s=>SRC_SHORT[s]).join(' + ')} · ${r.loc} · ${r.nsrc} sources`;
 }
 
 /* ═══════════ PC-01 recruit filters ═══════════ */
+function benchPlayer(){ return ROSTER.find(p=>p.n===state.benchmark)||ROSTER[0]; }
+function unitOf(pos){ return UNIT[pos.split('/')[0]]; }
+/* how a recruit relates to the position being replaced */
+function scopeOf(r,benchPos){
+  const slots=r.pos.split('/');
+  if(slots.includes(benchPos)) return slots.length>1?'hybrid':'exact';
+  return unitOf(r.pos)===UNIT[benchPos] ? 'adjacent' : null;
+}
+/* every recruit the system would consider for this benchmark, best fit first */
+function recruitPool(){
+  const bp=benchPlayer().pos;
+  return POOL.filter(r=>scopeOf(r,bp)).sort((a,b)=>b.fit-a.fit);
+}
 function visibleRecruits(){
-  return CB_RECRUITS.filter(r=>
-    rf.pos.has(r.group) &&
+  const bp=benchPlayer().pos;
+  return recruitPool().filter(r=>
+    rf.pos.has(scopeOf(r,bp)) &&
     rf.cls.has(r.cls) &&
     r.srcs.some(s=>rf.srcs.has(s)) &&
     r.ask<=rf.maxAsk &&
-    r.rate>=rf.minRate-0.001 &&
+    r.fit>=rf.minRate-0.001 &&
     (!rf.verified || r.nsrc>=3)
   );
 }
@@ -966,7 +957,8 @@ function renderFilterUi(shownCount){
   $('#f-ask-val').textContent=`$${rf.maxAsk}K`;
   $('#f-rate').value=rf.minRate;
   $('#f-rate-val').textContent=Number(rf.minRate).toFixed(1);
-  $('#f-count').innerHTML=`Showing <b>${shownCount}</b> of ${CB_RECRUITS.length} candidates`;
+  const pool=recruitPool();
+  $('#f-count').innerHTML=`Showing <b>${shownCount}</b> of ${pool.length} candidate${pool.length===1?'':'s'}`;
 
   const active=activeFilterCount();
   $('#f-reset').disabled=active===0;
@@ -974,8 +966,30 @@ function renderFilterUi(shownCount){
   btn.innerHTML='Filter recruits'+(active?`<span class="badge-n">${active}</span>`:'');
   btn.classList.toggle('on', active>0);
 
+  /* position labels follow whichever roster player is the benchmark */
+  const b=benchPlayer(), bp=b.pos, unit=UNIT[bp];
+  $('#fpanel [data-pos="exact"]').textContent=POS_NAME[bp];
+  $('#fpanel [data-pos="hybrid"]').textContent=`${bp} hybrids`;
+  $('#fpanel [data-pos="adjacent"]').textContent=`Adjacent ${UNIT_NAME[unit]}`;
+  /* a group with nobody in it should not look clickable */
+  const bySc={exact:0,hybrid:0,adjacent:0};
+  pool.forEach(r=>bySc[scopeOf(r,bp)]++);
+  $$('#fpanel [data-pos]').forEach(b=>{
+    const empty=!bySc[b.dataset.pos];
+    b.disabled=empty;
+    b.style.opacity=empty?'.4':'';
+    b.title=empty?'No candidates scouted in this group':'';
+  });
+  $('#f-pos-hint').textContent=`Benchmark ${b.n} plays ${bp}.`;
+  $('#f-rate-hint').textContent=`Benchmark rates ${b.rate.toFixed(1)} on the same 1–5 scale.`;
+  const asks=pool.map(r=>r.ask);
+  const lo=Math.min(...asks), hi=Math.max(...asks);
+  $('#f-ask-hint').textContent = !asks.length ? 'No candidates scouted for this position yet.'
+    : lo===hi ? `The only candidate asks $${lo}K.` : `Asks in this pool run $${lo}K–$${hi}K.`;
+  $('#rec-scope').textContent=`Recommended for ${b.n}`;
+
   /* the scope line explains what the list is actually showing */
-  const posText = rf.pos.has('adjacent') ? 'CB and adjacent defenders' : rf.pos.has('hybrid')? 'CB' : 'CB only';
+  const posText = rf.pos.has('adjacent') ? `${bp} and adjacent ${UNIT_NAME[unit]}` : rf.pos.has('hybrid')? bp : `${bp} only`;
   const bits=[posText,'rated 1–5','sorted by role fit'];
   if(rf.maxAsk!==RF_DEFAULT.maxAsk) bits.push(`asks up to $${rf.maxAsk}K`);
   if(rf.minRate!==RF_DEFAULT.minRate) bits.push(`role match ${Number(rf.minRate).toFixed(1)}+`);
@@ -1016,24 +1030,153 @@ function resetFilters(){
   rf.maxAsk=RF_DEFAULT.maxAsk; rf.minRate=RF_DEFAULT.minRate; rf.verified=RF_DEFAULT.verified;
   renderPc01();
 }
-function pickBench(n){ state.benchmark=n; renderPc01(); }
+/* a new benchmark means a new candidate pool, so the old picks no longer apply */
+function pickBench(n){
+  if(state.benchmark===n) return;
+  state.benchmark=n;
+  rf.pos=new Set(RF_DEFAULT.pos);
+  state.recSel=new Set(visibleRecruits().slice(0,2).map(r=>r.n));
+  renderPc01();
+}
 function toggleRec(n){
   if(state.recSel.has(n)) state.recSel.delete(n);
   else if(state.recSel.size<4) state.recSel.add(n);
   renderPc01();
 }
-/* ═══════════ PC-02 traits ═══════════ */
+/* ═══════════ PC-02 · everything follows the PC-01 selection ═══════════ */
 function sq(v,rec){ let s='<span class="sq'+(rec?' rec':'')+'">'; for(let i=1;i<=5;i++) s+=`<i class="${i<=v?'f':''}"></i>`; return s+'</span>'; }
 function delta(v,base){
   if(v===base) return '<span class="delta">same</span>';
   const d=v-base; return `<span class="delta ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>`;
 }
-$('#tgrid').innerHTML=TRAITS.map(t=>`
-  <div class="tcard"><h4>${t.t}</h4>
-    <div class="trow"><span>R. Halvorsen</span>${sq(t.h)}<span class="delta" style="background:transparent;color:var(--tert)">base</span></div>
-    <div class="trow"><span>D. Okafor</span>${sq(t.ok,true)}${delta(t.ok,t.h)}</div>
-    <div class="trow"><span>B. Odom</span>${sq(t.od)}${delta(t.od,t.h)}</div>
-  </div>`).join('');
+/* compact trait names for chips and prose */
+const TRAIT_SHORT={'On the ball under pressure':'on the ball','Aerial & physical duels':'aerial duels','Speed and recovery':'recovery speed',
+ 'Ball-winning & tackling':'ball-winning','1v1 defending':'1v1 defending','Final-third contribution':'final third',
+ 'Progressive passing':'progressive passing','Chance creation':'chance creation','Finishing':'finishing','Pressing workrate':'pressing workrate',
+ 'Shot stopping':'shot stopping','Aerial command':'aerial command','Distribution under pressure':'distribution','1v1 saves':'1v1 saves',
+ 'Sweeping behind the line':'sweeping','Communication':'communication'};
+/* the same trait reads differently after a preposition than it does on a chip */
+const TRAIT_PROSE={'On the ball under pressure':'the ball under pressure'};
+function prose(t){ return TRAIT_PROSE[t]||TRAIT_SHORT[t]; }
+const NUM_WORD=['no','one','two','three','four','five','six'];
+function surname(n){ return n.split(' ').slice(-1)[0]; }
+function selectedRecruits(){ return recruitPool().filter(r=>state.recSel.has(r.n)); }
+/* traits where a scores higher than b, biggest gap first */
+function edges(a,b,traits){
+  return traits.map((t,i)=>({t,d:a.tr[i]-b.tr[i]})).filter(x=>x.d>0).sort((x,y)=>y.d-x.d);
+}
+function renderPc02(){
+  const bench=benchPlayer(), traits=TRAIT_SET[unitOf(bench.pos)], recs=selectedRecruits();
+  const top=recs[0], second=recs[1];
+
+  $('#pc02-chip-bench').textContent=`Benchmark · ${bench.n} · ${bench.pos}${bench.grad?' · graduating':''}`;
+  $('#pc02-chip-count').textContent=`${recs.length} recruit${recs.length===1?'':'s'} · rated 1–5 · ranked by role fit`;
+
+  if(!recs.length){
+    $('#pc02-lead').textContent=`No candidates selected yet for ${bench.n}.`;
+    $('#pc02-h2').textContent='Nothing to compare';
+    $('#pc02-hs').textContent='Pick at least one recruit on the previous step.';
+    ['#pc02-stats','#pc02-duo','#tgrid','#pc02-notes','#pc02-ev'].forEach(s=>$(s).innerHTML='');
+    $('#pc02-th').textContent=`Where they differ from ${bench.n}`;
+    $('#pc02-tsub').textContent='Scale is 1–5.';
+    $('#pc02-identical').textContent='—';
+    return;
+  }
+
+  /* ── lead + hero ── */
+  const names=recs.map(r=>surname(r.n));
+  $('#pc02-lead').textContent = recs.length===1
+    ? `${top.n} measured against ${bench.n} — here is the call and what to verify.`
+    : recs.length===2
+      ? `${names[0]} or ${names[1]} as the like-for-like replacement for ${bench.n} — here is the call and what separates them.`
+      : `${listOf(names)} measured against ${bench.n} — here is the call and what separates them.`;
+
+  const gains=edges(top,bench,traits), losses=edges(bench,top,traits);
+  const s1 = gains.length ? `Adds ${gains.slice(0,2).map(g=>`+${g.d} ${TRAIT_SHORT[g.t]}`).join(' and ')}`
+    : losses.length ? `Trails ${bench.n} on ${prose(losses[0].t)}`
+    : `Matches ${bench.n} on every trait`;
+  const s3 = second ? `costs $${Math.abs(top.ask-second.ask)}K ${top.ask<second.ask?'less':'more'} than ${surname(second.n)}`
+    : `asks $${top.ask}K`;
+  $('#pc02-h2').textContent=`Call ${top.n} first`;
+  $('#pc02-hs').textContent=`${s1}, holds a ${top.fit.toFixed(1)} role match against ${bench.rate.toFixed(1)}, and ${s3}.`;
+
+  const d=second? top.ask-second.ask : 0;
+  const third = second
+    ? {v:`${d<0?'−':'+'}$${Math.abs(d)}K`, k:`vs ${surname(second.n)}`, green:d<0}
+    : {v:`${top.fit-bench.rate>=0?'+':'−'}${Math.abs(top.fit-bench.rate).toFixed(1)}`, k:'vs benchmark', green:top.fit>=bench.rate};
+  $('#pc02-stats').innerHTML=`
+    <div class="statbox"><div class="sv green">${top.fit.toFixed(1)}</div><div class="sk">role match · 1–5</div></div>
+    <div class="statbox"><div class="sv">$${top.ask}K</div><div class="sk">scholarship ask</div></div>
+    <div class="statbox"><div class="sv ${third.green?'green':''}">${third.v}</div><div class="sk">${third.k}</div></div>`;
+
+  /* ── one card per selected recruit ── */
+  const duo=$('#pc02-duo');
+  duo.style.gridTemplateColumns=`repeat(${Math.min(recs.length,4)},1fr)`;
+  duo.innerHTML=recs.map((r,i)=>{
+    const g=edges(r,bench,traits), l=edges(bench,r,traits);
+    const edge = g.length? `<span class="chip up">+${g[0].d} ${TRAIT_SHORT[g[0].t]}</span>`
+      : l.length? `<span class="chip down">−${l[0].d} ${TRAIT_SHORT[l[0].t]}</span>`
+      : `<span class="chip">matches benchmark</span>`;
+    return `<div class="card pcard ${i===0?'rec':'alt'}">
+      <span class="badge">${i===0?'Recommended':i===1?'Alternative':'Option '+(i+1)}</span>
+      <h3>${r.n}</h3><div class="psub">${r.pos} · ${r.cls} · rated ${r.fit.toFixed(1)} vs benchmark ${bench.rate.toFixed(1)}</div>
+      <div class="big">${r.fit.toFixed(1)}</div>
+      <div class="mbar"><i style="width:${r.fit/5*100}%"></i></div>
+      <div class="cap">role match vs ${bench.n} · 1–5</div>
+      <div class="chips"><span class="chip">$${r.ask}K ask</span><span class="chip">${r.nsrc>=3?'High':'Medium'} · ${r.nsrc} sources</span>${edge}</div>
+    </div>`;
+  }).join('');
+
+  /* ── only the traits that actually separate this group ── */
+  const group=[bench,...recs];
+  const diff=[], same=[];
+  traits.forEach((t,i)=>{
+    const vals=group.map(p=>p.tr[i]);
+    (vals.every(v=>v===vals[0])?same:diff).push({t,i});
+  });
+  const grid=$('#tgrid');
+  grid.style.gridTemplateColumns=`repeat(${Math.min(Math.max(diff.length,1),3)},1fr)`;
+  grid.innerHTML = diff.length ? diff.map(({t,i})=>`
+    <div class="tcard"><h4>${t}</h4>
+      <div class="trow"><span>${bench.n}</span>${sq(bench.tr[i])}<span class="delta" style="background:transparent;color:var(--tert)">base</span></div>
+      ${recs.map((r,k)=>`<div class="trow"><span>${r.n}</span>${sq(r.tr[i],k===0)}${delta(r.tr[i],bench.tr[i])}</div>`).join('')}
+    </div>`).join('')
+    : `<div class="empty" style="grid-column:1/-1">Every tracked trait reads the same across this group.</div>`;
+  $('#pc02-th').textContent=`Where they differ from ${bench.n}`;
+  $('#pc02-tsub').textContent=`${diff.length?NUM_WORD[diff.length].replace(/^./,c=>c.toUpperCase()):'No'} of six traits separate${diff.length===1?'s':''} ${recs.length===1?'this recruit':'these recruits'}. Scale is 1–5.`;
+  $('#pc02-identical').textContent = same.length===traits.length ? 'Identical on all six traits'
+    : same.length ? `Identical: ${same.map(x=>TRAIT_SHORT[x.t]).join(', ')}` : 'No trait is identical across the group';
+
+  /* ── the three read-outs ── */
+  const why = gains.length
+    ? `Best role match at ${top.fit.toFixed(1)}: ${gains.map(g=>`+${g.d} ${TRAIT_SHORT[g.t]}`).join(', ')} vs ${bench.n}${second?`, and $${Math.abs(d)}K ${d<0?'cheaper':'more'} than ${surname(second.n)}`:''}.`
+    : losses.length
+      ? `Still the best role match at ${top.fit.toFixed(1)} — everything ${bench.n} gives you except ${prose(losses[0].t)}.`
+      : `Best role match at ${top.fit.toFixed(1)} and matches ${bench.n} on every tracked trait.`;
+  let mid;
+  if(second){
+    const over=edges(second,top,traits), under=edges(top,second,traits);
+    mid = over.length
+      ? {t:`WHEN ${surname(second.n).toUpperCase()} INSTEAD`, b:`Better on ${over.map(o=>prose(o.t)).join(' and ')}. Pick ${surname(second.n)} if that matters more than ${under.length?prose(under[0].t):'the cost saving'}.`}
+      : {t:`WHEN ${surname(second.n).toUpperCase()} INSTEAD`, b:`No trait edge over ${surname(top.n)} — only worth it if ${second.ask<top.ask?`the $${Math.abs(d)}K saving matters more than fit`:'availability changes'}.`};
+  } else {
+    mid = losses.length
+      ? {t:'WHAT YOU GIVE UP', b:`${surname(top.n)} trails ${bench.n} on ${losses.map(l=>`${prose(l.t)} (−${l.d})`).join(' and ')}.`}
+      : {t:'WHAT YOU GIVE UP', b:`Nothing tracked: ${surname(top.n)} matches or beats ${bench.n} on all six traits.`};
+  }
+  const thin=recs.filter(r=>r.nsrc<3).map(r=>r.n);
+  const verify = thin.length
+    ? `${listOf(thin)} ${thin.length===1?'is':'are'} backed by two sources only. Leadership and pressure reads are inferred, not observed.`
+    : `All picks are confirmed in three sources, but leadership and pressure reads are inferred, not observed. Confirm on a live visit.`;
+  $('#pc02-notes').innerHTML=`
+    <div class="notecard ok"><b>WHY ${surname(top.n).toUpperCase()}</b>${why}</div>
+    <div class="notecard info"><b>${mid.t}</b>${mid.b}</div>
+    <div class="notecard warn"><b>VERIFY BEFORE OFFER</b>${verify}</div>`;
+
+  /* ── only the feeds these recruits actually came from ── */
+  const used=['ecnl','portal','excel'].filter(s=>recs.some(r=>r.srcs.includes(s)));
+  $('#pc02-ev').innerHTML=used.map(s=>`<span class="chip">${SRC_LABEL[s]}</span>`).join('');
+}
 
 /* ═══════════ Plot helpers ═══════════ */
 function dotHtml(xp,yp,cls,label,labelSide,strong,dy,dimCls){
@@ -1263,12 +1406,19 @@ const SAVE_CTX={
        name:'Midfield + center-back plan',
        note:'Discuss with staff before the August recruiting weekend.' },
   pc:{ lead:'Freeze this comparison so you can reopen it later or share it with staff.',
-       q:'“Which defender gives us the safest 2027 floor under a $70K year-one budget?”',
-       ans:'D. Okafor · role match 4.6 · $39K',
-       meta:'Keeps both recruits, the trait-by-trait breakdown, and the Aug 6, 2026 data snapshot.',
-       name:'Replace graduating center back',
        note:'Confirm leadership and pressure reads on the live visit.' }
 };
+/* the PC save reflects whichever benchmark and recruits are on screen */
+function pcSaveCtx(){
+  const bench=benchPlayer(), recs=selectedRecruits(), top=recs[0];
+  const pos=POS_NAME[bench.pos.split('/')[0]].toLowerCase();
+  return {
+    q:`“Who replaces ${bench.n} at ${bench.pos}, and what do we give up?”`,
+    ans: top?`${top.n} · role match ${top.fit.toFixed(1)} · $${top.ask}K`:'No recruit selected',
+    meta:`Keeps ${recs.length===1?'this recruit':`all ${recs.length} recruits`}, the trait-by-trait breakdown, and the Aug 6, 2026 data snapshot.`,
+    name:`${bench.grad?'Replace graduating':'Compare options at'} ${pos}`
+  };
+}
 function openModal(kind){
   state.saveKind = kind || 'to';
   const c=SAVE_CTX[state.saveKind];
@@ -1279,9 +1429,11 @@ function openModal(kind){
     $('#d-ans').textContent=`${top.name} · fit ${top.fit.toFixed(1)} · $${top.cost}K`;
     $('#d-meta').textContent=`Keeps all ${a.length} scenario${a.length===1?'':'s'}, the striker flag, and the Aug 6, 2026 data snapshot.`;
   } else {
-    $('#d-q').textContent=c.q;
-    $('#d-ans').textContent=c.ans;
-    $('#d-meta').textContent=c.meta;
+    const p=pcSaveCtx();
+    $('#d-q').textContent=p.q;
+    $('#d-ans').textContent=p.ans;
+    $('#d-meta').textContent=p.meta;
+    c.name=p.name;
   }
   $('#f-name').value=c.name;
   $('#f-note').value=c.note;
@@ -1305,10 +1457,14 @@ function publish(){
   closeModal();
 
   if(p){
+    const c=pcSaveCtx();
     $('#sv2-name').textContent=name;
     $('#sv2-meta').textContent='Player comparison · Saved just now · by you';
     $('#sv2-tag').textContent = team?'TEAM':'PRIVATE';
     $('#sv2-tag').className = team?'tag-team':'tag-private';
+    $('#sv2-q').textContent=c.q;
+    $('#sv2-ans').textContent=c.ans;
+    $('#sv2-item').dataset.text=`${name} ${note} ${c.q} ${c.ans}`.toLowerCase();
   } else {
     const a=activeScen(), top=a[0];
     state.savedName=name; state.savedNote=note;
