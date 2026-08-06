@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shared Team Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --grass-2: #f5fbf5;
+      --grass-7: #94ce9a;
+      --grass-8: #65ba74;
+      --grass-9: #46a758;
+      --grass-11: #2a7e3b;
+      --grass-12: #203c25;
+      --border: #e5e5e5;
+      --muted: #737373;
+      --text: #0a0a0a;
+      --sidebar-bg: #fafafa;
+    }
+    html, body { height: 100%; font-family: Inter, system-ui, sans-serif; background: #fafafa; color: var(--text); }
+    .app { display: flex; min-height: 100vh; border: 1px solid var(--border); background: #fff; max-width: 1315px; margin: 0 auto; }
+
+    /* Sidebar */
+    .sidebar { width: 255px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid var(--border); background: var(--sidebar-bg); }
+    .sidebar-section { padding: 8px; }
+    .brand { display: flex; align-items: center; gap: 8px; padding: 8px; }
+    .brand-icon { width: 32px; height: 32px; border-radius: 10px; background: var(--grass-11); display: flex; align-items: center; justify-content: center; }
+    .brand-icon-inner { width: 16px; height: 16px; border-radius: 4px; background: rgba(255,255,255,.2); }
+    .brand-title { font-size: 14px; font-weight: 600; line-height: 16px; }
+    .brand-sub { font-size: 12px; color: var(--muted); }
+    .nav-label { padding: 8px; font-size: 12px; color: var(--muted); opacity: .7; }
+    .nav-item { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 8px; font-size: 14px; margin-bottom: 4px; }
+    .nav-item.active-parent { background: #fff; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; stroke: #404040; fill: none; stroke-width: 1.75; }
+    .nav-sub { margin-left: 14px; padding-left: 10px; border-left: 1px solid var(--border); }
+    .nav-sub-item { height: 28px; display: flex; align-items: center; padding: 0 8px; border-radius: 8px; font-size: 14px; margin-bottom: 4px; }
+    .nav-sub-item.active { background: var(--grass-11); color: #fff; }
+    .chat-item { padding: 6px 8px; font-size: 14px; border-radius: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-row { display: flex; align-items: center; gap: 8px; padding: 8px; border-top: 1px solid var(--border); margin: 8px; }
+    .user-row img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; }
+    .user-name { font-size: 14px; font-weight: 600; }
+    .user-email { font-size: 12px; color: var(--muted); }
+
+    /* Main */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .topbar { display: flex; align-items: center; gap: 78px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+    .topbar h1 { font-size: 20px; font-weight: 600; }
+    .topbar p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .topbar-spacer { flex: 1; }
+    .season-btn { display: flex; align-items: center; gap: 4px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font-size: 14px; cursor: pointer; font-family: inherit; }
+
+    .content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid rgba(220,226,236,.6); }
+    .panel-header h2 { font-size: 20px; font-weight: 600; }
+    .panel-header p { font-size: 14px; color: #575e69; margin-top: 4px; }
+    .btn-primary { background: var(--grass-11); color: #fafafa; border: none; border-radius: 10px; padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; box-shadow: 0 1px 1px rgba(0,0,0,.1); }
+    .btn-primary:hover { background: #236832; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+    .btn-icon svg { width: 16px; height: 16px; stroke: #0a0a0a; fill: none; stroke-width: 2; }
+    .btn-group { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+    .btn-group button { padding: 8px 16px; border: none; background: #fff; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .btn-group button:first-child { border-right: 1px solid var(--border); }
+
+    .panel-body {
+      flex: 1; overflow: auto; padding: 20px;
+      background: radial-gradient(ellipse 750px 530px at 50% 50%, rgba(189,197,209,.55) 0%, transparent 100%);
+    }
+
+    /* Coach boards */
+    .coach-boards { display: flex; gap: 16px; }
+    .coach-col { width: 243px; flex-shrink: 0; background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 14px 12px; }
+    .coach-col.dimmed { opacity: .5; }
+    .coach-name { font-size: 12.5px; font-weight: 700; color: #121212; }
+    .coach-role { font-size: 10.5px; color: #73737a; margin-bottom: 10px; }
+    .slots { display: flex; flex-direction: column; gap: 10px; }
+    .slot-empty { height: 53px; border-radius: 12px; border: 1px solid #ebebeb; background: #fafafa; }
+    .player-card { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; border: 1px solid #e6e6e6; background: #fff; }
+    .player-card.top { background: var(--grass-2); }
+    .rank-badge { width: 23px; height: 23px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; background: #ededed; color: #121212; }
+    .rank-badge.first { background: var(--grass-12); color: #fff; }
+    .player-card img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .player-name { font-size: 12.5px; font-weight: 700; color: #121212; }
+    .player-year { font-size: 10.5px; color: #9e9ea6; }
+
+    /* Chart */
+    .chart-area { position: relative; height: 560px; border: 1px solid #e0e0db; border-radius: 8px; background: #fff; overflow: hidden; }
+    .equal-share-label { position: absolute; left: 12px; top: 419px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .02em; }
+    .equal-share-line { position: absolute; left: 0; right: 0; top: 418px; border-top: 1px dashed #737373; }
+    .chart-cols { display: flex; height: 100%; }
+    .chart-col { flex: 1; position: relative; border-left: 1px solid #e0e0db; }
+    .chart-col:first-child { border-left: none; }
+    .chart-col-head { display: flex; flex-direction: column; align-items: center; padding-top: 48px; }
+    .chart-col-head img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .chart-col-head .name { margin-top: 8px; font-size: 13px; font-weight: 700; color: #141414; }
+    .chart-col-head .pct { font-size: 20px; font-weight: 500; color: var(--muted); }
+    .bar-wrap { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 120px; height: 320px; }
+    .bar { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 4px; }
+    .bar-grass-7 { background: var(--grass-7); }
+    .bar-grass-8 { background: var(--grass-8); }
+    .bar-grass-9 { background: var(--grass-9); }
+    .bar-grass-11 { background: var(--grass-11); }
+    .bar-grass-12 { background: var(--grass-12); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-section">
+          <div class="brand">
+            <div class="brand-icon"><div class="brand-icon-inner"></div></div>
+            <div style="flex:1;min-width:0">
+              <div class="brand-title">Kit</div>
+              <div class="brand-sub">University of Hogwarts</div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="nav-label">Dashboard</div>
+          <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New chat</div>
+          <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21H3z"/></svg>Today</div>
+          <div class="nav-item active-parent"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Team workspace</div>
+          <div class="nav-sub">
+            <div class="nav-sub-item active">Ranking</div>
+            <div class="nav-sub-item">Whiteboard</div>
+            <div class="nav-sub-item">Roster</div>
+            <div class="nav-sub-item">Values</div>
+          </div>
+          <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg>Moments</div>
+        </div>
+        <div class="sidebar-section">
+          <div class="nav-label">Tools</div>
+          <div class="nav-item">Tools</div>
+          <div class="nav-item">Integrations</div>
+        </div>
+        <div class="sidebar-section">
+          <div class="nav-label">Recent chats</div>
+          <div class="chat-item">Create a report of comparing Jordan with Sam</div>
+          <div class="chat-item">Show me the most capable players</div>
+          <div class="chat-item">What if I replace Jordan with Sam in the</div>
+        </div>
+      </div>
+      <div class="user-row">
+        <img id="user-avatar" alt="Maria Aminoff" />
+        <div style="flex:1;min-width:0">
+          <div class="user-name">Maria Aminoff</div>
+          <div class="user-email">m@example.com</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <h1>Women's Soccer</h1>
+          <p>26 players · 2026 season</p>
+        </div>
+        <div class="topbar-spacer"></div>
+        <button type="button" class="season-btn">2026 season ▾</button>
+      </header>
+
+      <div class="content">
+        <!-- Screen 1: Coach boards -->
+        <div id="view-coach-boards">
+          <div class="panel-header">
+            <div>
+              <h2>Ranking for GK</h2>
+              <p>Voting and rankings for U19 goal-keepers</p>
+            </div>
+            <button type="button" class="btn-primary" id="btn-view-team">View team ranking</button>
+          </div>
+          <div class="panel-body">
+            <div class="coach-boards" id="coach-boards"></div>
+          </div>
+        </div>
+
+        <!-- Screen 2: Team chart -->
+        <div id="view-team-chart" class="hidden">
+          <div class="panel-header">
+            <div>
+              <h2>Ranking for GK</h2>
+              <p>Voting and rankings for U19 goal-keepers</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn-icon" id="btn-back" aria-label="Back to coach rankings">
+                <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </button>
+              <div class="btn-group">
+                <button type="button">Notes</button>
+                <button type="button">Discussion</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-area">
+              <div class="equal-share-label">25% equal share</div>
+              <div class="equal-share-line"></div>
+              <div class="chart-cols" id="chart-cols"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AVATARS = {
+      maria: 'assets/maria.png',
+      murry: 'assets/murry.png',
+      ijams: 'assets/ijams.png',
+      chamberland: 'assets/chamberland.png',
+      hurst: 'assets/hurst.png',
+      murryAlt: 'assets/murry-alt.png',
+    };
+
+    const PLAYERS = {
+      murry: { name: '#99 Murry', year: '3RD', avatar: AVATARS.murry },
+      ijams: { name: '#1 Ijams', year: '3RD', avatar: AVATARS.ijams },
+      chamberland: { name: '#0 Chamberland', year: '2ND', avatar: AVATARS.chamberland },
+      hurst: { name: '#33 Hurst', year: 'FR.', avatar: AVATARS.hurst },
+    };
+
+    const COACH_BOARDS = [
+      { name: 'Maria Aminoff', role: 'Head Coach', dimmed: false, showRankNumbers: true,
+        slots: ['murry', 'ijams', 'chamberland', null, 'hurst', null, null] },
+      { name: 'Kaiya Siphron', role: 'Assistant Coach', dimmed: true, showRankNumbers: false,
+        slots: ['ijams', null, 'murry', 'chamberland', null, 'hurst', null] },
+      { name: 'Maria Levin', role: 'Assistant Coach', dimmed: true, showRankNumbers: false,
+        slots: ['chamberland', null, 'ijams', 'murry', 'hurst', null, null] },
+      { name: 'Paityn Dias', role: 'Assistant Coach', dimmed: true, showRankNumbers: false,
+        slots: ['ijams', 'chamberland', null, 'murry', null, 'hurst', null] },
+    ];
+
+    const TEAM_CHART = [
+      { name: 'Chamberland', pct: 22, avatar: AVATARS.chamberland, bar: 'bar-grass-8' },
+      { name: 'Ijams', pct: 38, avatar: AVATARS.ijams, bar: 'bar-grass-11' },
+      { name: 'Hurst', pct: 8, avatar: AVATARS.hurst, bar: 'bar-grass-7' },
+      { name: 'Murry', pct: 32, avatar: AVATARS.murryAlt, bar: 'bar-grass-9' },
+      { name: 'Murry', pct: 64, avatar: AVATARS.chamberland, bar: 'bar-grass-12' },
+    ];
+
+    const CHART_HEIGHT = 320;
+
+    document.getElementById('user-avatar').src = AVATARS.maria;
+
+    function renderPlayerCard(player, rank, showRank, isTop) {
+      if (!player) return '<div class="slot-empty"></div>';
+      const rankHtml = showRank
+        ? `<div class="rank-badge ${rank === 1 ? 'first' : ''}">${rank}</div>` : '';
+      return `<div class="player-card ${isTop ? 'top' : ''}">
+        ${rankHtml}
+        <img src="${player.avatar}" alt="${player.name}" />
+        <div><div class="player-name">${player.name}</div><div class="player-year">${player.year}</div></div>
+      </div>`;
+    }
+
+    function renderCoachBoards() {
+      const root = document.getElementById('coach-boards');
+      root.innerHTML = COACH_BOARDS.map(coach => {
+        let rank = 0;
+        const slots = coach.slots.map(id => {
+          const player = id ? PLAYERS[id] : null;
+          const r = player ? ++rank : null;
+          return renderPlayerCard(player, r, coach.showRankNumbers && player, r === 1);
+        }).join('');
+        return `<div class="coach-col ${coach.dimmed ? 'dimmed' : ''}">
+          <div class="coach-name">${coach.name}</div>
+          <div class="coach-role">${coach.role}</div>
+          <div class="slots">${slots}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderChart() {
+      const root = document.getElementById('chart-cols');
+      root.innerHTML = TEAM_CHART.map(col => {
+        const barH = (col.pct / 100) * CHART_HEIGHT;
+        return `<div class="chart-col">
+          <div class="chart-col-head">
+            <img src="${col.avatar}" alt="${col.name}" />
+            <div class="name">${col.name}</div>
+            <div class="pct">${col.pct}%</div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar ${col.bar}" style="height:${barH}px"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function showView(view) {
+      document.getElementById('view-coach-boards').classList.toggle('hidden', view !== 'coach');
+      document.getElementById('view-team-chart').classList.toggle('hidden', view !== 'chart');
+    }
+
+    document.getElementById('btn-view-team').addEventListener('click', () => showView('chart'));
+    document.getElementById('btn-back').addEventListener('click', () => showView('coach'));
+
+    renderCoachBoards();
+    renderChart();
+  </script>
+</body>
+</html>
