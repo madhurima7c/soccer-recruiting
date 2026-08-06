@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RosterMind · Interactive Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#fafafa; --card:#ffffff; --muted:#f4f4f5; --soft-green:#f0fdf4; --soft-red:#fef2f2;
+  --ink:#09090b; --mute:#71717a; --tert:#a1a1aa;
+  --border:#e4e4e7; --border-soft:#f0f0f1; --border-red:#fecaca;
+  --green:#16a34a; --green-deep:#15803d; --green-dark:#166534; --red:#dc2626;
+  --r-sm:6px; --r-md:8px; --r-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--page);color:var(--ink);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:13px;color:inherit}
+input,textarea{font-family:inherit;font-size:13px;color:var(--ink)}
+.app{display:grid;grid-template-columns:256px 1fr;height:100vh;overflow:hidden}
+
+/* ── Sidebar ─────────────────────────── */
+.sidebar{background:var(--page);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border-soft)}
+.brand .logo{width:32px;height:32px;border-radius:8px;background:var(--green-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.brand .bn{font-weight:600;font-size:13px}
+.brand .bs{font-size:11px;color:var(--tert)}
+.nav{padding:12px 12px 4px;flex:1}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.4px;color:var(--tert);text-transform:uppercase;padding:10px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 10px;border-radius:6px;color:#3f3f46;font-size:13px}
+.nav-item svg{flex:none;opacity:.55}
+.nav-item:hover{background:#f0f0f1}
+.nav-item.active{background:var(--green-deep);color:#fff;font-weight:600}
+.nav-item.active svg{opacity:.9}
+.nav-item.sub{padding-left:26px}
+.recent{padding:2px 8px;color:#52525b;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;width:100%;text-align:left;border-radius:6px}
+.recent:hover{background:#f0f0f1}
+.user{display:flex;align-items:center;gap:10px;padding:14px 16px;border-top:1px solid var(--border-soft)}
+.user .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#ec4899,#8b5cf6);flex:none}
+.user .un{font-weight:600;font-size:12.5px}
+.user .ue{font-size:11px;color:var(--tert)}
+
+/* ── Main region ─────────────────────── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--card)}
+.topbar{height:56px;flex:none;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;font-weight:600;font-size:14.5px;background:var(--card)}
+.content{flex:1;overflow-y:auto;background:var(--page)}
+.page-inner{max-width:1180px;margin:0 auto;padding:28px 32px 48px}
+.screen{display:none}
+.screen.on{display:block;animation:fadein .18s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+h1{font-size:24px;font-weight:700;letter-spacing:-.2px}
+.lead{color:var(--mute);margin-top:6px;font-size:13px}
+
+/* ── Shared bits ─────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-md);font-weight:600;font-size:13px;border:1px solid transparent;transition:background .12s}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-deep)}
+.btn-dark{background:#18181b;color:#fff}
+.btn-dark:hover{background:#000}
+.btn-ghost{background:var(--card);border-color:var(--border);color:var(--ink)}
+.btn-ghost:hover{background:var(--muted)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:12px;color:#3f3f46}
+.chip.plain{border-radius:6px}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--mute)}
+.eyebrow.green{color:var(--green-deep)}
+.eyebrow.red{color:var(--red)}
+.eyebrow.tert{color:var(--tert)}
+.tag-team{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--green-deep);border:1px solid var(--green);border-radius:999px;padding:2px 9px;background:var(--soft-green)}
+.tag-private{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--mute);border:1px solid var(--border);border-radius:999px;padding:2px 9px;background:var(--muted)}
+.hr{height:1px;background:var(--border-soft);margin:2px 0}
+
+/* ── Plot primitives ─────────────────── */
+.plotwrap{position:relative}
+.plot{position:relative;height:340px;margin:30px 8px 48px 40px;border-left:1px solid var(--border);border-bottom:1px solid var(--border)}
+.gline{position:absolute;left:0;right:0;height:1px;background:var(--border-soft)}
+.refline{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--tert)}
+.refline.solid{border-top-style:solid}
+.reflab{position:absolute;font-size:9px;font-weight:600;letter-spacing:.4px;color:var(--mute);background:transparent;transform:translateY(-14px)}
+.band{position:absolute;top:0;bottom:0;background:rgba(244,244,245,.62)}
+.band-label{position:absolute;top:6px;font-size:9px;font-weight:600;letter-spacing:.4px;color:var(--tert)}
+.redzone{position:absolute;left:0;right:0;bottom:0;background:rgba(254,242,242,.75)}
+.redzone-label{position:absolute;left:8px;bottom:8px;font-size:9px;font-weight:700;letter-spacing:.4px;color:var(--red)}
+.ytick{position:absolute;left:-34px;width:28px;text-align:right;font-size:10px;color:var(--tert);transform:translateY(-50%)}
+.xtick{position:absolute;bottom:-20px;font-size:10px;color:var(--tert);transform:translateX(-50%)}
+.axis-title{position:absolute;font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--mute)}
+.pdot{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);z-index:2}
+.pdot.green{background:var(--green);border:2px solid #fff;box-shadow:0 0 0 1px rgba(22,163,74,.4)}
+.pdot.hollow{width:10px;height:10px;background:#fff;border:2px solid var(--tert)}
+.pdot.hollow.greenline{border-color:var(--green)}
+.plabel{position:absolute;transform:translateY(-50%);font-size:10.5px;white-space:nowrap;color:var(--mute);z-index:3}
+.plabel.strong{color:var(--ink);font-weight:600}
+.plabel.left{transform:translate(-100%,-50%)}
+.legend{position:absolute;top:-22px;right:0;display:flex;gap:14px;font-size:11px;color:var(--mute);align-items:center}
+.legend .li{display:flex;align-items:center;gap:6px}
+.ldot{width:10px;height:10px;border-radius:50%}
+.ldot.green{background:var(--green)}
+.ldot.hollow{background:#fff;border:2px solid var(--tert)}
+
+/* ── PC-01 ───────────────────────────── */
+.src-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;margin-top:18px}
+.panel2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:start}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;padding:16px 18px 0}
+.panel-head h3{font-size:15px;font-weight:700}
+.panel-head .cnt{font-size:11px;color:var(--tert)}
+.filterbar{margin:12px 18px 0;background:var(--soft-green);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--green-deep)}
+.filterbar.gray{background:var(--muted);color:var(--mute)}
+.filterbar b{font-weight:600}
+.filterbar .srcs{margin-top:3px;color:var(--mute);display:flex;gap:12px;flex-wrap:wrap}
+.filterbar .srcs span b{color:#3f3f46}
+.rowlist{padding:10px 10px 12px}
+.prow{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.prow:hover{background:#fafafa}
+.prow.sel{background:var(--soft-green);border-color:#bbf7d0}
+.prow .ctrl{width:18px;height:18px;border-radius:5px;border:1.5px solid #d4d4d8;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px}
+.prow .ctrl.radio{border-radius:50%}
+.prow.sel .ctrl{background:var(--green);border-color:var(--green)}
+.prow .pinfo{flex:1;min-width:0}
+.prow .pname{font-weight:600;font-size:13px}
+.prow .pname .pmeta{font-weight:400;color:var(--mute);font-size:12px}
+.prow .psub{font-size:11.5px;color:var(--tert);margin-top:1px}
+.prow .pbar{width:92px;height:6px;border-radius:999px;background:var(--border-soft);overflow:hidden;flex:none}
+.prow .pbar i{display:block;height:100%;border-radius:999px;background:#d4d4d8}
+.prow.sel .pbar i{background:var(--green)}
+.prow .prate{font-weight:700;font-size:14px;width:30px;text-align:right;flex:none}
+.footbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;margin-top:16px}
+.footbar .ft{font-weight:700;font-size:14px}
+.footbar .fs{color:var(--mute);font-size:12px;margin-top:2px}
+
+/* ── PC-02 ───────────────────────────── */
+.ctxbar{display:flex;align-items:center;gap:8px;padding:12px 16px;margin-top:18px;flex-wrap:wrap}
+.ctxbar .sp{flex:1}
+.hero{background:var(--green-dark);border-radius:var(--r-lg);padding:22px 24px;margin-top:14px;color:#fff;display:flex;gap:20px;align-items:center}
+.hero .ht{flex:1}
+.hero .eyebrow{color:#bbf7d0}
+.hero h2{font-size:22px;font-weight:700;margin-top:6px;letter-spacing:-.2px}
+.hero .hs{color:#dcfce7;font-size:12.5px;margin-top:6px}
+.statbox{background:#fff;border-radius:10px;padding:12px 16px;text-align:left;min-width:110px}
+.statbox .sv{font-size:20px;font-weight:700;color:var(--ink)}
+.statbox .sv.green{color:var(--green)}
+.statbox .sk{font-size:10.5px;color:var(--mute);margin-top:2px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.pcard{padding:18px 20px;position:relative}
+.pcard.rec{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset;background:linear-gradient(180deg,#f7fef9, #fff 55%)}
+.pcard .badge{position:absolute;top:16px;right:16px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:999px}
+.pcard.rec .badge{color:var(--green-deep);border:1px solid var(--green);background:#fff}
+.pcard.alt .badge{color:var(--mute);border:1px solid var(--border);background:var(--muted)}
+.pcard h3{font-size:15px;font-weight:700}
+.pcard .psub{color:var(--mute);font-size:11.5px;margin-top:2px}
+.pcard .big{font-size:26px;font-weight:700;margin-top:12px}
+.pcard.rec .big{color:var(--green-deep)}
+.pcard .mbar{height:8px;border-radius:999px;background:var(--border-soft);margin-top:8px;overflow:hidden}
+.pcard .mbar i{display:block;height:100%;border-radius:999px}
+.pcard.rec .mbar i{background:var(--green)}
+.pcard.alt .mbar i{background:#a1a1aa}
+.pcard .cap{font-size:10.5px;color:var(--tert);margin-top:5px}
+.pcard .chips{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.chip.up{color:var(--green-deep);border-color:#bbf7d0;background:var(--soft-green)}
+.chip.down{color:var(--red);border-color:var(--border-red);background:var(--soft-red)}
+.traits{margin-top:16px;padding:18px 20px}
+.traits .th{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.traits h3{font-size:14.5px;font-weight:700}
+.traits .tsub{color:var(--mute);font-size:11.5px;margin-top:2px}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.tcard{background:var(--muted);border-radius:10px;padding:12px 14px}
+.tcard h4{font-size:12px;font-weight:600;margin-bottom:8px}
+.trow{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:8px;padding:3px 0;font-size:11px;color:var(--mute)}
+.sq{display:inline-flex;gap:2px}
+.sq i{width:9px;height:9px;border-radius:2px;background:#d4d4d8}
+.sq i.f{background:#3f3f46}
+.sq.rec i.f{background:var(--green)}
+.delta{font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;background:#e4e4e7;color:var(--mute)}
+.delta.up{background:#dcfce7;color:var(--green-deep)}
+.delta.down{background:#fee2e2;color:var(--red)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.notecard{border-radius:10px;padding:14px 16px;font-size:12px;color:#3f3f46}
+.notecard b{display:block;font-size:10px;letter-spacing:.5px;margin-bottom:6px}
+.notecard.ok{background:var(--soft-green);border:1px solid #bbf7d0}
+.notecard.ok b{color:var(--green-deep)}
+.notecard.info{background:var(--muted);border:1px solid var(--border)}
+.notecard.info b{color:var(--mute)}
+.notecard.warn{background:var(--soft-red);border:1px solid var(--border-red)}
+.notecard.warn b{color:var(--red)}
+.evrow{display:flex;align-items:center;gap:8px;padding:14px 18px;margin-top:16px}
+
+/* ── TO-01 ───────────────────────────── */
+.market{padding:20px 22px;margin-top:18px}
+.scen-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.scard{padding:14px 16px;cursor:pointer;position:relative;transition:border-color .12s}
+.scard:hover{border-color:#d4d4d8}
+.scard.sel{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset;background:linear-gradient(180deg,#f7fef9,#fff 60%)}
+.scard .stag{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--green-deep);background:var(--soft-green);padding:2px 8px;border-radius:999px;display:inline-block}
+.scard .stag.gray{color:var(--mute);background:var(--muted)}
+.scard .cbx{position:absolute;top:12px;right:12px;width:16px;height:16px;border-radius:4px;border:1.5px solid #d4d4d8;background:#fff;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
+.scard.sel .cbx{background:var(--green);border-color:var(--green)}
+.scard h4{font-size:13.5px;font-weight:700;margin-top:8px}
+.scard .kv{display:flex;gap:8px;margin-top:10px}
+.scard .kb{flex:1;background:var(--muted);border-radius:8px;padding:8px 10px}
+.scard .kb .kk{font-size:9px;font-weight:600;letter-spacing:.4px;color:var(--tert)}
+.scard .kb .vv{font-size:16px;font-weight:700;margin-top:2px}
+.composer{padding:18px 20px;margin-top:18px}
+.composer h3{font-size:14.5px;font-weight:700}
+.composer textarea{width:100%;margin-top:10px;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;resize:none;height:64px;background:#fff}
+.composer textarea:focus{outline:2px solid #bbf7d0;border-color:var(--green)}
+.comp-foot{display:flex;align-items:center;gap:8px;margin-top:10px}
+.comp-foot .sp{flex:1}
+
+/* ── TO-02 ───────────────────────────── */
+.qstrip{display:flex;align-items:center;gap:10px;padding:12px 16px;margin-top:18px;flex-wrap:wrap}
+.qstrip .qq{flex:1;min-width:260px}
+.qstrip .eyebrow{display:block;margin-bottom:3px}
+.qstrip .qt{font-size:12.5px;font-weight:500}
+.answer-hero{margin-top:14px}
+.plotcard{margin-top:16px;padding:18px 20px}
+.plothead{display:flex;align-items:flex-start;gap:12px}
+.plothead .pt{flex:1}
+.plothead h3{font-size:15px;font-weight:700}
+.plothead .psub{color:var(--mute);font-size:11.5px;margin-top:3px}
+.seg{display:inline-flex;background:var(--muted);border:1px solid var(--border);border-radius:8px;padding:2px}
+.seg button{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;color:var(--mute)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.plotgrid{display:grid;grid-template-columns:1fr 300px;gap:18px;margin-top:14px;align-items:start}
+.rail .railcard{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+.rail .railcard + .railcard{margin-top:12px}
+.rrow{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;border:1px solid transparent}
+.rrow:hover{background:#fafafa}
+.rrow.on{background:var(--soft-green);border-color:#bbf7d0}
+.rrow .rk{width:14px;font-weight:600;color:var(--tert);font-size:11px}
+.rrow.on .rk{color:var(--green-deep)}
+.rrow .rn{flex:1;font-weight:600;font-size:12.5px}
+.rrow .rc{color:var(--mute);font-size:11px}
+.rrow .rf{font-weight:700;font-size:12.5px}
+.rrow.on .rf{color:var(--green-deep)}
+.breaks{background:var(--soft-red);border:1px solid var(--border-red) !important}
+.breaks .bv{display:flex;align-items:center;gap:10px;margin-top:6px}
+.breaks .bn{font-size:20px;font-weight:700;color:var(--red)}
+.breaks .btrack{flex:1;height:6px;border-radius:999px;background:#fff;overflow:hidden}
+.breaks .btrack i{display:block;height:100%;width:48%;background:var(--red);border-radius:999px}
+.breaks .bs{font-size:11px;color:var(--tert)}
+.breaks .bnote{font-size:11px;color:var(--mute);margin-top:7px}
+.breaks .bok{font-size:11px;font-weight:600;color:var(--green-deep);margin-top:7px}
+.roster-card{background:var(--soft-green);border:1px solid var(--green) !important}
+.roster-card .rrw{display:flex;align-items:center;gap:8px;padding:4px 0}
+.roster-card .rrn{flex:1;font-weight:600;font-size:12.5px}
+.roster-card .rra{color:var(--mute);font-size:11px}
+.roster-card .rrc{font-weight:700;font-size:12.5px;color:var(--green-deep)}
+.roster-card .rsum{font-size:11px;color:var(--mute);margin-top:6px}
+.nextbar{display:flex;align-items:center;gap:16px;padding:14px 18px;margin-top:16px}
+.nextbar .nt{flex:1}
+.nextbar .eyebrow{display:block;margin-bottom:3px}
+
+/* ── Modal (TO-03) ───────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(9,9,11,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.on{display:flex;animation:fadein .16s ease}
+.dialog{width:568px;max-height:92vh;overflow-y:auto;background:#fff;border-radius:12px;box-shadow:0 16px 40px -10px rgba(0,0,0,.28);padding:24px}
+.dialog h3{font-size:17px;font-weight:700;flex:1}
+.dhead{display:flex;align-items:center;gap:8px}
+.dhead .x{color:var(--mute);font-size:15px;padding:4px 8px;border-radius:6px}
+.dhead .x:hover{background:var(--muted)}
+.dlead{color:var(--mute);font-size:12px;margin-top:6px}
+.snapshot{background:var(--muted);border-radius:8px;padding:12px;margin-top:14px}
+.snapshot .sq1{font-size:12px}
+.snapshot .arow{display:flex;gap:8px;align-items:center;margin-top:8px}
+.snapshot .meta{font-size:11px;color:var(--mute);margin-top:8px}
+.fld{margin-top:14px}
+.fld .flr{display:flex;justify-content:space-between;margin-bottom:6px}
+.fld label{font-size:10px;font-weight:600;letter-spacing:.4px;color:var(--mute)}
+.fld .cnt{font-size:10px;color:var(--tert)}
+.fld input[type=text],.fld textarea{width:100%;border:1px solid var(--border);border-radius:6px;padding:10px 12px;background:#fff}
+.fld textarea{height:64px;resize:none}
+.fld input:focus,.fld textarea:focus{outline:2px solid #bbf7d0;border-color:var(--green)}
+.vopt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:8px;cursor:pointer}
+.vopt.on{background:var(--soft-green);border-color:var(--green)}
+.vopt .rad{width:16px;height:16px;border-radius:50%;border:1.5px solid #d4d4d8;background:#fff;flex:none;margin-top:1px}
+.vopt.on .rad{border:5px solid var(--green)}
+.vopt .vt{font-weight:600;font-size:12.5px}
+.vopt .vs{font-size:11px;color:var(--mute);margin-top:1px}
+.dest{font-size:11px;color:var(--mute);margin-top:10px}
+.dact{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+/* ── TO-04 ───────────────────────────── */
+.banner{display:flex;align-items:center;gap:10px;background:var(--soft-green);border:1px solid #bbf7d0;border-radius:10px;padding:11px 16px;margin-top:18px;color:var(--green-deep);font-weight:600;font-size:12.5px}
+.banner .sp{flex:1}
+.banner .tm{color:var(--tert);font-weight:400;font-size:11px}
+.searchrow{display:flex;gap:8px;margin-top:14px;align-items:center}
+.searchrow input{flex:1;border:1px solid var(--border);border-radius:8px;padding:9px 13px;background:#fff}
+.searchrow input:focus{outline:2px solid #bbf7d0;border-color:var(--green)}
+.fchip{padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--mute)}
+.fchip.on{border-color:var(--green);color:var(--green-deep);background:var(--soft-green)}
+.saveditem{padding:16px 18px;margin-top:12px;position:relative}
+.saveditem .sirow{display:flex;align-items:center;gap:8px}
+.saveditem .simeta{font-size:11px;color:var(--tert)}
+.saveditem h3{font-size:14.5px;font-weight:700;margin-top:8px}
+.saveditem .siq{color:var(--mute);font-size:12px;margin-top:3px}
+.saveditem .sians{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;flex-wrap:wrap}
+.saveditem .flag{color:var(--red);font-size:11px;font-weight:600}
+.saveditem .clear{color:var(--green-deep);font-size:11px;font-weight:600}
+.saveditem .act{position:absolute;top:16px;right:16px}
+.earlier-label{margin:18px 2px 6px}
+.erow{display:flex;align-items:center;gap:10px;padding:13px 18px;margin-top:8px;cursor:default}
+.erow h4{font-size:13px;font-weight:600;flex:1}
+.erow .em{font-size:11px;color:var(--tert)}
+.erow .esub{font-size:11.5px;color:var(--mute)}
+.erow .chev{color:var(--tert)}
+
+/* ── TO-05 ───────────────────────────── */
+.restored{display:flex;align-items:center;gap:10px;background:var(--soft-green);border:1px solid #bbf7d0;border-radius:10px;padding:11px 16px;margin-top:18px;font-size:12.5px;flex-wrap:wrap}
+.restored b{color:var(--green-deep)}
+.restored .meta{color:var(--tert);font-size:11px}
+.stale{display:flex;align-items:center;gap:12px;background:var(--soft-red);border:1px solid var(--border-red);border-radius:10px;padding:11px 16px;margin-top:10px;font-size:12px}
+.stale .sp{flex:1}
+.stale b{color:var(--red);font-size:10px;letter-spacing:.5px}
+.snapgrid{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:14px;align-items:start}
+.snapmain{padding:18px 20px}
+.snapmain .oq{font-size:14px;font-weight:600;margin-top:8px}
+.ansline{display:flex;align-items:center;gap:8px;margin-top:12px;background:var(--soft-green);border:1px solid #bbf7d0;border-radius:8px;padding:9px 12px;flex-wrap:wrap}
+.ansline .conf{margin-left:auto;color:var(--mute);font-size:11px}
+.staffnote{display:flex;gap:8px;background:var(--muted);border-radius:8px;padding:9px 12px;margin-top:10px;font-size:12px}
+.staffnote b{font-size:10px;color:var(--mute);letter-spacing:.4px;flex:none;margin-top:1px}
+.snapmeta{font-size:11px;color:var(--tert);margin-top:12px}
+.snaprail{padding:14px 16px}
+.snaprail .rrow{cursor:default}
+.flagrow{background:var(--soft-red);border:1px solid var(--border-red);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11.5px;display:flex;gap:8px;align-items:center}
+.flagrow b{color:var(--red);font-size:10px;letter-spacing:.4px}
+.rerun{display:flex;align-items:center;gap:12px;padding:14px 18px;margin-top:16px}
+.rerun .rt{flex:1;color:var(--mute);font-size:12px}
+
+/* ── Toast & quick nav ───────────────── */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#18181b;color:#fff;padding:11px 18px;border-radius:10px;font-size:12.5px;display:flex;gap:12px;align-items:center;opacity:0;pointer-events:none;transition:all .22s;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast button{color:#4ade80;font-weight:600}
+.qnav{position:fixed;right:18px;bottom:18px;z-index:70}
+.qnav .qbtn{background:#18181b;color:#fff;border-radius:999px;padding:9px 16px;font-size:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.qnav .qmenu{position:absolute;right:0;bottom:44px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.16);padding:6px;display:none;width:250px}
+.qnav.open .qmenu{display:block}
+.qnav .qmenu button{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:6px;font-size:12.5px}
+.qnav .qmenu button:hover{background:var(--muted)}
+.qnav .qmenu .ql{font-size:10px;font-weight:600;color:var(--tert);letter-spacing:.4px;padding:8px 10px 2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ═══ Sidebar ═══ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">K</div>
+      <div><div class="bn">Kit</div><div class="bs">University of Hogwarts</div></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Dashboard</div>
+      <button class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> New chat</button>
+      <button class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Today</button>
+      <button class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> Team workspace</button>
+      <button class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v2M12 19v2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M3 12h2M19 12h2M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4"/><circle cx="12" cy="12" r="3.5"/></svg> Moments</button>
+      <div class="nav-label">Tools</div>
+      <button class="nav-item sub" data-nav="pc01" id="nav-pc">Player comparison</button>
+      <button class="nav-item sub" data-nav="to01" id="nav-to">Trade-off board</button>
+      <button class="nav-item sub" data-nav="to04" id="nav-sv">Saved results</button>
+      <div class="nav-label">Recent chats</div>
+      <button class="recent">Spend $100K: creation vs back l…</button>
+      <button class="recent">Who replaces R. Halvorsen at C…</button>
+      <button class="recent">Protect 2028 scholarship flexibi…</button>
+    </nav>
+    <div class="user">
+      <div class="avatar"></div>
+      <div><div class="un">Maria Aminoff</div><div class="ue">m@example.com</div></div>
+    </div>
+  </aside>
+
+  <!-- ═══ Main ═══ -->
+  <div class="main">
+    <div class="topbar" id="topbar">Player comparison</div>
+    <div class="content" id="content">
+
+      <!-- ── PC-01 ── -->
+      <section class="screen" id="s-pc01"><div class="page-inner">
+        <h1>Choose a benchmark and recruits</h1>
+        <p class="lead">Start with the roster player you are replacing, then compare system-recommended candidates.</p>
+        <div class="card src-strip">
+          <div>
+            <div style="font-weight:700">Data sources &amp; filters</div>
+            <div style="color:var(--mute);font-size:11.5px;margin-top:2px">Connected feeds refresh daily — add more data or narrow the recruit pool anytime.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex:none">
+            <button class="btn btn-ghost">Connect a source</button>
+            <button class="btn btn-ghost">Import data</button>
+            <button class="btn btn-ghost">Filter recruits</button>
+          </div>
+        </div>
+        <div class="panel2">
+          <div class="card">
+            <div class="panel-head"><h3>Your benchmark</h3><span class="cnt" id="bench-cnt">1 selected</span></div>
+            <div class="filterbar"><b>Benchmark</b> · current roster · rated 1–5 · graduating players first
+              <div class="srcs"><span>✓ <b>Team roster</b> synced today</span><span>✓ <b>Coach ratings</b> updated Aug 4</span></div>
+            </div>
+            <div class="rowlist" id="bench-list"></div>
+          </div>
+          <div class="card">
+            <div class="panel-head"><h3>Recruits to compare</h3><span class="cnt" id="rec-cnt">2 of 4 slots</span></div>
+            <div class="filterbar"><b>Recommended for R. Halvorsen</b> · CB · rated 1–5 · sorted by role fit
+              <div class="srcs"><span>✓ <b>ECNL</b> 214 recruits</span><span>✓ <b>Transfer Portal</b> live feed</span><span>✓ <b>Tracked Excel</b> Jul 30</span></div>
+            </div>
+            <div class="rowlist" id="rec-list"></div>
+          </div>
+        </div>
+        <div class="card footbar">
+          <div>
+            <div class="ft" id="ready-title">Ready to compare · R. Halvorsen benchmark + 2 recruits</div>
+            <div class="fs" id="ready-sub">D. Okafor and B. Odom · ECNL, Transfer Portal, and Tracked Excel connected</div>
+          </div>
+          <div style="display:flex;gap:8px;flex:none">
+            <button class="btn btn-ghost">Review sources</button>
+            <button class="btn btn-dark" id="btn-compare" onclick="go('pc02')">Compare 2 recruits</button>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- ── PC-02 ── -->
+      <section class="screen" id="s-pc02"><div class="page-inner">
+        <h1>Comparison results</h1>
+        <p class="lead">Okafor or Odom as the like-for-like replacement for R. Halvorsen — here is the call and what separates them.</p>
+        <div class="card ctxbar">
+          <span class="chip plain">Benchmark · R. Halvorsen · CB · graduating</span>
+          <span class="chip plain">2 recruits · rated 1–5 · ranked by role fit</span>
+          <span class="sp"></span>
+          <span style="color:var(--tert);font-size:11px">Updated just now</span>
+          <button class="btn btn-ghost" onclick="go('pc01')">Edit selection</button>
+        </div>
+        <div class="hero">
+          <div class="ht">
+            <span class="eyebrow">ROSTERMIND RECOMMENDATION</span>
+            <h2>Call D. Okafor first</h2>
+            <div class="hs">Keeps the aerial standard, adds recovery speed, and costs $16K less than B. Odom.</div>
+          </div>
+          <div class="statbox"><div class="sv green">4.6</div><div class="sk">role match · 1–5</div></div>
+          <div class="statbox"><div class="sv">$39K</div><div class="sk">scholarship ask</div></div>
+          <div class="statbox"><div class="sv green">−$16K</div><div class="sk">vs B. Odom</div></div>
+        </div>
+        <div class="duo">
+          <div class="card pcard rec">
+            <span class="badge">Recommended</span>
+            <h3>D. Okafor</h3><div class="psub">CB · 2027 · rated 4.6 vs benchmark 4.1</div>
+            <div class="big">4.6</div>
+            <div class="mbar"><i style="width:92%"></i></div>
+            <div class="cap">role match vs R. Halvorsen · 1–5</div>
+            <div class="chips"><span class="chip">$39K ask</span><span class="chip">High · 3 sources</span><span class="chip up">+1 recovery speed</span></div>
+          </div>
+          <div class="card pcard alt">
+            <span class="badge">Alternative</span>
+            <h3>B. Odom</h3><div class="psub">CB · 2027 · rated 4.4 vs benchmark 4.1</div>
+            <div class="big">4.4</div>
+            <div class="mbar"><i style="width:88%"></i></div>
+            <div class="cap">role match vs R. Halvorsen · 1–5</div>
+            <div class="chips"><span class="chip">$55K ask</span><span class="chip">High · 3 sources</span><span class="chip down">−1 aerial duel</span></div>
+          </div>
+        </div>
+        <div class="card traits">
+          <div class="th">
+            <div><h3>Where they differ from R. Halvorsen</h3><div class="tsub">Only three of six traits separate these recruits. Scale is 1–5.</div></div>
+            <span class="chip plain">Identical: ball-winning, 1v1, final third</span>
+          </div>
+          <div class="tgrid" id="tgrid"></div>
+        </div>
+        <div class="trio">
+          <div class="notecard ok"><b>WHY OKAFOR</b>Same aerial ceiling as Halvorsen, +1 recovery speed, and $16K cheaper.</div>
+          <div class="notecard info"><b>WHEN ODOM INSTEAD</b>Better on the ball under pressure. Pick him if build-out matters more than aerials.</div>
+          <div class="notecard warn"><b>VERIFY BEFORE OFFER</b>Leadership and pressure reads are inferred, not observed. Confirm on a live visit.</div>
+        </div>
+        <div class="card evrow">
+          <span class="eyebrow green">EVIDENCE USED</span>
+          <span class="chip">ECNL</span><span class="chip">Transfer Portal</span><span class="chip">Tracked Excel</span>
+          <span style="flex:1"></span>
+          <button class="btn btn-ghost">View evidence</button>
+          <button class="btn btn-primary" onclick="savePc()">Save this result</button>
+        </div>
+      </div></section>
+
+      <!-- ── TO-01 ── -->
+      <section class="screen" id="s-to01"><div class="page-inner">
+        <h1>What’s bothering you?</h1>
+        <p class="lead">The recruit market for your roster holes — then ask the trade-off you actually care about.</p>
+        <div class="card market">
+          <div class="plothead">
+            <div class="pt"><h3>Recruit market · ceiling vs scholarship ask</h3>
+            <div class="psub">Every dot is one recommended recruit · ceilings rated 1–5 · asks shown against your $100K budget.</div></div>
+          </div>
+          <div class="plotwrap"><div class="plot" id="plot-market"></div></div>
+        </div>
+        <div class="scen-row" id="scen-row"></div>
+        <div class="card composer">
+          <h3>Ask a roster trade-off question</h3>
+          <textarea id="q-input">How should we spend $100K to improve chance creation without leaving the back line exposed?</textarea>
+          <div class="comp-foot">
+            <span class="chip">$100K budget</span><span class="chip" id="scen-chip">4 scenarios</span>
+            <span class="sp"></span>
+            <button class="btn btn-ghost">Add a constraint</button>
+            <button class="btn btn-primary" onclick="go('to02')">Run trade-off</button>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- ── TO-02 ── -->
+      <section class="screen" id="s-to02"><div class="page-inner">
+        <h1>Compare roster trade-offs</h1>
+        <p class="lead">Your four scenarios scored against the question you asked — and the one constraint that breaks.</p>
+        <div class="card qstrip">
+          <div class="qq"><span class="eyebrow tert">YOUR QUESTION</span>
+            <span class="qt">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</span></div>
+          <span class="chip">$100K budget</span><span class="chip">4 scenarios</span>
+          <button class="btn btn-ghost" onclick="go('to01')">Edit question</button>
+        </div>
+        <div class="hero answer-hero">
+          <div class="ht">
+            <span class="eyebrow">ROSTERMIND ANSWER · CONFIDENCE 4.4/5</span>
+            <h2>Strong Double Midfield</h2>
+            <div class="hs">Best chance creation of your four scenarios, and it holds the back line at 4.2 — with $16K still unspent.</div>
+          </div>
+          <div class="statbox"><div class="sv green">4.8</div><div class="sk">chance creation</div></div>
+          <div class="statbox"><div class="sv">4.2</div><div class="sk">back line held</div></div>
+          <div class="statbox"><div class="sv">$16K</div><div class="sk">left unspent</div></div>
+        </div>
+        <div class="card plotcard">
+          <div class="plothead">
+            <div class="pt"><h3 id="plot-title">Chance creation vs back-line safety</h3>
+              <div class="psub" id="plot-sub">Each dot is one scenario. No one clears 4.5 on both axes — pick which side of the trade-off to live with.</div></div>
+            <div class="seg">
+              <button id="seg-q" class="on" onclick="setView('q')">Your question</button>
+              <button id="seg-c" onclick="setView('c')">Ceiling vs ask</button>
+            </div>
+          </div>
+          <div class="plotgrid">
+            <div class="plotwrap"><div class="plot" id="plot-main"></div></div>
+            <div class="rail">
+              <div class="railcard">
+                <span class="eyebrow tert">RANKED BY QUESTION FIT</span>
+                <div id="rank-list" style="margin-top:8px"></div>
+              </div>
+              <div class="railcard breaks" id="rail-breaks">
+                <span class="eyebrow red">WHAT BREAKS · STRIKER MINIMUM</span>
+                <div class="bv"><span class="bn">2.4</span><span class="btrack"><i></i></span><span class="bs">/ 5</span></div>
+                <div class="bnote">Striker depth sits below the question-safe floor. Cover it with the $16K reserve or trade back one midfield slot.</div>
+                <div class="bok">✓ 6 other constraints clear</div>
+              </div>
+              <div class="railcard roster-card" id="rail-roster" style="display:none">
+                <span class="eyebrow green">IN THIS ROSTER</span>
+                <div id="roster-rows" style="margin-top:6px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card nextbar">
+          <div class="nt"><span class="eyebrow tert">NEXT STEP</span>
+            Save this to bring to staff, or re-run the question with striker depth as a hard constraint.</div>
+          <button class="btn btn-ghost" onclick="go('to01')">Ask another</button>
+          <button class="btn btn-primary" onclick="openModal()">Save this result</button>
+        </div>
+      </div></section>
+
+      <!-- ── TO-04 ── -->
+      <section class="screen" id="s-to04"><div class="page-inner">
+        <h1>Saved results</h1>
+        <p class="lead">Every result you’ve saved from the Trade-off board and Player comparison — yours and the team’s. Reopen any of them with the full analysis.</p>
+        <div class="banner" id="save-banner">✓&nbsp; <span id="save-banner-text">“Midfield + center-back plan” saved and published to Team workspace</span><span class="sp"></span><span class="tm">just now</span></div>
+        <div class="searchrow">
+          <input id="search" placeholder="Search saved questions, players, or notes…" oninput="filterSaved()">
+          <button class="fchip on" data-f="all" onclick="setFilter('all')">All 5</button>
+          <button class="fchip" data-f="to" onclick="setFilter('to')">Trade-off board 3</button>
+          <button class="fchip" data-f="pc" onclick="setFilter('pc')">Player comparison 2</button>
+        </div>
+        <div class="card saveditem" data-kind="to" data-text="midfield center-back plan how should we spend 100k strong double midfield">
+          <div class="sirow"><span class="tag-team" id="sv1-tag">TEAM</span><span class="simeta">Trade-off board · Saved just now · by you</span></div>
+          <h3 id="sv1-name">Midfield + center-back plan</h3>
+          <div class="siq">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
+          <div class="sians"><span class="eyebrow green">ANSWER</span><b>Strong Double Midfield · fit 4.7 · $84K</b><span class="flag">Striker 2.4 flagged</span></div>
+          <div class="act"><button class="btn btn-primary" onclick="go('to05')">Reopen</button></div>
+        </div>
+        <div class="card saveditem" data-kind="pc" data-text="replace graduating center back which defender safest 2027 floor okafor">
+          <div class="sirow"><span class="tag-private">PRIVATE</span><span class="simeta">Player comparison · Saved Aug 2 · 10:05 AM</span></div>
+          <h3>Replace graduating center back</h3>
+          <div class="siq">“Which defender gives us the safest 2027 floor under a $70K year-one budget?”</div>
+          <div class="sians"><span class="eyebrow green">ANSWER</span><b>D. Okafor · role match 4.6 · $39K</b><span class="clear">All constraints clear</span></div>
+          <div class="act"><button class="btn btn-ghost" onclick="go('pc02')">Open</button></div>
+        </div>
+        <div class="eyebrow tert earlier-label" id="earlier-label">EARLIER</div>
+        <div class="card erow" data-kind="to" data-text="immediate scoring development upside brooks alvarez">
+          <h4>Immediate scoring vs. development upside</h4>
+          <span class="esub">Trade-off board</span><span class="em">E. Brooks + M. Alvarez · $97K</span><span class="tag-team">TEAM</span><span class="em">Jul 29</span><span class="chev">›</span>
+        </div>
+        <div class="card erow" data-kind="to" data-text="protect 2028 scholarship flexibility okafor">
+          <h4>Protect 2028 scholarship flexibility</h4>
+          <span class="esub">Trade-off board</span><span class="em">D. Okafor · $39K</span><span class="tag-team">TEAM</span><span class="em">Jul 24</span><span class="chev">›</span>
+        </div>
+        <div class="card erow" data-kind="pc" data-text="two defenders or one elite creator odom okafor">
+          <h4>Two defenders or one elite creator?</h4>
+          <span class="esub">Player comparison</span><span class="em">B. Odom + D. Okafor · $94K</span><span class="tag-private">PRIVATE</span><span class="em">Jul 18</span><span class="chev">›</span>
+        </div>
+      </div></section>
+
+      <!-- ── TO-05 ── -->
+      <section class="screen" id="s-to05"><div class="page-inner">
+        <h1>Reopened saved result</h1>
+        <p class="lead">The question, answer, and trade-offs restored exactly as saved — with a heads-up when the data underneath has moved.</p>
+        <div class="restored">✓&nbsp; <b>Saved snapshot restored · <span id="sv5-name">Midfield + center-back plan</span></b>
+          <span style="flex:1"></span><span class="tag-team">TEAM</span>
+          <span class="meta">Trade-off board · saved Aug 6 · reopened Aug 20 · read-only</span></div>
+        <div class="stale"><b>DATA CHANGED</b><span class="sp">2 scholarship asks moved since this was saved. The snapshot below is unchanged — re-run to see today’s answer.</span>
+          <button class="btn btn-ghost">See what changed</button></div>
+        <div class="snapgrid">
+          <div class="card snapmain">
+            <span class="eyebrow tert">ORIGINAL QUESTION &amp; ANSWER</span>
+            <div class="oq">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
+            <div class="ansline"><span class="eyebrow green">ANSWER</span><b>Strong Double Midfield · fit 4.7 · $84K</b><span class="conf">confidence 4.4 / 5</span></div>
+            <div class="staffnote"><b>STAFF NOTE</b><span id="sv5-note">Discuss with staff before the August recruiting weekend.</span></div>
+            <div class="snapmeta">4 scenarios scored · data as of Aug 6, 2026 · saved by you</div>
+          </div>
+          <div class="card snaprail">
+            <span class="eyebrow tert">TRADE-OFF AS SAVED</span>
+            <div id="saved-rank" style="margin-top:8px"></div>
+            <div class="flagrow"><b>FLAG</b> Striker minimum 2.4 / 5</div>
+          </div>
+        </div>
+        <div class="card rerun">
+          <div class="rt">Re-running uses today’s roster and asks — this saved snapshot stays unchanged for the team.</div>
+          <button class="btn btn-ghost">Duplicate as new question</button>
+          <button class="btn btn-primary" onclick="go('to02')">Re-run with current data</button>
+        </div>
+      </div></section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TO-03 modal ═══ -->
+<div class="overlay" id="overlay">
+  <div class="dialog">
+    <div class="dhead"><h3>Save this result</h3><button class="x" onclick="closeModal()">✕</button></div>
+    <div class="dlead">Freeze this comparison so you can reopen it later or share it with staff.</div>
+    <div class="snapshot">
+      <div class="sq1">“How should we spend $100K to improve chance creation without leaving the back line exposed?”</div>
+      <div class="arow"><span class="eyebrow green">ANSWER</span><b style="font-size:12px">Strong Double Midfield · fit 4.7 · $84K</b></div>
+      <div class="meta">Keeps all four scenarios, the striker flag, and the Aug 6, 2026 data snapshot.</div>
+    </div>
+    <div class="fld">
+      <div class="flr"><label>COMPARISON NAME</label></div>
+      <input type="text" id="f-name" value="Midfield + center-back plan">
+    </div>
+    <div class="fld">
+      <div class="flr"><label>NOTE FOR STAFF</label><span class="cnt" id="f-cnt">56 / 240</span></div>
+      <textarea id="f-note" maxlength="240">Discuss with staff before the August recruiting weekend.</textarea>
+    </div>
+    <div class="fld">
+      <div class="flr"><label>VISIBILITY</label></div>
+      <div class="vopt" id="v-me" onclick="setVis('me')">
+        <span class="rad"></span>
+        <span><span class="vt">Only me</span><div class="vs">Private — visible only in your saved list</div></span>
+      </div>
+      <div class="vopt on" id="v-team" onclick="setVis('team')">
+        <span class="rad"></span>
+        <span><span class="vt">Team workspace</span><div class="vs">Published — every coach in this workspace can open it</div></span>
+      </div>
+      <div class="dest" id="f-dest">Will appear in Saved results · Team workspace</div>
+    </div>
+    <div class="dact">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="publish()">Save &amp; publish</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-text"></span><button id="toast-act" style="display:none"></button></div>
+
+<div class="qnav" id="qnav">
+  <button class="qbtn" onclick="document.getElementById('qnav').classList.toggle('open')">Screens ▾</button>
+  <div class="qmenu">
+    <div class="ql">PLAYER COMPARISON</div>
+    <button onclick="qgo('pc01')">PC-01 · Select recruits</button>
+    <button onclick="qgo('pc02')">PC-02 · Comparison results</button>
+    <div class="ql">TRADE-OFF BOARD</div>
+    <button onclick="qgo('to01')">TO-01 · Ask a trade-off question</button>
+    <button onclick="qgo('to02')">TO-02 · Comparison result</button>
+    <button onclick="qgo('to03')">TO-03 · Save comparison (pop-up)</button>
+    <button onclick="qgo('to04')">TO-04 · Saved results</button>
+    <button onclick="qgo('to05')">TO-05 · Reopened saved result</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════ Canonical data (single source of truth) ═══════════ */
+const ROSTER=[
+ {n:'R. Halvorsen',pos:'CB',cls:'Senior ’26',grad:true, rate:4.1,note:'Captain. Four-year starter. Graduates in May.'},
+ {n:'T. Lund',pos:'GK',cls:'Senior ’26',grad:true, rate:3.9,note:'Three-year starter. Graduation creates a roster hole.'},
+ {n:'E. Trent',pos:'CB',cls:'Senior ’27',rate:3.7,note:'Starts every week. Strong aerial reference point.'},
+ {n:'O. Fitzgerald',pos:'DM',cls:'Senior ’27',rate:3.5,note:'Reliable rotation piece; stabilizes transitions.'},
+ {n:'J. Pike',pos:'ST',cls:'Senior ’27',rate:3.5,note:'Nine goals last year; strong box presence.'}];
+
+const CB_RECRUITS=[
+ {n:'D. Okafor',pos:'CB',ask:39,src:'ECNL + Portal · Atlanta, GA · 3 sources',rate:4.6,sel:true},
+ {n:'B. Odom',pos:'CB',ask:55,src:'Portal + Tracked Excel · Cary, NC · 3 sources',rate:4.4,sel:true},
+ {n:'D. Marsh',pos:'CB',ask:20,src:'ECNL · Boise, ID · 2 sources',rate:4.2,sel:false},
+ {n:'K. Sørensen',pos:'CB',ask:30,src:'Tracked Excel · Aarhus, DK · 2 sources',rate:4.1,sel:false},
+ {n:'S. Whitaker',pos:'CB/LB',ask:42,src:'ECNL + Portal · Denver, CO · 3 sources',rate:3.8,sel:false}];
+
+const TRAITS=[
+ {t:'On the ball under pressure', h:4, ok:3, od:4},
+ {t:'Aerial & physical duels',    h:5, ok:5, od:4},
+ {t:'Speed and recovery',         h:3, ok:4, od:3}];
+
+/* Trade-off market pool · ceiling 1–5 · ask $K of the $100K budget
+   mside = label side override on the TO-01 market chart (collision control) */
+const POOL=[
+ {n:'M. Alvarez', pos:'CM',   ceil:4.6, ask:45, mside:'right'},
+ {n:'N. Patel',   pos:'DM',   ceil:4.2, ask:39, mside:'left'},
+ {n:'D. Okafor',  pos:'CB',   ceil:4.6, ask:39, mside:'left'},
+ {n:'J. Rossi',   pos:'AM',   ceil:3.6, ask:37},
+ {n:'T. Williams',pos:'LW',   ceil:4.4, ask:37},
+ {n:'C. Rivera',  pos:'ST',   ceil:4.0, ask:36},
+ {n:'M. Rowe',    pos:'GK',   ceil:4.4, ask:51},
+ {n:'D. Marsh',   pos:'CB',   ceil:4.2, ask:20},
+ {n:'A. Chen',    pos:'LB',   ceil:4.3, ask:28},
+ {n:'E. Brooks',  pos:'ST',   ceil:4.5, ask:52},
+ {n:'L. Martinez',pos:'RB',   ceil:4.2, ask:44, mside:'right'},
+ {n:'S. Whitaker',pos:'CB/LB',ceil:3.8, ask:42}];
+
+/* Returning core next season (Halvorsen & Lund graduate) · share = current scholarship % */
+const RETURNING=[
+ {n:'E. Trent',     pos:'CB', ceil:3.7, share:10},
+ {n:'O. Fitzgerald',pos:'DM', ceil:3.5, share:8, dy:-16},
+ {n:'J. Pike',      pos:'ST', ceil:3.5, share:9, dy:14}];
+const BEST_RETURNING=3.7;
+
+const SCEN=[
+ {key:'sdm', name:'Strong Double Midfield', tag:'BEST PERFORMANCE', cost:84, fit:4.7, ceil:4.4, cc:4.8, bls:4.2, recruits:['M. Alvarez','N. Patel']},
+ {key:'mb',  name:'Most Balanced',                              cost:76, fit:4.4, ceil:4.1, cc:4.35,bls:4.55,recruits:['D. Okafor','J. Rossi']},
+ {key:'pot', name:'Potential',                                  cost:73, fit:4.1, ceil:4.2, cc:4.5, bls:3.4, recruits:['T. Williams','C. Rivera']},
+ {key:'bg',  name:'Best Gatekeeper', tag2:'BEST FOR BUDGET',    cost:71, fit:3.8, ceil:4.3, cc:4.05,bls:4.75,recruits:['M. Rowe','D. Marsh']}];
+
+/* ═══════════ State ═══════════ */
+const state={screen:'pc01', plotView:'q', roster:'sdm', vis:'team',
+  savedName:'Midfield + center-back plan', savedNote:'Discuss with staff before the August recruiting weekend.',
+  benchmark:'R. Halvorsen', recSel:new Set(['D. Okafor','B. Odom']), scenSel:new Set(['sdm']), filter:'all'};
+
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ═══════════ Router ═══════════ */
+const TITLES={pc01:'Player comparison',pc02:'Player comparison',to01:'Trade-off board',to02:'Trade-off board',to04:'Saved results',to05:'Saved results'};
+function go(sc){
+  state.screen=sc;
+  $$('.screen').forEach(el=>el.classList.remove('on'));
+  $('#s-'+sc).classList.add('on');
+  $('#topbar').textContent=TITLES[sc];
+  $('#nav-pc').classList.toggle('active', sc==='pc01'||sc==='pc02');
+  $('#nav-to').classList.toggle('active', sc==='to01'||sc==='to02');
+  $('#nav-sv').classList.toggle('active', sc==='to04'||sc==='to05');
+  $('#content').scrollTop=0;
+  $('#qnav').classList.remove('open');
+  if(sc==='to02') renderMainPlot();
+}
+function qgo(sc){
+  if(sc==='to03'){ go('to02'); openModal(); return; }
+  closeModal(); go(sc);
+}
+$$('.nav-item[data-nav]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.nav)));
+
+/* ═══════════ PC-01 ═══════════ */
+function renderPc01(){
+  $('#bench-list').innerHTML=ROSTER.map(p=>`
+    <div class="prow ${state.benchmark===p.n?'sel':''}" onclick="pickBench('${p.n}')">
+      <span class="ctrl radio">${state.benchmark===p.n?'✓':''}</span>
+      <span class="pinfo"><span class="pname">${p.n} &nbsp;<span class="pmeta">${p.pos} · ${p.cls}${p.grad?' · Graduating':''}</span></span>
+      <div class="psub">${p.note}</div></span>
+      <span class="pbar"><i style="width:${p.rate/5*100}%"></i></span>
+      <span class="prate">${p.rate.toFixed(1)}</span>
+    </div>`).join('');
+  $('#rec-list').innerHTML=CB_RECRUITS.map(r=>`
+    <div class="prow ${state.recSel.has(r.n)?'sel':''}" onclick="toggleRec('${r.n}')">
+      <span class="ctrl">${state.recSel.has(r.n)?'✓':''}</span>
+      <span class="pinfo"><span class="pname">${r.n} &nbsp;<span class="pmeta">${r.pos} · asks $${r.ask}K</span></span>
+      <div class="psub">${r.src}</div></span>
+      <span class="pbar"><i style="width:${r.rate/5*100}%"></i></span>
+      <span class="prate">${r.rate.toFixed(1)}</span>
+    </div>`).join('');
+  const n=state.recSel.size;
+  $('#rec-cnt').textContent=`${n} of 4 slots`;
+  $('#btn-compare').textContent=`Compare ${n} recruit${n===1?'':'s'}`;
+  $('#btn-compare').disabled=n===0;
+  const names=[...state.recSel];
+  $('#ready-title').textContent=n?`Ready to compare · ${state.benchmark} benchmark + ${n} recruit${n===1?'':'s'}`:'Pick at least one recruit to compare';
+  $('#ready-sub').textContent=n?`${names.join(' and ')} · ECNL, Transfer Portal, and Tracked Excel connected`:'Recruits recommended for your benchmark are listed on the right.';
+}
+function pickBench(n){ state.benchmark=n; renderPc01(); }
+function toggleRec(n){
+  if(state.recSel.has(n)) state.recSel.delete(n);
+  else if(state.recSel.size<4) state.recSel.add(n);
+  renderPc01();
+}
+function savePc(){
+  toast('✓ Saved as “Replace graduating center back” · Private','View in Saved results',()=>go('to04'));
+}
+
+/* ═══════════ PC-02 traits ═══════════ */
+function sq(v,rec){ let s='<span class="sq'+(rec?' rec':'')+'">'; for(let i=1;i<=5;i++) s+=`<i class="${i<=v?'f':''}"></i>`; return s+'</span>'; }
+function delta(v,base){
+  if(v===base) return '<span class="delta">same</span>';
+  const d=v-base; return `<span class="delta ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>`;
+}
+$('#tgrid').innerHTML=TRAITS.map(t=>`
+  <div class="tcard"><h4>${t.t}</h4>
+    <div class="trow"><span>R. Halvorsen</span>${sq(t.h)}<span class="delta" style="background:transparent;color:var(--tert)">base</span></div>
+    <div class="trow"><span>D. Okafor</span>${sq(t.ok,true)}${delta(t.ok,t.h)}</div>
+    <div class="trow"><span>B. Odom</span>${sq(t.od)}${delta(t.od,t.h)}</div>
+  </div>`).join('');
+
+/* ═══════════ Plot helpers ═══════════ */
+function dotHtml(xp,yp,cls,label,labelSide,strong,dy){
+  const top = dy? `calc(${yp}% + ${dy}px)` : yp+'%';
+  const lb= label? `<span class="plabel ${strong?'strong':''} ${labelSide==='left'?'left':''}" style="left:calc(${xp}% ${labelSide==='left'?'- 12px':'+ 12px'});top:${top}">${label}</span>`:'';
+  return `<span class="pdot ${cls}" style="left:${xp}%;top:${yp}%"></span>`+lb;
+}
+
+/* TO-01 market plot · x 0–60% ask · y 3.0–5.0 ceiling */
+function renderMarket(){
+  const X=v=>v/60*100, Y=c=>(5-c)/2*100;
+  let h='';
+  h+=`<div class="band" style="left:${X(40)}%;right:0"></div><span class="band-label" style="left:calc(${X(40)}% + 8px)">PREMIUM ASK</span>`;
+  [3.5,4.0,4.5,5.0].forEach(g=>h+=`<div class="gline" style="top:${Y(g)}%"></div>`);
+  [3.0,3.5,4.0,4.5,5.0].forEach(g=>h+=`<span class="ytick" style="top:${Y(g)}%">${g.toFixed(1)}</span>`);
+  [0,15,30,45,60].forEach(v=>h+=`<span class="xtick" style="left:${X(v)}%">${v}%</span>`);
+  h+=`<div class="refline" style="top:${Y(4.1)}%"></div><span class="reflab" style="left:8px;top:${Y(4.1)}%">R. HALVORSEN REPLACEMENT BAR · RATED 4.1</span>`;
+  POOL.forEach(p=>{
+    const side = p.mside || (X(p.ask)>72?'left':'right');
+    h+=dotHtml(X(p.ask),Y(p.ceil),'hollow',`${p.n} · ${p.pos}`,side);
+  });
+  h+=`<span class="axis-title" style="top:-22px;left:0">CEILING ↑ (1–5)</span><span class="axis-title" style="bottom:-38px;left:50%;transform:translateX(-50%)">SCHOLARSHIP ASK → (% OF $100K)</span>`;
+  $('#plot-market').innerHTML=h;
+}
+
+/* TO-01 scenario cards */
+function renderScen(){
+  $('#scen-row').innerHTML=SCEN.map(s=>`
+    <div class="card scard ${state.scenSel.has(s.key)?'sel':''}" onclick="toggleScen('${s.key}')">
+      ${s.tag?`<span class="stag">${s.tag}</span>`:s.tag2?`<span class="stag gray">${s.tag2}</span>`:'<span class="stag gray" style="visibility:hidden">·</span>'}
+      <span class="cbx">${state.scenSel.has(s.key)?'✓':''}</span>
+      <h4>${s.name} Roster</h4>
+      <div style="font-size:11px;color:var(--tert);margin-top:2px">${s.recruits.join(' + ')}</div>
+      <div class="kv">
+        <div class="kb"><div class="kk">YEAR 1 COST</div><div class="vv">$${s.cost}K</div></div>
+        <div class="kb"><div class="kk">CEILING</div><div class="vv">${s.ceil.toFixed(1)}</div></div>
+      </div>
+    </div>`).join('');
+  $('#scen-chip').textContent='4 scenarios';
+}
+function toggleScen(k){ state.scenSel.has(k)?state.scenSel.delete(k):state.scenSel.add(k); renderScen(); }
+
+/* TO-02 main plot */
+function setView(v){
+  state.plotView=v;
+  $('#seg-q').classList.toggle('on',v==='q');
+  $('#seg-c').classList.toggle('on',v==='c');
+  renderMainPlot();
+}
+function setRoster(k){
+  state.roster=k;
+  if(state.plotView!=='c'){ state.plotView='c'; $('#seg-q').classList.remove('on'); $('#seg-c').classList.add('on'); }
+  renderMainPlot();
+}
+function renderMainPlot(){
+  renderRank();
+  if(state.plotView==='q'){
+    $('#plot-title').textContent='Chance creation vs back-line safety';
+    $('#plot-sub').textContent='Each dot is one scenario. No one clears 4.5 on both axes — pick which side of the trade-off to live with.';
+    $('#rail-breaks').style.display='';
+    $('#rail-roster').style.display='none';
+    const X=v=>(v-3)/2*100, Y=v=>(5-v)/2*100;
+    let h=`<div class="redzone" style="top:${Y(4.0)}%"></div><span class="redzone-label">BACK LINE EXPOSED · BELOW 4.0</span>`;
+    [3.5,4.0,4.5,5.0].forEach(g=>h+=`<div class="gline" style="top:${Y(g)}%"></div>`);
+    [3.0,3.5,4.0,4.5,5.0].forEach(g=>{h+=`<span class="ytick" style="top:${Y(g)}%">${g.toFixed(1)}</span>`;h+=`<span class="xtick" style="left:${X(g)}%">${g.toFixed(1)}</span>`});
+    SCEN.forEach(s=>{
+      const rec=s.key==='sdm';
+      const side = X(s.cc)>70?'left':'right';
+      h+=dotHtml(X(s.cc),Y(s.bls),rec?'green':'hollow',`${s.name} · $${s.cost}K`,side,rec);
+    });
+    h+=`<span class="axis-title" style="top:-22px;left:0">BACK-LINE SAFETY ↑ (1–5)</span><span class="axis-title" style="bottom:-38px;left:50%;transform:translateX(-50%)">CHANCE CREATION → (1–5)</span>`;
+    h+=`<div class="legend" style="top:-26px"><span class="li"><span class="ldot green"></span>Recommended</span><span class="li"><span class="ldot hollow"></span>Other scenario</span></div>`;
+    $('#plot-main').innerHTML=h;
+  } else {
+    const s=SCEN.find(x=>x.key===state.roster);
+    $('#plot-title').textContent='Ceiling vs scholarship ask';
+    $('#plot-sub').textContent='Only the selected roster is plotted — hollow dots are returning players, green dots are the recruits it signs.';
+    $('#rail-breaks').style.display='none';
+    $('#rail-roster').style.display='';
+    renderRosterCard(s);
+    const X=v=>(v-5)/50*100, Y=c=>(5-c)/2*100;
+    let h='';
+    h+=`<div class="band" style="left:${X(40)}%;right:0"></div><span class="band-label" style="left:calc(${X(40)}% + 8px)">PREMIUM ASK</span>`;
+    [3.5,4.0,4.5,5.0].forEach(g=>h+=`<div class="gline" style="top:${Y(g)}%"></div>`);
+    [3.0,3.5,4.0,4.5,5.0].forEach(g=>h+=`<span class="ytick" style="top:${Y(g)}%">${g.toFixed(1)}</span>`);
+    [5,15,25,35,45,55].forEach(v=>h+=`<span class="xtick" style="left:${X(v)}%">${v}%</span>`);
+    h+=`<div class="refline" style="top:${Y(BEST_RETURNING)}%"></div><span class="reflab" style="right:8px;top:${Y(BEST_RETURNING)}%">BEST RETURNING CEILING · ${BEST_RETURNING}</span>`;
+    RETURNING.forEach(p=>{
+      h+=dotHtml(X(p.share),Y(p.ceil),'hollow',`${p.n} · ${p.pos}`,'right',false,p.dy);
+    });
+    s.recruits.forEach(nm=>{
+      const p=POOL.find(x=>x.n===nm);
+      const side = X(p.ask)>72?'left':'right';
+      h+=dotHtml(X(p.ask),Y(p.ceil),'green',`${p.n} · ${p.pos} · $${p.ask}K`,side,true);
+    });
+    h+=`<span class="axis-title" style="top:-22px;left:0">CEILING ↑ (1–5)</span><span class="axis-title" style="bottom:-38px;left:50%;transform:translateX(-50%)">SCHOLARSHIP ASK → (% OF $100K)</span>`;
+    h+=`<div class="legend" style="top:-26px"><span class="li"><span class="ldot green"></span>Potential recruits</span><span class="li"><span class="ldot hollow"></span>Returning roster</span></div>`;
+    $('#plot-main').innerHTML=h;
+  }
+}
+function renderRank(){
+  $('#rank-list').innerHTML=SCEN.map((s,i)=>`
+    <div class="rrow ${state.plotView==='c'&&state.roster===s.key?'on':''}" onclick="setRoster('${s.key}')">
+      <span class="rk">${i+1}</span><span class="rn">${s.name}</span>
+      <span class="rc">$${s.cost}K</span><span class="rf">${s.fit.toFixed(1)}</span>
+    </div>`).join('');
+}
+function renderRosterCard(s){
+  $('#roster-rows').innerHTML=s.recruits.map(nm=>{
+    const p=POOL.find(x=>x.n===nm);
+    return `<div class="rrw"><span class="rrn">${p.n} · ${p.pos}</span><span class="rra">$${p.ask}K</span><span class="rrc">${p.ceil.toFixed(1)}</span></div>`;
+  }).join('')+`<div class="rsum">Combined ceiling ${s.ceil.toFixed(1)} · uses ${s.cost}% of budget</div>`;
+}
+
+/* ═══════════ TO-03 modal ═══════════ */
+function openModal(){ $('#overlay').classList.add('on'); }
+function closeModal(){ $('#overlay').classList.remove('on'); }
+$('#overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+$('#f-note').addEventListener('input',e=>{ $('#f-cnt').textContent=`${e.target.value.length} / 240`; });
+function setVis(v){
+  state.vis=v;
+  $('#v-me').classList.toggle('on',v==='me');
+  $('#v-team').classList.toggle('on',v==='team');
+  $('#f-dest').textContent = v==='team' ? 'Will appear in Saved results · Team workspace' : 'Will appear in Saved results · Only me';
+}
+function publish(){
+  state.savedName=$('#f-name').value.trim()||'Untitled comparison';
+  state.savedNote=$('#f-note').value.trim()||'—';
+  closeModal();
+  $('#sv1-name').textContent=state.savedName;
+  $('#sv5-name').textContent=state.savedName;
+  $('#sv5-note').textContent=state.savedNote;
+  $('#sv1-tag').textContent = state.vis==='team'?'TEAM':'PRIVATE';
+  $('#sv1-tag').className = state.vis==='team'?'tag-team':'tag-private';
+  $('#save-banner-text').textContent = `“${state.savedName}” saved and ${state.vis==='team'?'published to Team workspace':'kept private to you'}`;
+  go('to04');
+}
+
+/* ═══════════ TO-04 ═══════════ */
+function setFilter(f){
+  state.filter=f;
+  $$('.fchip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
+  filterSaved();
+}
+function filterSaved(){
+  const q=$('#search').value.toLowerCase();
+  let anyEarlier=false;
+  $$('#s-to04 .saveditem, #s-to04 .erow').forEach(el=>{
+    const okKind = state.filter==='all' || el.dataset.kind===state.filter;
+    const okText = !q || (el.dataset.text+' '+el.textContent.toLowerCase()).includes(q);
+    const show=okKind&&okText;
+    el.style.display=show?'':'none';
+    if(show && el.classList.contains('erow')) anyEarlier=true;
+  });
+  $('#earlier-label').style.display=anyEarlier?'':'none';
+}
+
+/* ═══════════ TO-05 saved rank ═══════════ */
+$('#saved-rank').innerHTML=SCEN.map((s,i)=>`
+  <div class="rrow ${i===0?'on':''}" style="cursor:default">
+    <span class="rk">${i+1}</span><span class="rn">${s.name}</span>
+    <span class="rc">$${s.cost}K</span><span class="rf">${s.fit.toFixed(1)}</span>
+  </div>`).join('');
+
+/* ═══════════ Toast ═══════════ */
+let toastTimer=null;
+function toast(msg,actLabel,actFn){
+  $('#toast-text').textContent=msg;
+  const a=$('#toast-act');
+  if(actLabel){ a.style.display=''; a.textContent=actLabel; a.onclick=()=>{ hideToast(); actFn(); }; }
+  else a.style.display='none';
+  $('#toast').classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(hideToast,4500);
+}
+function hideToast(){ $('#toast').classList.remove('on'); }
+
+/* ═══════════ Init ═══════════ */
+renderPc01();
+renderMarket();
+renderScen();
+renderMainPlot();
+go('pc01');
+</script>
+</body>
+</html>
