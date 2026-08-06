@@ -1,13 +1,12 @@
 # Coach prototypes
 
-Two **separate HTML pages** (not the same React route):
+Separate HTML entry pages (not the same React route):
 
-| Prototype | URL |
+| Prototype | Path |
 |---|---|
-| **v1 — Excel + assistant** | http://127.0.0.1:5180/ |
-| **v2 — Fake desktop shell** | http://127.0.0.1:5180/desktop/ |
-
-If `/desktop/` still looks wrong, hard-refresh or open in a private window.
+| **v1 — Excel + assistant** | `/` |
+| **v2 — Fake desktop shell (Sideline)** | `/desktop/` |
+| **v3 — Depth chart by class year** | `/depth/` |
 
 ## Run
 
@@ -15,6 +14,12 @@ If `/desktop/` still looks wrong, hard-refresh or open in a private window.
 npm install
 npm run dev
 ```
+
+Then open:
+
+- http://localhost:5173/
+- http://localhost:5173/desktop/
+- http://localhost:5173/depth/
 
 ## Deploy
 

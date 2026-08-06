@@ -18,6 +18,7 @@ export default defineConfig({
       input: {
         main: path.resolve(rootDir, "index.html"),
         desktop: path.resolve(rootDir, "desktop/index.html"),
+        depth: path.resolve(rootDir, "depth/index.html"),
       },
     },
   },

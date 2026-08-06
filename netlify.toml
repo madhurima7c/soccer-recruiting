@@ -11,3 +11,13 @@
   from = "/desktop/"
   to = "/desktop/index.html"
   status = 200
+
+[[redirects]]
+  from = "/depth"
+  to = "/depth/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/depth/"
+  to = "/depth/index.html"
+  status = 200
