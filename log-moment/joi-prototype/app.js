@@ -1,31 +1,51 @@
 /* Kit · Log Moment — Joi-style sheet interaction + Field 7 flow
-   GSAP powers all motion. Haptics via navigator.vibrate (maps to
-   UIImpactFeedbackGenerator when ported to Xcode/SwiftUI). */
+   GSAP powers all motion. The sheet handles BOTH its own drag and the
+   scrolling of the cards inside it, so the two never fight. */
 
-/* GSAP core only — sheet drag is hand-rolled pointer events for full control */
+/* =========================================================
+   0 · HAPTICS
+   Android/desktop: Vibration API.
+   iOS 17.4+: toggling a `switch` checkbox fires a system haptic —
+   the only web hook available (iOS never shipped navigator.vibrate).
+   Requires Settings ▸ Sounds & Haptics ▸ System Haptics = on, and a
+   real device. Impact styles/intensity need the native port.
+   ========================================================= */
+let hapticSwitch = null;
+(function initHaptics() {
+  const label = document.createElement("label");
+  label.setAttribute("aria-hidden", "true");
+  label.style.cssText = "position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.setAttribute("switch", "");
+  label.appendChild(input);
+  document.body.appendChild(label);
+  hapticSwitch = label;
+})();
 
-/* ---------- haptics ---------- */
 function haptic(ms = 8) {
   if (navigator.vibrate) navigator.vibrate(ms);
+  if (hapticSwitch) { try { hapticSwitch.click(); } catch (e) {} }
 }
 
-/* the phone frame must never scroll (focus() tries to) */
-const phoneEl = document.getElementById("phone");
-phoneEl.addEventListener("scroll", () => { phoneEl.scrollTop = 0; phoneEl.scrollLeft = 0; });
+const phone = document.getElementById("phone");
+phone.addEventListener("scroll", () => { phone.scrollTop = 0; phone.scrollLeft = 0; });
 
 /* =========================================================
    1 · THE SHEET — pull down to reveal the day summary
    ========================================================= */
 const sheet = document.getElementById("sheet");
+const sheetBg = document.getElementById("sheet-bg");
+const grabber = document.getElementById("sheet-grabber");
 const summary = document.getElementById("summary");
 const helloComma = document.getElementById("hello-comma");
-const phone = document.getElementById("phone");
+const timelineEl = document.querySelector(".timeline");
+const inner = document.getElementById("timeline-inner");
 
-const SHEET_UP = 196;      // collapsed: sheet under "Hello Coach Emma"
-let SHEET_DOWN = 460;      // open: summary revealed (recomputed on layout)
+const SHEET_UP = 196;        // collapsed: sheet sits under "Hello Coach Emma"
+let SHEET_DOWN = 460;        // open: full summary revealed (measured below)
 
 function layoutSheet() {
-  // let the summary block define how far the sheet rests when open
   summary.style.visibility = "hidden";
   gsap.set(summary, { autoAlpha: 1 });
   const heroBottom = summary.getBoundingClientRect().bottom - phone.getBoundingClientRect().top;
@@ -35,23 +55,11 @@ function layoutSheet() {
 }
 layoutSheet();
 
-/* when pills expand/collapse inside the summary, the open sheet
-   glides to keep the whole summary visible */
-function retargetOpenSheet() {
-  if (!sheetOpen) return;
-  const heroBottom = summary.getBoundingClientRect().bottom - phone.getBoundingClientRect().top;
-  SHEET_DOWN = Math.min(heroBottom + 26, phone.clientHeight - 150);
-  gsap.to(sheet, { y: SHEET_DOWN, duration: 0.45, ease: "power3.out" });
-}
-gsap.set(sheet, { y: SHEET_UP });
-
-/* summary reveal timeline — scrubbed by drag, then eased on release.
-   Sheet chrome (stroke + grabber) dissolves when the sheet is up and
-   fades in as it comes down — the affordance to pull it back up. */
+/* ---- summary reveal: scrubbed while dragging, staggered on release ---- */
 const lines = ["#s1", "#s2", "#s3"];
 const reveal = gsap.timeline({ paused: true })
   .set(summary, { visibility: "visible" }, 0)
-  .set(helloComma, { opacity: 1 }, 0)
+  .fromTo(helloComma, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.28, ease: "none" }, 0.02)
   .fromTo(lines,
     { autoAlpha: 0, y: 26 },
     { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.14 }, 0.05)
@@ -62,108 +70,150 @@ const reveal = gsap.timeline({ paused: true })
     { autoAlpha: 0, x: -14, scale: 0.7 },
     { autoAlpha: 1, x: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)", stagger: 0.06 }, 0.4);
 
+/* ---- the container: invisible at rest, draws in from the sides + top ---- */
+const panel = { e: 0 };
+function applyPanel() {
+  const e = panel.e;
+  gsap.set(sheetBg, {
+    autoAlpha: e,
+    left: 10 * e,
+    right: 10 * e,
+    top: -22 * (1 - e),
+    borderRadius: (26 * e) + "px " + (26 * e) + "px 0 0",
+  });
+  gsap.set(grabber, { autoAlpha: e });
+}
+function scrubPanel(p) { panel.e = gsap.utils.clamp(0, 1, p * 2.2); applyPanel(); }
+function settlePanel(open) {
+  gsap.to(panel, { e: open ? 1 : 0, duration: 0.32, ease: "power2.out", onUpdate: applyPanel });
+}
+applyPanel();
+
 let sheetOpen = false;
 let crossed = false;
+let rawSheetY = SHEET_UP;
+gsap.set(sheet, { y: SHEET_UP });
 
 function progressFor(y) {
   return gsap.utils.clamp(0, 1, (y - SHEET_UP) / (SHEET_DOWN - SHEET_UP));
 }
-
-/* sheet chrome (stroke + grabber) is driven directly, outside the
-   reveal timeline, so nothing can fight over it */
-const chromeEls = ["#sheet-chrome", "#sheet-grabber"];
-function scrubChrome(p) {
-  gsap.set(chromeEls, { autoAlpha: gsap.utils.clamp(0, 1, p * 3.3) });
+function applySheet() {
+  let y = rawSheetY;
+  if (y < SHEET_UP) y = SHEET_UP - (SHEET_UP - y) * 0.35;          // rubber band
+  else if (y > SHEET_DOWN) y = SHEET_DOWN + (y - SHEET_DOWN) * 0.35;
+  gsap.set(sheet, { y });
+  const p = progressFor(y);
+  reveal.progress(p);
+  scrubPanel(p);
+  if (p > 0) summary.style.visibility = "visible";
+  const past = p > 0.5;
+  if (past !== crossed) { crossed = past; haptic(12); }
 }
 
-function settle(open, velocity = 0) {
+/* ---- inner card scrolling (manual, so it can hand off to the drag) ---- */
+let contentY = 0;
+function minContentY() {
+  const visibleBottom = phone.clientHeight - gsap.getProperty(sheet, "y");
+  const contentBottom = inner.offsetTop + inner.offsetHeight;
+  return Math.min(0, visibleBottom - contentBottom - 28);
+}
+function setContentY(v) {
+  contentY = gsap.utils.clamp(minContentY(), 0, v);
+  gsap.set(inner, { y: contentY });
+}
+
+function settle(open) {
   sheetOpen = open;
-  const target = open ? SHEET_DOWN : SHEET_UP;
+  rawSheetY = open ? SHEET_DOWN : SHEET_UP;
   haptic(open ? 10 : 6);
   gsap.to(sheet, {
-    y: target,
+    y: rawSheetY,
     duration: 0.55,
     ease: open ? "power4.out" : "power3.inOut",
+    onComplete() { setContentY(contentY); },   // re-clamp for the new viewport
   });
+  settlePanel(open);
   if (open) {
-    // replay the staggered reveal from wherever the scrub left it
     reveal.play();
-    gsap.to(chromeEls, { autoAlpha: 1, duration: 0.25 });
   } else {
     gsap.to(reveal, { progress: 0, duration: 0.32, ease: "power2.inOut",
       onComplete: () => { summary.style.visibility = "hidden"; } });
-    // the bar + stroke always dissolve when the card goes back up
-    gsap.to(chromeEls, { autoAlpha: 0, duration: 0.28 });
   }
 }
 
-/* custom pointer drag — same physics on desktop mouse, mobile touch,
-   and (later) easy to translate to a SwiftUI DragGesture */
-(function attachSheetDrag() {
-  /* tracked = pointer is down; engaged = movement crossed the drag
-     threshold. Until engaged, we do NOT capture the pointer, so plain
-     taps fall through to cards and buttons inside the sheet. */
+/* ---- one gesture: routes between sheet drag and card scroll ---- */
+(function attachSheetGesture() {
   const DRAG_THRESHOLD = 8;
-  let tracked = false, engaged = false;
-  let pointerId = null, startPointerY = 0, startSheetY = 0, lastY = 0, lastT = 0, velocity = 0;
+  let tracked = false, engaged = false, pointerId = null;
+  let startPointerY = 0, lastMoveY = 0, lastT = 0, velocity = 0, mode = "sheet";
 
-  function overdrag(v, min, max) {
-    if (v < min) return min - (min - v) * 0.25;
-    if (v > max) return max + (v - max) * 0.25;
-    return v;
+  function applyDelta(d) {
+    if (d > 0) {                                   // ── dragging DOWN
+      if (contentY < 0) {                          // scroll cards back to top first
+        const use = Math.min(d, -contentY);
+        setContentY(contentY + use);
+        d -= use; mode = "content";
+      }
+      if (d > 0) { rawSheetY += d; applySheet(); mode = "sheet"; }
+    } else if (d < 0) {                            // ── dragging UP
+      let up = -d;
+      const sheetRoom = rawSheetY - SHEET_UP;
+      if (sheetRoom > 0) {                         // close the sheet first
+        const use = Math.min(up, sheetRoom);
+        rawSheetY -= use; applySheet();
+        up -= use; mode = "sheet";
+      }
+      if (up > 0) { setContentY(contentY - up); mode = "content"; }
+    }
   }
 
   sheet.addEventListener("pointerdown", e => {
     if (e.target.closest("input, button")) return;
     tracked = true; engaged = false;
     pointerId = e.pointerId;
-    startPointerY = e.clientY;
-    startSheetY = gsap.getProperty(sheet, "y");
-    lastY = e.clientY; lastT = performance.now(); velocity = 0;
+    startPointerY = lastMoveY = e.clientY;
+    lastT = performance.now(); velocity = 0;
+    gsap.killTweensOf([sheet, inner]);
   });
 
   sheet.addEventListener("pointermove", e => {
     if (!tracked || e.pointerId !== pointerId) return;
-    const dy = e.clientY - startPointerY;
     if (!engaged) {
-      if (Math.abs(dy) < DRAG_THRESHOLD) return;   // still a tap so far
+      if (Math.abs(e.clientY - startPointerY) < DRAG_THRESHOLD) return;  // still a tap
       engaged = true;
-      gsap.killTweensOf(sheet);
       try { sheet.setPointerCapture(pointerId); } catch (err) {}
+      lastMoveY = e.clientY;
       haptic(4);
     }
     const now = performance.now();
-    const dt = Math.max(1, now - lastT);
-    velocity = (e.clientY - lastY) / dt;           // px per ms, +down
-    lastY = e.clientY; lastT = now;
-
-    const y = overdrag(startSheetY + dy, SHEET_UP - 40, SHEET_DOWN + 90);
-    gsap.set(sheet, { y });
-    const p = progressFor(y);
-    reveal.progress(p);
-    scrubChrome(p);
-    if (p > 0) summary.style.visibility = "visible";
-    const past = p > 0.5;
-    if (past !== crossed) { crossed = past; haptic(12); }
+    velocity = (e.clientY - lastMoveY) / Math.max(1, now - lastT);
+    lastT = now;
+    applyDelta(e.clientY - lastMoveY);
+    lastMoveY = e.clientY;
   });
 
   function release(e) {
     if (!tracked || (e && e.pointerId !== pointerId)) return;
     tracked = false;
-    if (!engaged) return;                          // it was a tap — let the click happen
+    if (!engaged) return;                          // it was a tap — let the click through
     engaged = false;
-    const y = gsap.getProperty(sheet, "y");
-    const p = progressFor(y);
-    // flick beats position; slow release snaps to nearest state
-    const open = velocity > 0.35 ? true : velocity < -0.35 ? false : p > 0.5;
-    settle(open);
+    if (mode === "content") {
+      const target = gsap.utils.clamp(minContentY(), 0, contentY + velocity * 220);
+      gsap.to(inner, { y: target, duration: 0.8, ease: "power2.out",
+        onUpdate() { contentY = gsap.getProperty(inner, "y"); } });
+      settle(progressFor(gsap.getProperty(sheet, "y")) > 0.5);
+    } else {
+      const p = progressFor(gsap.getProperty(sheet, "y"));
+      const open = velocity > 0.35 ? true : velocity < -0.35 ? false : p > 0.5;
+      settle(open);
+    }
   }
   sheet.addEventListener("pointerup", release);
   sheet.addEventListener("pointercancel", release);
 })();
 
 /* =========================================================
-   1b · AVATAR CLUSTERS → PLAYER PILLS (tap to expand/collapse)
+   1b · AVATAR CLUSTERS → PLAYER PILLS
    ========================================================= */
 const PLAYERDB = {
   julia:  { name: "Julia Smith", pos: "FW", team: "GA Aspire",     img: "assets/julia.jpg" },
@@ -180,7 +230,7 @@ document.querySelectorAll(".av-cluster[data-players]").forEach(cluster => {
   let expanded = false;
 
   cluster.addEventListener("click", e => {
-    e.stopPropagation();               // don't trigger the match-card navigation
+    e.stopPropagation();                       // never triggers the card navigation
     haptic(8);
     const namesEl = cluster.parentElement.querySelector(".mc-watch-names");
     if (!expanded) {
@@ -212,6 +262,16 @@ document.querySelectorAll(".av-cluster[data-players]").forEach(cluster => {
   });
 });
 
+/* when pills change the summary height, the open sheet follows */
+function retargetOpenSheet() {
+  if (!sheetOpen) return;
+  const heroBottom = summary.getBoundingClientRect().bottom - phone.getBoundingClientRect().top;
+  SHEET_DOWN = Math.min(heroBottom + 26, phone.clientHeight - 150);
+  rawSheetY = SHEET_DOWN;
+  gsap.to(sheet, { y: SHEET_DOWN, duration: 0.45, ease: "power3.out",
+    onComplete() { setContentY(contentY); } });
+}
+
 /* =========================================================
    2 · FIELD 7 — page transition
    ========================================================= */
@@ -220,6 +280,7 @@ const screenField = document.getElementById("screen-field");
 
 document.getElementById("card-field7").addEventListener("click", () => {
   haptic(10);
+  screenField.scrollTop = 0;
   gsap.timeline()
     .to(screenToday, { x: -80, autoAlpha: 0.4, duration: 0.5, ease: "power3.inOut" }, 0)
     .fromTo(screenField, { x: "100%" }, { x: 0, duration: 0.55, ease: "power4.out" }, 0.04)
@@ -249,9 +310,7 @@ const lpPlayer = document.getElementById("lp-player");
 let selectedIdx = 0;
 
 function cardHTML(p, i) {
-  const photo = p.img
-    ? `<img src="${p.img}" alt="">`
-    : `<span class="p-sil">${p.jersey}</span>`;
+  const photo = p.img ? `<img src="${p.img}" alt="">` : `<span class="p-sil">${p.jersey}</span>`;
   return `<div class="p-card${i === selectedIdx ? " selected" : ""}" data-i="${i}">
     <div class="p-head">${photo}
       <div><div class="p-name">${p.name}</div><div class="p-pos">${p.pos}</div></div>
@@ -266,7 +325,6 @@ function cardHTML(p, i) {
     </div>
   </div>`;
 }
-
 function renderCarousel() {
   carousel.innerHTML = PLAYERS.map(cardHTML).join("");
   dots.innerHTML = PLAYERS.map((_, i) => `<i class="${i === selectedIdx ? "on" : ""}"></i>`).join("");
@@ -317,7 +375,6 @@ chips.addEventListener("click", e => {
 
 const logBtn = document.getElementById("log-btn");
 const note = document.getElementById("note");
-const toast = document.getElementById("toast");
 
 logBtn.addEventListener("click", () => {
   const tags = [...chips.querySelectorAll(".chip.on")].map(c => c.textContent);
@@ -337,7 +394,6 @@ logBtn.addEventListener("click", () => {
   haptic(18);
   gsap.fromTo(logBtn, { scale: 0.96 }, { scale: 1, duration: 0.35, ease: "back.out(2.5)" });
 
-  /* green confirmation — "✓ Moment Logged", note-text size, all green */
   const msg = document.getElementById("logged-msg");
   gsap.timeline()
     .fromTo(msg, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "power2.out" })
@@ -400,3 +456,5 @@ document.getElementById("add-confirm").addEventListener("click", () => {
   newCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   jersey.value = ""; pname.value = "";
 });
+
+window.addEventListener("resize", () => { layoutSheet(); setContentY(contentY); });

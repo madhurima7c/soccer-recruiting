@@ -48,6 +48,7 @@ body {
 .hero { padding: 28px 28px 0; flex: none; }
 #hello { font-size: 28px; font-weight: 600; letter-spacing: .2px; line-height: 1.32; }
 #hello .dim { color: var(--dim); }
+#hello-comma { opacity: 0; }   /* only present once the summary is revealed */
 #summary { margin-top: 2px; visibility: hidden; }
 .s-line { font-size: 28px; line-height: 1.32; font-weight: 600; color: var(--text); }
 .s-line .dim { color: var(--dim); }
@@ -74,28 +75,36 @@ body {
 /* ---------- sheet ---------- */
 #sheet {
   position: absolute; left: 0; right: 0; top: 0; height: 100%;
-  background: #121315;
-  border-radius: 26px 26px 0 0;
+  background: transparent;      /* the container is #sheet-bg, revealed on drag */
   touch-action: none;
   will-change: transform;
   z-index: 5;
 }
-/* dissolvable chrome: stroke + grabber (hidden when sheet is up) */
-#sheet-chrome {
-  position: absolute; inset: 0; border-radius: 26px 26px 0 0;
+/* the container itself: absent at rest, draws in from the sides + top */
+#sheet-bg {
+  position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+  background: #121315;
   border: 1px solid rgba(255,255,255,.14); border-bottom: none;
+  border-radius: 0;
   box-shadow: 0 -12px 40px rgba(0,0,0,.55);
   pointer-events: none;
   opacity: 0;
 }
 .grabber {
+  position: relative;
   width: 44px; height: 5px; border-radius: 3px;
   background: rgba(255,255,255,.22);
   margin: 10px auto 4px;
   opacity: 0;
 }
 #add-sheet .grabber { opacity: 1; }
-.timeline { padding: 8px 20px 40px 14px; height: 100%; overflow: hidden; }
+.timeline {
+  position: relative;
+  padding: 8px 20px 40px 14px;
+  height: 100%;
+  overflow: hidden;             /* cards scroll via #timeline-inner transform */
+}
+#timeline-inner { will-change: transform; }
 .t-group { display: flex; gap: 10px; margin-bottom: 6px; }
 .t-rail { width: 54px; flex: none; display: flex; flex-direction: column; align-items: flex-start; padding-top: 12px; position: relative; }
 .t-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--faint); }
@@ -130,6 +139,12 @@ body {
 .mc-avs .player-pill img { border: none; margin: 0; }
 
 /* ---------- field screen ---------- */
+#screen-field {
+  overflow-y: auto;                       /* scrolls to the bottom of the panel */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 40px;
+}
+#screen-field::-webkit-scrollbar { display: none; }
 .field-head { display: flex; align-items: center; justify-content: space-between; padding: 64px 20px 8px; flex: none; }
 #back { width: 36px; height: 36px; border-radius: 50%; background: none; border: none; color: var(--teal); font-size: 20px; cursor: pointer; }
 .field-head h2 { font-size: 18px; font-weight: 700; }

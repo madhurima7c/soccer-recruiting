@@ -40,80 +40,82 @@
       </div>
     </div>
 
-    <!-- draggable sheet -->
+    <!-- draggable sheet: bg only materialises as it is pulled down -->
     <div id="sheet">
-      <div id="sheet-chrome"></div>
+      <div id="sheet-bg"></div>
       <div class="grabber" id="sheet-grabber"></div>
       <div class="timeline">
+        <div id="timeline-inner">
 
-        <div class="t-group">
-          <div class="t-rail"><span class="t-label live">LIVE</span><span class="t-count">02</span><span class="t-dot"></span><span class="t-line"></span></div>
-          <div class="t-cards">
-            <div class="match-card live-card" id="card-field7">
-              <div class="mc-row">
-                <div class="mc-team"><img src="assets/crest-ga.png" alt=""><span>GA Aspire</span></div>
-                <div class="mc-mid"><b>9:45 AM</b><span>FIELD 7</span></div>
-                <div class="mc-team"><img src="assets/crest-fcd.png" alt=""><span>FC Dallas</span></div>
+          <div class="t-group">
+            <div class="t-rail"><span class="t-label live">LIVE</span><span class="t-count">02</span><span class="t-dot"></span><span class="t-line"></span></div>
+            <div class="t-cards">
+              <div class="match-card live-card" id="card-field7">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-ga.png" alt=""><span>GA Aspire</span></div>
+                  <div class="mc-mid"><b>9:45 AM</b><span>FIELD 7</span></div>
+                  <div class="mc-team"><img src="assets/crest-fcd.png" alt=""><span>FC Dallas</span></div>
+                </div>
+                <div class="mc-watch">
+                  <span class="mc-avs av-cluster" data-players="julia,sam,jordan"><img src="assets/julia.jpg" alt=""><img src="assets/sam.png" alt=""><img src="assets/jordan.jpg" alt=""></span>
+                  <span class="mc-watch-names">Julia · Sam · Jordan</span>
+                </div>
               </div>
-              <div class="mc-watch">
-                <span class="mc-avs av-cluster" data-players="julia,sam,jordan"><img src="assets/julia.jpg" alt=""><img src="assets/sam.png" alt=""><img src="assets/jordan.jpg" alt=""></span>
-                <span class="mc-watch-names">Julia · Sam · Jordan</span>
-              </div>
-            </div>
-            <div class="match-card live-card">
-              <div class="mc-row">
-                <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>Carolina ECNL</span></div>
-                <div class="mc-mid"><b>10:30 AM</b><span>FIELD 2</span></div>
-                <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Virginia Union</span></div>
-              </div>
-              <div class="mc-watch">
-                <span class="mc-avs av-cluster" data-players="debra,grace"><img src="assets/debra.jpg" alt=""><img src="assets/grace.jpg" alt=""></span>
-                <span class="mc-watch-names">Debra · Grace</span>
+              <div class="match-card live-card">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>Carolina ECNL</span></div>
+                  <div class="mc-mid"><b>10:30 AM</b><span>FIELD 2</span></div>
+                  <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Virginia Union</span></div>
+                </div>
+                <div class="mc-watch">
+                  <span class="mc-avs av-cluster" data-players="debra,grace"><img src="assets/debra.jpg" alt=""><img src="assets/grace.jpg" alt=""></span>
+                  <span class="mc-watch-names">Debra · Grace</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="t-group">
-          <div class="t-rail"><span class="t-label">UP NEXT</span><span class="t-count">03</span><span class="t-dot"></span><span class="t-line"></span></div>
-          <div class="t-cards">
-            <div class="match-card dim-card">
-              <div class="mc-row">
-                <div class="mc-team"><img src="assets/crest-str.png" alt=""><span>Strikers</span></div>
-                <div class="mc-mid"><b>11:00 AM</b><span>FIELD 2</span></div>
-                <div class="mc-team"><img src="assets/crest-ecl.png" alt=""><span>Eclipse</span></div>
+          <div class="t-group">
+            <div class="t-rail"><span class="t-label">UP NEXT</span><span class="t-count">03</span><span class="t-dot"></span><span class="t-line"></span></div>
+            <div class="t-cards">
+              <div class="match-card dim-card">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-str.png" alt=""><span>Strikers</span></div>
+                  <div class="mc-mid"><b>11:00 AM</b><span>FIELD 2</span></div>
+                  <div class="mc-team"><img src="assets/crest-ecl.png" alt=""><span>Eclipse</span></div>
+                </div>
               </div>
-            </div>
-            <div class="match-card dim-card">
-              <div class="mc-row">
-                <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>West Coast FC</span></div>
-                <div class="mc-mid"><b>12:30 PM</b><span>FIELD 13</span></div>
-                <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Solar</span></div>
+              <div class="match-card dim-card">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>West Coast FC</span></div>
+                  <div class="mc-mid"><b>12:30 PM</b><span>FIELD 13</span></div>
+                  <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Solar</span></div>
+                </div>
               </div>
-            </div>
-            <div class="match-card dim-card">
-              <div class="mc-row">
-                <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>West Coast FC</span></div>
-                <div class="mc-mid"><b>1:20 PM</b><span>FIELD 14</span></div>
-                <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Solar</span></div>
+              <div class="match-card dim-card">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>West Coast FC</span></div>
+                  <div class="mc-mid"><b>1:20 PM</b><span>FIELD 14</span></div>
+                  <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Solar</span></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="t-group">
-          <div class="t-rail"><span class="t-label">DONE</span><span class="t-count">01</span><span class="t-dot"></span></div>
-          <div class="t-cards">
-            <div class="match-card dim-card">
-              <div class="mc-row">
-                <div class="mc-team"><img src="assets/crest-str.png" alt=""><span>LA Surf</span></div>
-                <div class="mc-mid"><b>8:00 AM</b><span>ECNL</span></div>
-                <div class="mc-team"><img src="assets/crest-ecl.png" alt=""><span>Colorado Rapids</span></div>
+          <div class="t-group">
+            <div class="t-rail"><span class="t-label">DONE</span><span class="t-count">01</span><span class="t-dot"></span></div>
+            <div class="t-cards">
+              <div class="match-card dim-card">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-str.png" alt=""><span>LA Surf</span></div>
+                  <div class="mc-mid"><b>8:00 AM</b><span class="ecnl">ECNL</span></div>
+                  <div class="mc-team"><img src="assets/crest-ecl.png" alt=""><span>Colorado Rapids</span></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   </section>
@@ -138,9 +140,7 @@
     </div>
 
     <div id="carousel-wrap">
-      <div id="carousel">
-        <!-- player cards injected by app.js -->
-      </div>
+      <div id="carousel"></div>
       <div class="pager"><span id="dots"></span><span class="swipe-hint">Swipe →</span></div>
     </div>
 
@@ -160,8 +160,6 @@
       <button id="log-btn">Log moment</button>
       <div id="logged-msg">✓ Moment Logged</div>
     </div>
-
-    <div id="toast"></div>
   </section>
 
   <!-- ============ ADD PLAYER SHEET ============ -->
