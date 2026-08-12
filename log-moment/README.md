@@ -40,3 +40,10 @@ bash serve-prototypes.sh
 ## Viewport
 
 Designed for **402×874** mobile (iPhone). On desktop, the phone frame is centered with a subtle shadow.
+
+## joi-prototype/ (Aug 12)
+Interactive GSAP version of this flow — Joi-style pull-down summary (staggered text + avatar
+pills), tappable Field 7 card → player carousel, jersey-first add-player, Log Moment with
+green confirmation + localStorage timestamps. Serve the folder statically:
+`npx http-server log-moment/joi-prototype -p 5610` (or open via GitHub Pages build).
+Haptics use navigator.vibrate — maps to UIImpactFeedbackGenerator in the planned Xcode port.
