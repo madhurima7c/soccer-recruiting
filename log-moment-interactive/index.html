@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kit · Log Moment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="phone-shell">
+<div id="phone">
+
+  <!-- ============ SCREEN A · TODAY ============ -->
+  <section id="screen-today" class="screen">
+    <div class="status-bar" aria-hidden="true">
+      <div class="status-time-wrap"><span class="status-time">9:41</span></div>
+      <div class="status-island"></div>
+      <div class="status-trailing">
+        <img src="assets/figma/status-levels.svg" alt="" class="status-levels" width="85" height="13">
+      </div>
+    </div>
+
+    <header class="daystrip">
+      <div class="day"><span>MON</span><b>14</b></div>
+      <div class="day"><span>TUE</span><b>15</b></div>
+      <div class="day active"><span>WED</span><b>16</b></div>
+      <div class="day"><span>THU</span><b>17</b></div>
+      <div class="day"><span>FRI</span><b>18</b></div>
+    </header>
+
+    <div class="hero">
+      <p class="hello-line">Hello Coach Emma<span id="hello-comma" class="dim">,</span></p>
+      <p id="summary" class="summary-copy">
+        <span class="dim">You have</span> 6 players <span class="dim">on your watchlist today.</span>
+        <span class="av-cluster" data-players="julia,sam,jordan,debra,grace" id="cluster1">
+          <img src="assets/julia.jpg" alt=""><img src="assets/sam.png" alt=""><img src="assets/jordan.jpg" alt=""><img src="assets/debra.jpg" alt=""><img src="assets/grace.jpg" alt="">
+        </span>
+        5 players <span class="dim">play before noon, the</span>
+        <span class="av-cluster" data-players="maya" id="cluster2"><img src="assets/maya.png" alt=""></span>
+        last <span class="dim">kicks off at</span> 1:20 pm<span class="dim">. You're</span> done scouting <span class="dim">by</span> 3:00 pm<span class="dim">.</span>
+      </p>
+    </div>
+
+    <div id="sheet">
+      <div id="sheet-bg"></div>
+      <div class="sheet-body">
+        <div class="grabber" id="sheet-grabber"></div>
+        <div class="timeline">
+          <div id="timeline-inner">
+
+          <div class="t-group">
+            <div class="t-rail"><div class="t-marker"><span class="t-label live">LIVE</span><span class="t-count">02</span><img class="t-dot" src="assets/figma/status-dot.svg" alt=""></div><div class="t-line-wrap"><span class="t-line"></span></div></div>
+            <div class="t-cards">
+              <button type="button" class="match-card live-card" id="card-field7">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-ga.png" alt=""><span>GA Aspire</span></div>
+                  <div class="mc-mid"><b>9:45 AM</b><span>FIELD 7</span></div>
+                  <div class="mc-team"><img src="assets/crest-fcd.png" alt=""><span>FC Dallas</span></div>
+                </div>
+                <div class="mc-watch">
+                  <span class="mc-avs av-cluster" data-players="julia,sam,jordan"><img src="assets/julia.jpg" alt=""><img src="assets/sam.png" alt=""><img src="assets/jordan.jpg" alt=""></span>
+                  <span class="mc-watch-names">Julia · Sam · Jordan</span>
+                </div>
+              </button>
+              <div class="match-card live-card">
+                <div class="mc-row">
+                  <div class="mc-team"><img src="assets/crest-car.png" alt=""><span>Carolina ECNL</span></div>
+                  <div class="mc-mid"><b>10:30 AM</b><span>FIELD 2</span></div>
+                  <div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Virginia Union</span></div>
+                </div>
+                <div class="mc-watch">
+                  <span class="mc-avs av-cluster" data-players="debra,grace"><img src="assets/debra.jpg" alt=""><img src="assets/grace.jpg" alt=""></span>
+                  <span class="mc-watch-names">Debra · Grace</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-group dim-section">
+            <div class="t-rail"><div class="t-marker"><span class="t-label">UP NEXT</span><span class="t-count">03</span><img class="t-dot" src="assets/figma/status-dot.svg" alt=""></div><div class="t-line-wrap"><span class="t-line"></span></div></div>
+            <div class="t-cards">
+              <div class="match-card"><div class="mc-row"><div class="mc-team"><img src="assets/crest-str.png" alt=""><span>Strikers</span></div><div class="mc-mid"><b>11:00 AM</b><span>FIELD 2</span></div><div class="mc-team"><img src="assets/crest-ecl.png" alt=""><span>Eclipse</span></div></div></div>
+              <div class="match-card"><div class="mc-row"><div class="mc-team"><img src="assets/crest-car.png" alt=""><span>West Coast FC</span></div><div class="mc-mid"><b>12:30 PM</b><span>FIELD 13</span></div><div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Solar</span></div></div></div>
+              <div class="match-card"><div class="mc-row"><div class="mc-team"><img src="assets/crest-car.png" alt=""><span>West Coast FC</span></div><div class="mc-mid"><b>1:20 PM</b><span>FIELD 14</span></div><div class="mc-team"><img src="assets/crest-vu.png" alt=""><span>Solar</span></div></div></div>
+            </div>
+          </div>
+
+          <div class="t-group dim-section t-group-last">
+            <div class="t-rail"><div class="t-marker"><span class="t-label">DONE</span><span class="t-count">01</span><img class="t-dot" src="assets/figma/status-dot.svg" alt=""></div></div>
+            <div class="t-cards">
+              <div class="match-card"><div class="mc-row"><div class="mc-team"><img src="assets/crest-str.png" alt=""><span>LA Surf</span></div><div class="mc-mid"><b>8:00 AM</b><span class="ecnl">ECNL</span></div><div class="mc-team"><img src="assets/crest-ecl.png" alt=""><span>Colorado Rapids</span></div></div></div>
+            </div>
+          </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN B · FIELD 7 (Figma 2539:28373) ============ -->
+  <section id="screen-field" class="screen offstage">
+    <div class="status-bar" aria-hidden="true">
+      <div class="status-time-wrap"><span class="status-time">9:41</span></div>
+      <div class="status-island"></div>
+      <div class="status-trailing">
+        <img src="assets/figma/status-levels.svg" alt="" class="status-levels" width="85" height="13">
+      </div>
+    </div>
+
+    <div class="field-scroll">
+      <header class="field-head">
+        <button type="button" id="back" aria-label="Back">←</button>
+        <h2>Field 7</h2>
+        <span class="head-spacer"></span>
+      </header>
+
+      <div class="live-fixture">
+        <div class="fixture-teams">
+          <div class="fx-team"><img src="assets/crest-ga.png" alt=""><span>GA Aspire</span></div>
+          <div class="fx-mid"><b>9:45 AM</b><span class="live-pill"><img src="assets/figma/live-dot.svg" alt="" class="live-dot">LIVE · <em id="min-a">34</em>′</span></div>
+          <div class="fx-team"><img src="assets/crest-fcd.png" alt=""><span>FC Dallas</span></div>
+        </div>
+      </div>
+
+      <div class="watch-head">
+        <h3>Watching <span id="watch-count">3</span> players</h3>
+        <button type="button" id="add-player" aria-label="Add player"><img src="assets/figma/btn-add-player.svg" alt=""></button>
+      </div>
+
+      <div id="carousel-wrap">
+        <div id="carousel"></div>
+      </div>
+      <div class="pager"><span id="dots"></span><span class="swipe-hint">Swipe →</span></div>
+
+      <div class="section-gap"></div>
+
+      <div class="log-panel">
+        <div class="lp-live">LIVE · <em id="min-b">34</em>′</div>
+        <div class="chips-row" id="chips">
+          <button type="button" class="chip">Shot</button>
+          <button type="button" class="chip">Duel</button>
+          <button type="button" class="chip">Compete</button>
+          <button type="button" class="chip">Flag</button>
+          <button type="button" class="chip">Capture</button>
+        </div>
+        <div class="note-row">
+          <input id="note" type="text" placeholder="Add an optional note…" autocomplete="off">
+          <button type="button" class="mic-btn" aria-label="Voice note"><img src="assets/figma/icon-mic.svg" alt=""></button>
+        </div>
+        <button type="button" id="log-btn">Log moment</button>
+        <div id="logged-msg">✓ Moment Logged</div>
+      </div>
+    </div>
+  </section>
+
+  <div id="modal-scrim"></div>
+  <div id="add-sheet">
+    <div class="grabber"></div>
+    <h3>Add player</h3>
+    <p class="as-sub">Don't know their name? Just grab the jersey — you can look them up later.</p>
+    <label class="as-label">JERSEY #</label>
+    <input id="jersey" type="tel" maxlength="2" placeholder="00">
+    <label class="as-label">NAME <span class="opt">optional</span></label>
+    <input id="pname" type="text" placeholder="Look up later" autocomplete="off">
+    <div class="as-teams">
+      <button type="button" class="team-pick active" data-team="GA Aspire"><img src="assets/crest-ga.png" alt="">GA Aspire</button>
+      <button type="button" class="team-pick" data-team="FC Dallas"><img src="assets/crest-fcd.png" alt="">FC Dallas</button>
+    </div>
+    <button type="button" id="add-confirm">Add to watchlist</button>
+  </div>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

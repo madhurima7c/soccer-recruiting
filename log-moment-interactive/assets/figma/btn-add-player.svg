@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Button &#194;&#183; Add player">
+<rect width="32" height="32" rx="15" fill="white" fill-opacity="0.06"/>
+<rect x="0.5" y="0.5" width="31" height="31" rx="14.5" stroke="white" stroke-opacity="0.12"/>
+<path id="Label" d="M14.8655 21V11H17.1343V21H14.8655ZM10.9999 17.1344V14.8656H20.9999V17.1344H10.9999Z" fill="white"/>
+</g>
+</svg>
