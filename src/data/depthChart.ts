@@ -76,20 +76,20 @@ export const LIKELIHOOD_MARK = {
 
 /** Demo overrides — top talent isn't always landable */
 const LIKELIHOOD_OVERRIDES: Partial<Record<string, RecruitLikelihood>> = {
-  camp: "limited", // 5.0★ but tuition / distance constraints
-  boehm: "committed",
-  dutra: "interested",
-  newlin: "committed",
-  menti: "interested",
-  blake: "committed",
+  shore: "limited", // 5.0★ but tuition / distance constraints
+  voss: "committed",
+  callen: "interested",
+  bridger: "committed",
+  carver: "interested",
+  holt: "committed",
   ellis: "interested",
-  murphy: "limited",
-  buck: "limited",
-  thomas: "limited",
-  egan: "interested",
-  loudd: "interested",
-  aguilar: "interested",
-  leyva: "committed",
+  glinn: "limited",
+  fox: "limited",
+  brook: "limited",
+  pierce: "interested",
+  kent: "interested",
+  solis: "interested",
+  ortega: "committed",
 }
 
 export function getLikelihood(player: DepthPlayer): RecruitLikelihood {
@@ -134,9 +134,9 @@ export const players: DepthPlayer[] = [
     placedSlot: null,
   },
   {
-    id: "nguyen-k",
-    lastName: "Nguyen",
-    firstName: "Avery",
+    id: "tran-k",
+    lastName: "Tran",
+    firstName: "Kai",
     position: "GK",
     coachRating: 3.5,
     club: "ECNL Seattle",
@@ -164,8 +164,8 @@ export const players: DepthPlayer[] = [
 
   // ——— Placed on pitch (2029 class in Figma overall) ———
   {
-    id: "boehm",
-    lastName: "Boehm",
+    id: "voss",
+    lastName: "Voss",
     position: "LW",
     coachRating: 4.5,
     club: "ECNL Seattle",
@@ -178,8 +178,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lw",
   },
   {
-    id: "camp",
-    lastName: "Camp",
+    id: "shore",
+    lastName: "Shore",
     firstName: "N.",
     position: "ST",
     coachRating: 5.0,
@@ -193,8 +193,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "st",
   },
   {
-    id: "dutra",
-    lastName: "Dutra",
+    id: "callen",
+    lastName: "Callen",
     position: "RW",
     coachRating: 4.0,
     club: "ECNL San Diego",
@@ -207,8 +207,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "rw",
   },
   {
-    id: "newlin",
-    lastName: "Newlin",
+    id: "bridger",
+    lastName: "Bridger",
     position: "AM",
     coachRating: 4.5,
     club: "ECNL Chicago",
@@ -221,8 +221,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "am",
   },
   {
-    id: "leyva",
-    lastName: "Leyva",
+    id: "ortega",
+    lastName: "Ortega",
     position: "CM",
     coachRating: 4.0,
     club: "ECNL LA",
@@ -235,8 +235,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "cm-l",
   },
   {
-    id: "aguilar",
-    lastName: "Aguilar",
+    id: "solis",
+    lastName: "Solis",
     position: "CM",
     coachRating: 4.0,
     club: "GA Phoenix",
@@ -249,8 +249,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "cm-r",
   },
   {
-    id: "menti",
-    lastName: "Menti",
+    id: "carver",
+    lastName: "Carver",
     position: "DM",
     coachRating: 4.5,
     club: "ECNL Seattle",
@@ -263,8 +263,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "dm",
   },
   {
-    id: "loudd",
-    lastName: "Loudd",
+    id: "kent",
+    lastName: "Kent",
     position: "LB",
     coachRating: 4.0,
     club: "ECNL Portland",
@@ -277,8 +277,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lb",
   },
   {
-    id: "blake",
-    lastName: "Blake",
+    id: "holt",
+    lastName: "Holt",
     position: "LCB",
     coachRating: 4.5,
     club: "ECNL LA",
@@ -291,8 +291,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lcb",
   },
   {
-    id: "thomas",
-    lastName: "Thomas",
+    id: "brook",
+    lastName: "Brook",
     position: "RCB",
     coachRating: 4.0,
     club: "ECNL Chicago",
@@ -305,8 +305,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "rcb",
   },
   {
-    id: "egan",
-    lastName: "Egan",
+    id: "pierce",
+    lastName: "Pierce",
     position: "RB",
     coachRating: 4.0,
     club: "ECNL Seattle",
@@ -321,8 +321,8 @@ export const players: DepthPlayer[] = [
 
   // ——— Depth backups (Pitch frame 786-4058) ———
   {
-    id: "murphy",
-    lastName: "Murphy",
+    id: "glinn",
+    lastName: "Glinn",
     position: "LW",
     coachRating: 3.5,
     club: "GA Bay Area",
@@ -334,8 +334,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lw",
   },
   {
-    id: "duncan",
-    lastName: "Duncan",
+    id: "reed",
+    lastName: "Reed",
     position: "LW",
     coachRating: 3.0,
     club: "ECNL Portland",
@@ -347,8 +347,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lw",
   },
   {
-    id: "buck",
-    lastName: "Buck",
+    id: "fox",
+    lastName: "Fox",
     position: "ST",
     coachRating: 3.5,
     club: "GA Charlotte",
@@ -360,8 +360,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "st",
   },
   {
-    id: "nguyen",
-    lastName: "Nguyen",
+    id: "lin",
+    lastName: "Lin",
     position: "RW",
     coachRating: 3.0,
     club: "GA Bay Area",
@@ -373,8 +373,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "rw",
   },
   {
-    id: "gouran",
-    lastName: "Gouran",
+    id: "lind",
+    lastName: "Lind",
     position: "AM",
     coachRating: 3.5,
     club: "ECNL Seattle",
@@ -386,8 +386,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "am",
   },
   {
-    id: "chou",
-    lastName: "Chou",
+    id: "yoon",
+    lastName: "Yoon",
     position: "AM",
     coachRating: 3.0,
     club: "GA Atlanta",
@@ -399,8 +399,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "am",
   },
   {
-    id: "shell",
-    lastName: "Shell",
+    id: "west",
+    lastName: "West",
     position: "CM",
     coachRating: 3.0,
     club: "GA Dallas",
@@ -412,8 +412,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "cm-l",
   },
   {
-    id: "holdenried",
-    lastName: "Holdenried",
+    id: "ashford",
+    lastName: "Ashford",
     position: "CM",
     coachRating: 2.5,
     club: "ECNL Denver",
@@ -425,8 +425,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "cm-l",
   },
   {
-    id: "morton",
-    lastName: "Morton",
+    id: "quinn",
+    lastName: "Quinn",
     position: "CM",
     coachRating: 3.0,
     club: "ECNL Chicago",
@@ -438,8 +438,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "cm-r",
   },
   {
-    id: "matte",
-    lastName: "Matté",
+    id: "belaire",
+    lastName: "Belaire",
     position: "DM",
     coachRating: 3.0,
     club: "GA Bay Area",
@@ -451,8 +451,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "dm",
   },
   {
-    id: "durham",
-    lastName: "Durham",
+    id: "crowe",
+    lastName: "Crowe",
     position: "LB",
     coachRating: 3.0,
     club: "GA Atlanta",
@@ -464,8 +464,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lb",
   },
   {
-    id: "norman",
-    lastName: "Norman",
+    id: "hayes",
+    lastName: "Hayes",
     position: "LCB",
     coachRating: 3.5,
     club: "GA Charlotte",
@@ -477,8 +477,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lcb",
   },
   {
-    id: "stearns",
-    lastName: "Stearns",
+    id: "lane",
+    lastName: "Lane",
     position: "LCB",
     coachRating: 3.0,
     club: "ECNL Boston",
@@ -490,8 +490,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "lcb",
   },
   {
-    id: "defilippo",
-    lastName: "De Filippo",
+    id: "rossi",
+    lastName: "Rossi",
     position: "RCB",
     coachRating: 3.0,
     club: "GA Bay Area",
@@ -503,8 +503,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "rcb",
   },
   {
-    id: "montoya",
-    lastName: "Montoya",
+    id: "vega",
+    lastName: "Vega",
     position: "RB",
     coachRating: 3.0,
     club: "GA Phoenix",
@@ -518,8 +518,8 @@ export const players: DepthPlayer[] = [
 
   // ——— Other class years for filter ———
   {
-    id: "chamberland",
-    lastName: "Chamberland",
+    id: "alden",
+    lastName: "Alden",
     position: "GK",
     coachRating: 5.0,
     club: "ECNL Seattle",
@@ -532,8 +532,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "gk",
   },
   {
-    id: "ijams",
-    lastName: "Ijams",
+    id: "keane",
+    lastName: "Keane",
     position: "GK",
     coachRating: 4.0,
     club: "GA Bay Area",
@@ -545,8 +545,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "gk",
   },
   {
-    id: "murry",
-    lastName: "Murry",
+    id: "sutton",
+    lastName: "Sutton",
     position: "GK",
     coachRating: 3.5,
     club: "ECNL Denver",
@@ -558,8 +558,8 @@ export const players: DepthPlayer[] = [
     placedSlot: "gk",
   },
   {
-    id: "hurst",
-    lastName: "Hurst",
+    id: "thorne",
+    lastName: "Thorne",
     position: "GK",
     coachRating: 3.0,
     club: "GA Atlanta",
@@ -597,8 +597,8 @@ export const players: DepthPlayer[] = [
     placedSlot: null,
   },
   {
-    id: "chen",
-    lastName: "Chen",
+    id: "okafor",
+    lastName: "Okafor",
     position: "ST",
     coachRating: 4.5,
     club: "ECNL Portland",

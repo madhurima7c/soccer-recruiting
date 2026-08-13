@@ -10,7 +10,7 @@ type SidelineCursorProps = {
 
 const LABELS = [
   "Scrolling inbox…",
-  "Opening Maya Chen…",
+  "Opening Nora Ellison…",
   "Moving to match grid…",
   "Selecting watch rows…",
   "Building depth chart…",
@@ -102,7 +102,7 @@ export function SidelineCursor({
           }
         >
           <img
-            src="/assistant-ball.svg"
+            src="/kit-ball.png"
             alt=""
             className="h-11 w-11 object-contain"
             draggable={false}

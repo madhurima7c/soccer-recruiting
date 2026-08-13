@@ -10,7 +10,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "deploy": "npx vercel --yes"
+    "deploy": "npm run build && npx netlify deploy --prod --dir=dist",
+    "deploy:preview": "npm run build && npx netlify deploy --dir=dist"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

@@ -176,7 +176,7 @@ export function FieldDepthChart({ className }: { className?: string }) {
 function slotsForFormation(
   formation: (typeof FORMATIONS)[number],
 ): Record<string, DepthSlot> {
-  const maya = depthTargets.find((p) => p.id === "maya")!
+  const nora = depthTargets.find((p) => p.id === "nora")!
   const avery = depthTargets.find((p) => p.id === "avery")!
   const taylor = depthTargets.find((p) => p.id === "taylor")!
   const sofia = depthTargets.find((p) => p.id === "sofia")!
@@ -184,10 +184,10 @@ function slotsForFormation(
   const samira = depthTargets.find((p) => p.id === "samira")!
   const park = committedRecruits.find((p) => p.id === "park")!
   const wells = committedRecruits.find((p) => p.id === "wells")!
-  const blake = currentRoster.find((p) => p.id === "blake")!
-  const loudd = currentRoster.find((p) => p.id === "loudd")!
-  const ijams = currentRoster.find((p) => p.id === "ijams")!
-  const chamberland = currentRoster.find((p) => p.id === "chamberland")!
+  const holt = currentRoster.find((p) => p.id === "holt")!
+  const kent = currentRoster.find((p) => p.id === "kent")!
+  const keane = currentRoster.find((p) => p.id === "keane")!
+  const alden = currentRoster.find((p) => p.id === "alden")!
 
   const rileyCeil = askCeilingPoints.find((p) => p.id === "riley")
   const harperCeil = askCeilingPoints.find((p) => p.id === "harper")
@@ -247,20 +247,20 @@ function slotsForFormation(
           rating: 3.8,
           kind: "selected" as const,
         },
-        toPerson(blake, "roster"),
+        toPerson(holt, "roster"),
       ],
     },
     lb: {
       id: "lb",
       label: "Left Back",
-      players: [toPerson(elise, "selected"), toPerson(loudd, "graduating")],
+      players: [toPerson(elise, "selected"), toPerson(kent, "graduating")],
     },
     cb: {
       id: "cb",
       label: "Center Back",
       players: [
         toPerson(sofia, "selected"),
-        toPerson(blake, "roster"),
+        toPerson(holt, "roster"),
         {
           id: "camila",
           name: "Ruiz",
@@ -269,13 +269,13 @@ function slotsForFormation(
         },
         {
           id: "extra1",
-          name: "Nguyen",
+          name: "Brooks",
           rating: 3.1,
           kind: "roster" as const,
         },
         {
           id: "extra2",
-          name: "Brooks",
+          name: "Patel",
           rating: 2.9,
           kind: "roster" as const,
         },
@@ -290,10 +290,10 @@ function slotsForFormation(
       id: "gk",
       label: "Goalkeeper",
       players: [
-        toPerson(maya, "selected"),
+        toPerson(nora, "selected"),
         toPerson(taylor, "selected"),
-        toPerson(ijams, "roster"),
-        toPerson(chamberland, "roster"),
+        toPerson(keane, "roster"),
+        toPerson(alden, "roster"),
       ],
     },
   }
@@ -305,7 +305,7 @@ function slotsForFormation(
         ...base.st,
         players: [
           ...base.st.players,
-          { id: "second-st", name: "Haddad", rating: 4.5, kind: "selected" },
+          { id: "second-st", name: "Haddad", rating: 4.5, kind: "selected" as const },
         ].slice(0, 3),
       },
       dm: { ...base.dm, label: "Center Mid" },

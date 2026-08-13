@@ -44,7 +44,7 @@ export function SidelineToolWindow({
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
             <img
-              src="/assistant-ball.svg"
+              src="/kit-ball.png"
               alt=""
               className="h-5 w-5 object-contain"
               draggable={false}

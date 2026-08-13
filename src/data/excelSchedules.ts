@@ -236,7 +236,7 @@ export const phoenixWeekendRows: ScheduleRow[] = [
     club: "Solar Chelsea",
     team: "Solar Chelsea ECNL",
     field: "Field 7",
-    watch: "Maya Chen (GK), Avery Collins (ST)",
+    watch: "Nora Ellison (GK), Avery Collins (ST)",
   },
   {
     date: "Nov 14",
@@ -360,7 +360,7 @@ export const phoenixWeekendRows: ScheduleRow[] = [
     club: "Solar Chelsea",
     team: "Solar Chelsea ECNL",
     field: "Field 7",
-    watch: "Maya Chen rematch",
+    watch: "Nora Ellison rematch",
     notes: "Compare vs Fri session",
   },
   {

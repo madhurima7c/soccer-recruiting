@@ -16,6 +16,8 @@ type BrowserWindowProps = {
   zIndex?: number
   onFocus?: () => void
   delay?: number
+  className?: string
+  contextHighlight?: "selected" | "hovered" | null
 }
 
 export function BrowserWindow({
@@ -23,12 +25,23 @@ export function BrowserWindow({
   zIndex = 32,
   onFocus,
   delay = 2.4,
+  className,
+  contextHighlight = null,
 }: BrowserWindowProps) {
   const reduce = useReducedMotion()
 
   return (
     <motion.div
-      className="absolute right-[1%] top-[8%] flex h-[min(540px,62vh)] w-[min(580px,44vw)] flex-col overflow-hidden rounded-xl border border-black/10 bg-[#f5f5f7] text-[#1d1d1f] shadow-[0_28px_70px_rgba(0,0,0,0.32)]"
+      data-window-id="browser"
+      className={cn(
+        "absolute right-[3%] top-[34%] flex h-[460px] w-[500px] flex-col overflow-hidden rounded-xl border bg-[#ffffff] text-[#1a1a1a] shadow-[0_28px_70px_rgba(0,0,0,0.18)]",
+        contextHighlight === "selected"
+          ? "border-[3px] border-[#34d0bd] shadow-[inset_0_0_0_3px_rgba(52,208,189,0.22)]"
+          : contextHighlight === "hovered"
+            ? "border-[3px] border-[#34d0bd] shadow-[inset_0_0_0_2px_rgba(52,208,189,0.2)]"
+            : "border-black/10",
+        className,
+      )}
       style={{ zIndex }}
       onMouseDown={onFocus}
       initial={
@@ -44,7 +57,7 @@ export function BrowserWindow({
       }}
     >
       {/* Safari chrome */}
-      <div className="flex h-12 shrink-0 items-center gap-3 border-b border-black/8 bg-[#e8e8ea] px-3">
+      <div className="flex h-12 shrink-0 items-center gap-3 border-b border-[#e2e2e2] bg-[#f5f5f5] px-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -55,26 +68,26 @@ export function BrowserWindow({
           <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
           <span className="h-3 w-3 rounded-full bg-[#28c840]" />
         </div>
-        <div className="flex items-center gap-2 text-[#6e6e73]">
+        <div className="flex items-center gap-2 text-[#6b6b6b]">
           <Sidebar className="h-4 w-4" />
           <ArrowLeft className="h-4 w-4 opacity-40" />
           <ArrowRight className="h-4 w-4 opacity-40" />
         </div>
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-[12px] shadow-sm">
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-[12px] shadow-sm ring-1 ring-[#e2e2e2]">
           <Shield className="h-3 w-3 shrink-0 text-[#34c759]" />
-          <span className="truncate text-[#3a3a3c]">
+          <span className="truncate text-[#555]">
             theecnl.com/sports/ecnl-girls/schedule/2025-26
           </span>
           <RotateCw className="ml-auto h-3.5 w-3.5 shrink-0 text-[#8e8e93]" />
         </div>
-        <Share className="h-4 w-4 text-[#6e6e73]" />
-        <Plus className="h-4 w-4 text-[#6e6e73]" />
+        <Share className="h-4 w-4 text-[#6b6b6b]" />
+        <Plus className="h-4 w-4 text-[#6b6b6b]" />
       </div>
 
       {/* Tab strip */}
-      <div className="flex h-8 shrink-0 items-end gap-1 border-b border-black/8 bg-[#dedee0] px-3">
-        <div className="flex h-7 max-w-[220px] items-center gap-2 rounded-t-md bg-[#f5f5f7] px-3 text-[11px]">
-          <span className="h-2.5 w-2.5 rounded-sm bg-[#0b2a5b]" />
+      <div className="flex h-8 shrink-0 items-end gap-1 border-b border-[#e2e2e2] bg-[#e8e8e8] px-3">
+        <div className="flex h-7 max-w-[220px] items-center gap-2 rounded-t-md bg-white px-3 text-[11px] text-[#1a1a1a]">
+          <span className="h-2.5 w-2.5 rounded-sm bg-[#2f9e45]" />
           <span className="truncate">2025-26 ECNL Girls Schedule</span>
         </div>
       </div>
@@ -83,13 +96,13 @@ export function BrowserWindow({
       <div className="min-h-0 flex-1 overflow-y-auto bg-white">
         <EcnlSiteHeader />
         <div className="px-5 py-5">
-          <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">
+          <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8e8e93]">
             ECNL Girls · National Events
           </div>
-          <h1 className="text-[22px] font-bold tracking-tight text-[#0b2a5b]">
+          <h1 className="text-[22px] font-bold tracking-tight text-[#1a1a1a]">
             2025-26 ECNL Girls Event Schedule
           </h1>
-          <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-[#4b5563]">
+          <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-[#6b6b6b]">
             Official national event calendar for college recruiting weekends.
             Phoenix Fall / Spring highlighted for Columbia scouting plans.
           </p>
@@ -102,8 +115,8 @@ export function BrowserWindow({
                   className={cn(
                     "rounded-full px-2.5 py-1 font-medium",
                     i === 0
-                      ? "bg-[#0b2a5b] text-white"
-                      : "bg-[#eef2f7] text-[#374151]",
+                      ? "bg-[#0a84ff] text-white"
+                      : "bg-[#f3f3f3] text-[#6b6b6b]",
                   )}
                 >
                   {chip}
@@ -113,52 +126,56 @@ export function BrowserWindow({
           </div>
 
           <div className="mt-5">
-            <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.06em] text-[#6b7280]">
+            <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.06em] text-[#8e8e93]">
               Scheduled Games
             </div>
-            <div className="overflow-hidden rounded-lg border border-[#e5e7eb]">
+            <div className="overflow-hidden rounded-lg border border-[#e2e2e2]">
               {ecnlEvents.map((event, index) => (
                 <div
                   key={event.id}
                   className={cn(
-                    "grid grid-cols-[1fr_auto] gap-3 border-b border-[#e5e7eb] px-3 py-3 last:border-b-0",
-                    event.highlight ? "bg-[#fff7ed]" : index % 2 === 0 ? "bg-white" : "bg-[#f9fafb]",
+                    "grid grid-cols-[1fr_auto] gap-3 border-b border-[#ebebeb] px-3 py-3 last:border-b-0",
+                    event.highlight
+                      ? "bg-[#eef6f0]"
+                      : index % 2 === 0
+                        ? "bg-white"
+                        : "bg-[#fafafa]",
                   )}
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] font-semibold text-[#111827]">
+                      <span className="text-[13px] font-semibold text-[#1a1a1a]">
                         {event.name}
                       </span>
-                      <span className="rounded bg-[#e5e7eb] px-1.5 py-0.5 text-[10px] font-medium text-[#374151]">
+                      <span className="rounded bg-[#f3f3f3] px-1.5 py-0.5 text-[10px] font-medium text-[#6b6b6b]">
                         {event.ages}
                       </span>
                       {event.tv && (
-                        <span className="rounded bg-[#0b2a5b] px-1.5 py-0.5 text-[10px] font-medium text-white">
+                        <span className="rounded bg-[#0a84ff] px-1.5 py-0.5 text-[10px] font-medium text-white">
                           ECNLTV
                         </span>
                       )}
                       {event.highlight && (
-                        <span className="rounded bg-[#ea580c] px-1.5 py-0.5 text-[10px] font-medium text-white">
+                        <span className="rounded bg-[#2f9e45] px-1.5 py-0.5 text-[10px] font-medium text-white">
                           Scouting target
                         </span>
                       )}
                     </div>
-                    <div className="mt-1 text-[11px] text-[#6b7280]">
+                    <div className="mt-1 text-[11px] text-[#8e8e93]">
                       {event.location}
                       {event.location !== event.city ? ` · ${event.city}` : ""}
                     </div>
                   </div>
-                  <div className="shrink-0 text-right text-[11px] tabular-nums text-[#374151]">
+                  <div className="shrink-0 text-right text-[11px] tabular-nums text-[#6b6b6b]">
                     <div className="font-medium">{event.start}</div>
-                    <div className="text-[#9ca3af]">{event.end}</div>
+                    <div className="text-[#8e8e93]">{event.end}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-5 border-t border-[#e5e7eb] pt-4 text-[10px] text-[#9ca3af]">
+          <div className="mt-5 border-t border-[#ebebeb] pt-4 text-[10px] text-[#8e8e93]">
             Source structure referenced from theecnl.com · Elite Club National
             League
           </div>
@@ -170,7 +187,7 @@ export function BrowserWindow({
 
 function EcnlSiteHeader() {
   return (
-    <div className="bg-[#0b2a5b] text-white">
+    <div className="bg-[#0a1f3d] text-white">
       <div className="flex items-center justify-between px-4 py-2.5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold tracking-wide">
@@ -187,7 +204,7 @@ function EcnlSiteHeader() {
           TGS Login · Get The App
         </div>
       </div>
-      <div className="flex gap-1 overflow-x-auto border-t border-white/10 bg-[#081f45] px-2 py-1.5">
+      <div className="flex gap-1 overflow-x-auto border-t border-white/10 bg-[#061528] px-2 py-1.5">
         {ecnlNav.map((item, i) => (
           <span
             key={item}

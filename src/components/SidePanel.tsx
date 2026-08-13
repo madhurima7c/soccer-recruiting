@@ -137,7 +137,7 @@ export function SidePanel({
               />
               <FieldDepthChart />
               <div className="rounded-2xl border border-black/8 bg-white p-3">
-                <AskCeilingChart compact focusIds={["maya", "avery"]} />
+                <AskCeilingChart compact focusIds={["nora", "avery"]} />
               </div>
             </div>
           ) : (

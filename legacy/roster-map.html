@@ -1675,18 +1675,18 @@
         media: { kind: "grid", tiles: ["linear-gradient(145deg,#1e2420,#6d7f6a)","linear-gradient(145deg,#2a2230,#7a6a90)","linear-gradient(145deg,#2a2a28,#6b6558)","linear-gradient(145deg,#1a1a1a,#4a5560)"] },
         meta: [["Count", "2 highlighted"], ["Focus", "Midfield pairing"]],
         copy: "Players already in the program who shape how a 2029 recruit would fit day-to-day.",
-        details: "Maya Chen (Jr, CM) and Aisha Rahman (Sr, Wing) are the clearest connection points for an attacking mid like Josie.",
-        connections: ["huskies", "maya", "aisha"]
+        details: "Nora Ellison (Jr, CM) and Aisha Rahman (Sr, Wing) are the clearest connection points for an attacking mid like Josie.",
+        connections: ["huskies", "nora", "aisha"]
       },
-      maya: {
-        id: "maya", cluster: "team", x: 910, y: 20,
-        shape: "hex-outline", num: "·", label: "Maya Chen", sub: "On roster · Jr · CM",
-        type: "Current player", typeLabel: "PLAYER", typeClass: "team", code: "MC-27", theme: "blue",
+      nora: {
+        id: "nora", cluster: "team", x: 910, y: 20,
+        shape: "hex-outline", num: "·", label: "Nora Ellison", sub: "On roster · Jr · CM",
+        type: "Current player", typeLabel: "PLAYER", typeClass: "team", code: "NE-27", theme: "blue",
         media: { kind: "portrait", bg: "linear-gradient(145deg,#1e2420,#6d7f6a)" },
         meta: [["Position", "Central Mid"], ["Year", "Junior"], ["Minutes", "1,842"]],
         chips: ["Pairs with Josie"],
         copy: "Incumbent CM — technical distributor. A creative AM beside her unlocks underloaded half-spaces.",
-        details: "Complementary fit: Maya holds; Josie arrives late.",
+        details: "Complementary fit: Nora holds; Josie arrives late.",
         connections: ["players", "huskies"]
       },
       aisha: {
@@ -1750,7 +1750,7 @@
       { from: "kai-competitiveness", to: "kai-history", style: "dashed", route: "elbow", elbow: "h" },
       { from: "kai-athleticism", to: "kai-club", style: "dashed", route: "elbow", elbow: "v" },
       { from: "huskies", to: "players", style: "solid", route: "elbow", elbow: "h" },
-      { from: "players", to: "maya", style: "solid", route: "arc", bulge: 0.2 },
+      { from: "players", to: "nora", style: "solid", route: "arc", bulge: 0.2 },
       { from: "players", to: "aisha", style: "dashed", route: "soft" },
       { from: "huskies", to: "budget", style: "solid", route: "arc", bulge: -0.26 },
       { from: "huskies", to: "values", style: "dashed", route: "soft" },
@@ -1781,7 +1781,7 @@
       lw:  [{ name: "Aisha Rahman", tag: "Sr · graduating" }, { name: "Open", empty: true }],
       st:  [{ name: "Nora Ellis", tag: "Potential · 2029" }, { name: "Open", empty: true }],
       rw:  [{ name: "Open", empty: true }, { name: "Open", empty: true }],
-      lcm: [{ name: "Maya Chen", tag: "Jr · CM" }, { name: "Open", empty: true }],
+      lcm: [{ name: "Nora Ellison", tag: "Jr · CM" }, { name: "Open", empty: true }],
       cam: [{ name: "Open", empty: true }, { name: "Open", empty: true }],
       rcm: [{ name: "Open", empty: true }],
       lb:  [{ name: "Taylor Brooks", tag: "Current · Jr" }],
@@ -1801,7 +1801,7 @@
       kicker: "OUTPUT [ FIT-01 ]",
       media: { kind: "portrait", bg: "linear-gradient(120deg, #ff5f1f 0%, #5b4b8a 55%, #3d5a40 100%)", visit: "Compare depth ↗", visitAction: "depth" },
       meta: [["Scenario", "Offer + AM depth"], ["Confidence", "High"], ["Risk", "Aid timing"]],
-      copy: "Josie plugs the creative midfield gap as Aisha graduates, while pairing with Maya Chen’s holding profile.",
+      copy: "Josie plugs the creative midfield gap as Aisha graduates, while pairing with Nora Ellison’s holding profile.",
       bars: [
         { label: "Tactical fit", score: 88 }, { label: "Culture fit", score: 92 },
         { label: "Academic", score: 90 }, { label: "Roster need", score: 85 },
@@ -1809,12 +1809,12 @@
       ],
       chips: [
         { text: "Fills AM need", kind: "good" },
-        { text: "Pairs with Maya", kind: "good" },
+        { text: "Pairs with Nora", kind: "good" },
         { text: "Aid timing risk", kind: "warn" }
       ],
       details: "What-if: if Josie commits, staff can deprioritize two overlapping wing profiles.",
       reading: "Depth chart delta · Rival offer tracker",
-      connections: ["josie", "huskies", "players", "maya", "aisha", "budget"],
+      connections: ["josie", "huskies", "players", "nora", "aisha", "budget"],
       showFitActions: true
     };
 
@@ -1824,8 +1824,8 @@
         type: "AM",
         title: "Josie Smith",
         meta: "Seattle United ECNL · Class of 2029",
-        copy: "Creative attacking mid — press-resistant, late runs into the box. Strong academic profile. Natural fit ahead of Maya Chen; can also cover wing as Aisha graduates.",
-        fits: ["cam", "lw", "maya", "aisha-gap", "academic-fit"]
+        copy: "Creative attacking mid — press-resistant, late runs into the box. Strong academic profile. Natural fit ahead of Nora Ellison; can also cover wing as Aisha graduates.",
+        fits: ["cam", "lw", "nora", "aisha-gap", "academic-fit"]
       },
       {
         id: "kai",
@@ -1840,8 +1840,8 @@
         type: "CM",
         title: "Priya Shah",
         meta: "Washington Timbers · Class of 2029",
-        copy: "Box-to-box eight with high work rate. Could partner Maya rather than play ahead of her — different midfield geometry than Josie.",
-        fits: ["lcm", "rcm", "maya", "cam"]
+        copy: "Box-to-box eight with high work rate. Could partner Nora rather than play ahead of her — different midfield geometry than Josie.",
+        fits: ["lcm", "rcm", "nora", "cam"]
       },
       {
         id: "elena",
@@ -1856,8 +1856,8 @@
         type: "DM",
         title: "Morgan Blake",
         meta: "PDA ECNL · Class of 2029",
-        copy: "Holding mid / destroyer profile. Stabilizes midfield if staff want Maya pushed higher — opposite problem from Josie’s AM need.",
-        fits: ["rcm", "lcm", "maya"]
+        copy: "Holding mid / destroyer profile. Stabilizes midfield if staff want Nora pushed higher — opposite problem from Josie’s AM need.",
+        fits: ["rcm", "lcm", "nora"]
       },
       {
         id: "jordan-r",
@@ -1874,8 +1874,8 @@
       { id: "lw", type: "GAP", title: "LW — Left Wing", meta: "Aisha Rahman graduating", copy: "Senior wing minutes coming off the board — need a wide or inverted attacker." },
       { id: "rw", type: "NEED", title: "RW — Right Wing", meta: "Open", copy: "Secondary wide lane; less urgent than CAM/LW but still thin." },
       { id: "st", type: "WATCH", title: "ST — Striker", meta: "Nora Ellis · potential", copy: "Forward depth in evaluation — not locked." },
-      { id: "maya", type: "ROSTER", title: "LCM — Maya Chen", meta: "Junior · on roster", copy: "Holding distributor. Needs a complementary AM who arrives late, not another holder." },
-      { id: "lcm", type: "NEED", title: "CM — Central Mid", meta: "Open depth", copy: "Additional midfield rotation behind Maya." },
+      { id: "nora", type: "ROSTER", title: "LCM — Nora Ellison", meta: "Junior · on roster", copy: "Holding distributor. Needs a complementary AM who arrives late, not another holder." },
+      { id: "lcm", type: "NEED", title: "CM — Central Mid", meta: "Open depth", copy: "Additional midfield rotation behind Nora." },
       { id: "rcm", type: "NEED", title: "RCM — Right 8", meta: "Open", copy: "Opposite-side midfielder; box-to-box or destroyer profiles compete here." },
       { id: "aisha-gap", type: "GAP", title: "Attacking depth loss", meta: "Aisha · Sr wing", copy: "Creativity vacuum when she graduates — AM who can drift wide helps." },
       { id: "lcb", type: "COMMIT", title: "LCB — Jordan Lee", meta: "Committed · 2029", copy: "Defensive commit already in the class picture." },
@@ -2364,7 +2364,7 @@
         if (state.depthPos.josie) {
           edgeList.push(
             { from: "josie", to: "huskies", style: "fit-edge", route: "elbow", id: "fit-josie" },
-            { from: "josie", to: "maya", style: "fit-edge", route: "arc", bulge: 0.18, id: "fit-maya" },
+            { from: "josie", to: "nora", style: "fit-edge", route: "arc", bulge: 0.18, id: "fit-maya" },
             { from: "josie", to: "players", style: "dashed", route: "soft", id: "fit-players" }
           );
         }
@@ -2421,7 +2421,7 @@
       if (active) connected.add(active);
       if (state.fitMode) {
         rosteredIds().forEach(id => connected.add(id));
-        ["huskies", "players", "maya", "aisha", "budget", "values"].forEach(id => connected.add(id));
+        ["huskies", "players", "nora", "aisha", "budget", "values"].forEach(id => connected.add(id));
       }
       nodesEl.querySelectorAll(".node").forEach(el => {
         const id = el.dataset.id;
@@ -2471,10 +2471,10 @@
       const id = ids[0];
       const notes = {
         josie: {
-          cam: "Natural AM fit ahead of Maya Chen.",
+          cam: "Natural AM fit ahead of Nora Ellison.",
           lw: "Alternate lane — covers Aisha’s graduating wing minutes.",
           rw: "Alternate wing — opens a different attacking pattern.",
-          st: "Higher line — more goal threat, less link-up with Maya."
+          st: "Higher line — more goal threat, less link-up with Nora."
         },
         kai: {
           lw: "Natural wing replacement as Aisha graduates.",

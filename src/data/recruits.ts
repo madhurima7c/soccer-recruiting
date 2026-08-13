@@ -41,7 +41,7 @@ export type StaffThought = {
 }
 
 export const staff: StaffMember[] = [
-  { id: "amphone", name: "Amphone", role: "Head Coach", initials: "AM" },
+  { id: "hale", name: "Morgan Hale", role: "Head Coach", initials: "MH" },
   { id: "jordan", name: "Jordan", role: "Assoc. Head", initials: "JL" },
   { id: "casey", name: "Casey", role: "Recruiting Coord.", initials: "CK" },
 ]
@@ -176,7 +176,7 @@ export const constraints = [
 export const staffThoughts: StaffThought[] = [
   {
     id: "t1",
-    authorId: "amphone",
+    authorId: "hale",
     about: "Rowe",
     text: "Wants 80%, but the feet and composure are rare. I'd take both keepers and wait on the striker class.",
     rating: 5,
@@ -207,6 +207,6 @@ export const excelRows = [
   { name: "Samsani", pos: "CB", club: "GA Atlanta", ask: "55%", status: "Watching", tech: 3, note: "Physical 5" },
   { name: "Doran", pos: "FB", club: "ECNL Chicago", ask: "40%", status: "Watching", tech: 3, note: "Culture fit" },
   { name: "Guin", pos: "ST", club: "GA Charlotte", ask: "60%", status: "Elsewhere", tech: 4, note: "Northwestern" },
-  { name: "Blake", pos: "CB", club: "Roster", ask: "—", status: "Current", tech: 4, note: "Junior starter" },
-  { name: "Ijams", pos: "GK", club: "Roster", ask: "—", status: "Current", tech: 3, note: "3rd year" },
+  { name: "Holt", pos: "CB", club: "Roster", ask: "—", status: "Current", tech: 4, note: "Junior starter" },
+  { name: "Keane", pos: "GK", club: "Roster", ask: "—", status: "Current", tech: 3, note: "3rd year" },
 ]

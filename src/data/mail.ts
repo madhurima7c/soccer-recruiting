@@ -17,22 +17,22 @@ export type MailMessage = {
 }
 
 export const mailFolders: MailFolder[] = [
-  { id: "inbox", label: "Inbox", count: 247 },
-  { id: "ecnl-phoenix", label: "ECNL · Phoenix", count: 64 },
-  { id: "ga-atlanta", label: "GA · Atlanta", count: 41 },
-  { id: "top-recruits", label: "Top Recruits", count: 28 },
-  { id: "visits", label: "Campus Visits", count: 12 },
-  { id: "committed", label: "Committed Elsewhere", count: 9 },
+  { id: "inbox", label: "Inbox", count: 847 },
+  { id: "ecnl-phoenix", label: "ECNL · Phoenix", count: 214 },
+  { id: "ga-atlanta", label: "GA · Atlanta", count: 138 },
+  { id: "top-recruits", label: "Top Recruits", count: 96 },
+  { id: "visits", label: "Campus Visits", count: 41 },
+  { id: "committed", label: "Committed Elsewhere", count: 27 },
   { id: "sent", label: "Sent" },
 ]
 
-/** Fictional recruit outreach mirroring Amphone's inbound email volume / tagging patterns */
+/** Fictional recruit outreach for prototype inbox volume / tagging patterns */
 export const mailMessages: MailMessage[] = [
   {
     id: "1",
-    from: "Maya Chen",
-    email: "maya.chen@gmail.com",
-    subject: "Interest in Columbia WSOC — ECNL Seattle / All-American",
+    from: "Nora Ellison",
+    email: "nora.ellison@gmail.com",
+    subject: "Interest in your program — ECNL Seattle / All-American",
     preview:
       "Hi Coach — I’m a 2027 GK with ECNL Seattle. Made Best 11 at Phoenix and wanted to introduce myself…",
     time: "9:41 AM",
@@ -66,11 +66,11 @@ export const mailMessages: MailMessage[] = [
   },
   {
     id: "4",
-    from: "Coach Kim · Crossfire",
-    email: "kkim@crossfirepremier.org",
+    from: "Coach Delgado · Crossfire",
+    email: "cdelgado@crossfirepremier.org",
     subject: "Player recommendation: Elise Navarro (FB)",
     preview:
-      "Amphone — Elise is one of our top 10s. Family in Silicon Valley, strong academics, looking at Columbia…",
+      "Coach — Elise is one of our top 10s. Family in Silicon Valley, strong academics, looking at Ivy + D1…",
     time: "8:55 AM",
     unread: true,
     tag: "Club",
@@ -82,7 +82,7 @@ export const mailMessages: MailMessage[] = [
     email: "harperq27@yahoo.com",
     subject: "National camp call-up — still interested?",
     preview:
-      "Just got invited to the regional ID camp. Wanted to check if Columbia is still watching…",
+      "Just got invited to the regional ID camp. Wanted to check if you’re still watching…",
     time: "8:40 AM",
     unread: true,
     tag: "Camp",
@@ -178,7 +178,7 @@ export const mailMessages: MailMessage[] = [
     email: "cam.ruiz@gmail.com",
     subject: "GA Charlotte · Best XI · looking at Ivy",
     preview:
-      "Hi — saw Columbia on Athlete One. I’ve been tracking Ivy academics + D1 soccer…",
+      "Hi — saw your program on Athlete One. I’ve been tracking Ivy academics + D1 soccer…",
     time: "Yesterday",
     unread: true,
     tag: "GA",
@@ -188,7 +188,7 @@ export const mailMessages: MailMessage[] = [
     id: "14",
     from: "Scout Report Bot",
     email: "noreply@huddle.com",
-    subject: "Weekly: 18 new matches tagged for Columbia WSOC",
+    subject: "Weekly: 18 new matches tagged for your board",
     preview:
       "Your saved searches returned new clips from ECNL and GA events this week…",
     time: "Sun",
@@ -224,9 +224,9 @@ export const mailMessages: MailMessage[] = [
     id: "17",
     from: "Derek Walsh (Club Coach)",
     email: "dwalsh@slammersfc.org",
-    subject: "Psychosocial note on Sam Rivera",
+    subject: "Sam Rivera — Phoenix Fall availability",
     preview:
-      "Off the record — Sam’s one of the most self-directed kids we’ve had. Parents are supportive…",
+      "Sam is confirmed for all three Phoenix Fall matches this weekend. Happy to connect you with her club trainer…",
     time: "Sat",
     unread: true,
     tag: "Club",
@@ -250,7 +250,7 @@ export const mailMessages: MailMessage[] = [
     email: "events@ecnl.com",
     subject: "Schedule change: Flight 3 moved to Field 7",
     preview:
-      "Updated match times for Columbia staff badges. Please refresh Athlete One…",
+      "Updated match times for staff badges. Please refresh Athlete One…",
     time: "Sat",
     unread: false,
     tag: "Event",
@@ -262,7 +262,7 @@ export const mailMessages: MailMessage[] = [
     email: "priya.shah@gmail.com",
     subject: "2028 prospect — early interest",
     preview:
-      "I’m a rising sophomore but families at Columbia suggested I introduce myself early…",
+      "I’m a rising sophomore but a few club families suggested I introduce myself early…",
     time: "Fri",
     unread: true,
     tag: "Early",
@@ -286,7 +286,7 @@ export const mailMessages: MailMessage[] = [
     email: "tkim@yahoo.com",
     subject: "GK — 80% scholarship question",
     preview:
-      "Other schools are talking numbers. Curious where Columbia sits before we travel…",
+      "Other schools are talking numbers. Curious where you sit before we travel…",
     time: "Fri",
     unread: true,
     tag: "Money",

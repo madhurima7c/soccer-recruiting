@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "SF Pro Text", "IBM Plex Sans", "Helvetica Neue", ui-sans-serif, system-ui,
+  --font-sans: "Inter", "SF Pro Text", "Helvetica Neue", ui-sans-serif, system-ui,
     sans-serif;
   --font-mono: "SF Mono", "IBM Plex Mono", ui-monospace, monospace;
   --font-display: "Fraunces", "Times New Roman", serif;
@@ -24,6 +24,60 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+@layer components {
+  .kit-app {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .kit-pressable {
+    transition-property: transform, color, background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease-out);
+  }
+
+  .kit-pressable:active {
+    transform: scale(0.97);
+  }
+
+  .kit-hero {
+    background-image:
+      radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.7), transparent 28%),
+      linear-gradient(135deg, #e4f1e3 0%, #f3f6ea 100%);
+  }
+
+  .kit-toast,
+  .kit-answer {
+    animation: kit-enter 220ms var(--ease-out) both;
+  }
+
+  .kit-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .kit-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes kit-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-toast,
+  .kit-answer {
+    animation: none;
+  }
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -33,6 +87,7 @@
   body,
   #root {
     height: 100%;
+    width: 100%;
     margin: 0;
   }
 
@@ -42,6 +97,16 @@
     background: #0e1410;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* Fake desktop + Kit agentic flows — design frame is 1440×1024 */
+  .flow1-shell,
+  .flow2-shell,
+  .desktop-shell {
+    position: relative;
+    width: 1440px;
+    height: 1024px;
     overflow: hidden;
   }
 

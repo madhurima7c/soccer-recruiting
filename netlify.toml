@@ -2,6 +2,75 @@
   command = "npm run build"
   publish = "dist"
 
+# Shareable default — Kit Flow 1 desktop prototype (force overrides index.html)
+[[redirects]]
+  from = "/"
+  to = "/desktop-flow1/index.html"
+  status = 200
+  force = true
+
+# Kit Flow 1 — shareable desktop prototype
+[[redirects]]
+  from = "/flow1"
+  to = "/desktop-flow1/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/flow1/"
+  to = "/desktop-flow1/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/desktop-flow1"
+  to = "/desktop-flow1/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/desktop-flow1/"
+  to = "/desktop-flow1/index.html"
+  status = 200
+
+# Kit Flow 2 — light desktop + Kit V2 screens
+[[redirects]]
+  from = "/flow2"
+  to = "/desktop-flow2/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/flow2/"
+  to = "/desktop-flow2/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/desktop-flow2"
+  to = "/desktop-flow2/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/desktop-flow2/"
+  to = "/desktop-flow2/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/annotate"
+  to = "/excel-annotate/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/annotate/"
+  to = "/excel-annotate/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/excel-annotate"
+  to = "/excel-annotate/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/excel-annotate/"
+  to = "/excel-annotate/index.html"
+  status = 200
+
 [[redirects]]
   from = "/desktop"
   to = "/desktop/index.html"
@@ -20,4 +89,15 @@
 [[redirects]]
   from = "/depth/"
   to = "/depth/index.html"
+  status = 200
+
+# Legacy Kit SPA (former homepage)
+[[redirects]]
+  from = "/kit"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/kit/"
+  to = "/index.html"
   status = 200

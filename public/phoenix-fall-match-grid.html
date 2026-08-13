@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ECNL_Phoenix_Fall_Match_Grid.xlsx</title>
+  <style>
+    :root {
+      --excel-green: #217346;
+      --ink: #1a1a1a;
+      --muted: #6b6b6b;
+      --border: #e2e2e2;
+      --grid: #ececec;
+      --row: #f7f7f7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+      font-family: "Segoe UI", Calibri, system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 25% 15%, #eef5f0 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 85%, #f5f3ef 0%, transparent 45%),
+        #ebeceb;
+    }
+
+    .window {
+      width: min(1080px, 100%);
+      max-height: min(720px, 92vh);
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 22px 50px rgba(0, 0, 0, 0.12);
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      padding: 9px 12px;
+      background: #f5f5f5;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: #555;
+    }
+
+    .traffic { display: flex; gap: 6px; }
+    .traffic span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .traffic .r { background: #ff5f57; }
+    .traffic .y { background: #febc2e; }
+    .traffic .g { background: #28c840; }
+
+    .badge {
+      background: var(--excel-green);
+      color: #fff;
+      font-weight: 600;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    .filename { font-weight: 600; color: var(--ink); }
+    .meta { margin-left: auto; color: var(--muted); font-size: 11px; }
+
+    .ribbon {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      padding: 6px 10px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      color: #555;
+    }
+
+    .ribbon .tab { padding: 4px 10px; border-radius: 4px; }
+    .ribbon .tab.active {
+      background: #eef6f0;
+      color: var(--excel-green);
+      font-weight: 600;
+    }
+
+    .sheet-chip {
+      margin-left: 8px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: #eef6f0;
+      color: var(--excel-green);
+      font-weight: 600;
+    }
+
+    .sheet {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      background: #fafafa;
+      padding: 12px;
+    }
+
+    .grid-wrap {
+      overflow: auto;
+      border: 1px solid #e4e4e4;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f3f3f3;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--grid);
+      border-right: 1px solid var(--grid);
+      white-space: nowrap;
+    }
+
+    thead th:last-child { border-right: none; }
+    thead th.row-h { width: 36px; text-align: center; }
+
+    tbody td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      border-right: 1px solid #f0f0f0;
+      background: #fff;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    tbody td:last-child { border-right: none; }
+    tbody td.row-n {
+      text-align: center;
+      background: var(--row);
+      color: #888;
+      font-variant-numeric: tabular-nums;
+    }
+    tbody td.muted { color: #555; }
+    tbody tr:hover td { background: #f5faf7; }
+    tbody tr:hover td.row-n { background: #eef5f0; }
+  </style>
+</head>
+<body>
+  <div class="window" role="application" aria-label="Excel · Phoenix Fall Match Grid">
+    <div class="titlebar">
+      <div class="traffic" aria-hidden="true">
+        <span class="r"></span>
+        <span class="y"></span>
+        <span class="g"></span>
+      </div>
+      <span class="badge">Excel</span>
+      <span class="filename">ECNL_Phoenix_Fall_Match_Grid.xlsx</span>
+      <span class="meta">U16–U18/19 showcase · players to watch</span>
+    </div>
+
+    <div class="ribbon">
+      <span class="tab">Home</span>
+      <span class="tab">Insert</span>
+      <span class="tab active">Data</span>
+      <span class="tab">Review</span>
+      <span class="sheet-chip">Sheet1 · Phoenix Fall · Match Grid</span>
+      <span class="meta" style="margin-left:auto">13 rows</span>
+    </div>
+
+    <div class="sheet">
+      <div class="grid-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="row-h">#</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Event</th>
+              <th>Event type</th>
+              <th>Age</th>
+              <th>Division</th>
+              <th>Club</th>
+              <th>Team</th>
+              <th>Field</th>
+              <th>Players to watch</th>
+              <th>Staff notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-n">1</td>
+              <td>Nov 14</td>
+              <td>8:00 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U17</td>
+              <td>Flight 1</td>
+              <td class="muted">Crossfire Premier</td>
+              <td>Crossfire ECNL U17</td>
+              <td>Field 3</td>
+              <td>Elise Navarro (FB), Sam Rivera (CM)</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">2</td>
+              <td>Nov 14</td>
+              <td>9:30 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U18/19</td>
+              <td>Flight 1</td>
+              <td class="muted">Solar Chelsea</td>
+              <td>Solar Chelsea ECNL</td>
+              <td>Field 7</td>
+              <td>Nora Ellison (GK), Avery Collins (ST)</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">3</td>
+              <td>Nov 14</td>
+              <td>11:00 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U16</td>
+              <td>Flight 2</td>
+              <td class="muted">Slammers FC</td>
+              <td>Slammers ECNL U16</td>
+              <td>Field 2</td>
+              <td>Lila Nguyen (GK)</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">4</td>
+              <td>Nov 14</td>
+              <td>12:30 PM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U17</td>
+              <td>Flight 1</td>
+              <td class="muted">Eclipse Select</td>
+              <td>Eclipse ECNL U17</td>
+              <td>Field 5</td>
+              <td>Riley Thompson (CM), Camila Ruiz (CB)</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">5</td>
+              <td>Nov 14</td>
+              <td>2:00 PM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U18/19</td>
+              <td>Flight 2</td>
+              <td class="muted">LAFC So Cal</td>
+              <td>LAFC So Cal ECNL</td>
+              <td>Field 1</td>
+              <td>Sofia Reyes (CB)</td>
+              <td class="muted">Prior campus interest</td>
+            </tr>
+            <tr>
+              <td class="row-n">6</td>
+              <td>Nov 15</td>
+              <td>8:15 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U16</td>
+              <td>Flight 1</td>
+              <td class="muted">World Class FC</td>
+              <td>World Class ECNL U16</td>
+              <td>Field 4</td>
+              <td>Harper Quinn (W)</td>
+              <td class="muted">National camp call-up</td>
+            </tr>
+            <tr>
+              <td class="row-n">7</td>
+              <td>Nov 15</td>
+              <td>9:45 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U17</td>
+              <td>Flight 2</td>
+              <td class="muted">FC Dallas</td>
+              <td>FCD ECNL U17</td>
+              <td>Field 6</td>
+              <td>Amelia Soto (FB)</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">8</td>
+              <td>Nov 15</td>
+              <td>11:15 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U18/19</td>
+              <td>Flight 1</td>
+              <td class="muted">Michigan Hawks</td>
+              <td>Hawks ECNL U18/19</td>
+              <td>Field 3</td>
+              <td>Taylor Kim (GK)</td>
+              <td class="muted">Asking scholarship questions</td>
+            </tr>
+            <tr>
+              <td class="row-n">9</td>
+              <td>Nov 15</td>
+              <td>1:00 PM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U17</td>
+              <td>Flight 1</td>
+              <td class="muted">Ohio Premier</td>
+              <td>OP ECNL U17</td>
+              <td>Field 8</td>
+              <td>Nina Okonkwo (ST)</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">10</td>
+              <td>Nov 15</td>
+              <td>2:30 PM</td>
+              <td>Phoenix Fall</td>
+              <td>ECNLTV feature</td>
+              <td>U18/19</td>
+              <td>Featured</td>
+              <td class="muted">PDA</td>
+              <td>PDA ECNL U18/19</td>
+              <td>Stadium</td>
+              <td>Best XI watchlist — Samira Haddad</td>
+              <td class="muted">Stream on ECNLTV</td>
+            </tr>
+            <tr>
+              <td class="row-n">11</td>
+              <td>Nov 16</td>
+              <td>8:00 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U16</td>
+              <td>Flight 2</td>
+              <td class="muted">Charlotte SA</td>
+              <td>CSA ECNL U16</td>
+              <td>Field 2</td>
+              <td>GA Charlotte crossover notes</td>
+              <td class="muted">—</td>
+            </tr>
+            <tr>
+              <td class="row-n">12</td>
+              <td>Nov 16</td>
+              <td>10:00 AM</td>
+              <td>Phoenix Fall</td>
+              <td>Showcase match</td>
+              <td>U18/19</td>
+              <td>Flight 1</td>
+              <td class="muted">Solar Chelsea</td>
+              <td>Solar Chelsea ECNL</td>
+              <td>Field 7</td>
+              <td>Nora Ellison rematch</td>
+              <td class="muted">Compare vs Fri session</td>
+            </tr>
+            <tr>
+              <td class="row-n">13</td>
+              <td>Nov 16</td>
+              <td>12:00 PM</td>
+              <td>Phoenix Fall</td>
+              <td>ID / Coach mixer</td>
+              <td>All</td>
+              <td>Staff</td>
+              <td class="muted">—</td>
+              <td>Coach hospitality</td>
+              <td>Pavilion</td>
+              <td>Club coach intros</td>
+              <td class="muted">Psychosocial intel</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

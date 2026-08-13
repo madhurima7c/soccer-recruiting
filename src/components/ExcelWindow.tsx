@@ -10,14 +10,17 @@ import {
 
 type ExcelWindowProps = {
   sheetId: ExcelSheetKind
+  /** DOM id used by Flow 1 annotate targeting — defaults to "sheet" */
+  windowId?: string
   onClose?: () => void
   style?: CSSProperties
   className?: string
   delay?: number
   zIndex?: number
   onFocus?: () => void
-  /** Row indices (0-based) highlighted as selected — Sideline “working” cue */
+  /** Row indices (0-based) highlighted as selected — Kit “working” cue */
   selectedRows?: number[]
+  contextHighlight?: "selected" | "hovered" | null
 }
 
 const COLUMNS: { key: keyof ScheduleRow | "row"; label: string; width: string }[] = [
@@ -37,6 +40,7 @@ const COLUMNS: { key: keyof ScheduleRow | "row"; label: string; width: string }[
 
 export function ExcelWindow({
   sheetId,
+  windowId = "sheet",
   onClose,
   style,
   className,
@@ -44,6 +48,7 @@ export function ExcelWindow({
   zIndex = 34,
   onFocus,
   selectedRows = [],
+  contextHighlight = null,
 }: ExcelWindowProps) {
   const reduce = useReducedMotion()
   const meta = excelSheets.find((s) => s.id === sheetId)!
@@ -55,8 +60,14 @@ export function ExcelWindow({
 
   return (
     <motion.div
+      data-window-id={windowId}
       className={cn(
-        "absolute flex h-[min(500px,60vh)] w-[min(820px,68vw)] flex-col overflow-hidden rounded-xl border border-black/10 bg-[#f3f3f3] text-[#222] shadow-[0_24px_60px_rgba(0,0,0,0.3)]",
+        "absolute flex h-[420px] w-[680px] flex-col overflow-hidden rounded-xl border bg-[#ffffff] text-[#1a1a1a] shadow-[0_24px_60px_rgba(0,0,0,0.18)]",
+        contextHighlight === "selected"
+          ? "border-[3px] border-[#34d0bd] shadow-[inset_0_0_0_3px_rgba(52,208,189,0.22)]"
+          : contextHighlight === "hovered"
+            ? "border-[3px] border-[#34d0bd] shadow-[inset_0_0_0_2px_rgba(52,208,189,0.2)]"
+            : "border-black/10",
         className,
       )}
       style={{ ...style, zIndex }}
@@ -74,7 +85,7 @@ export function ExcelWindow({
       }}
     >
       {/* Title bar */}
-      <div className="flex h-10 shrink-0 items-center gap-3 border-b border-[#d0d0d0] bg-[#e8e8e8] px-3">
+      <div className="flex h-10 shrink-0 items-center gap-3 border-b border-[#e2e2e2] bg-[#f5f5f5] px-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -89,28 +100,28 @@ export function ExcelWindow({
           <span className="rounded bg-[#217346] px-1.5 py-0.5 text-[10px] font-semibold text-white">
             Excel
           </span>
-          <span className="truncate text-[12px] font-medium">{meta.filename}</span>
+          <span className="truncate text-[12px] font-medium text-[#1a1a1a]">{meta.filename}</span>
         </div>
       </div>
 
       {/* Ribbon-ish */}
-      <div className="flex h-8 shrink-0 items-center gap-2 border-b border-[#d0d0d0] bg-white px-3 text-[11px] text-[#555]">
+      <div className="flex h-8 shrink-0 items-center gap-2 border-b border-[#e2e2e2] bg-[#fafafa] px-3 text-[11px] text-[#6b6b6b]">
         <span className="rounded bg-[#eef6f0] px-2 py-0.5 text-[#217346]">
           Sheet1 · {meta.title}
         </span>
-        <span className="truncate text-[#888]">{meta.subtitle}</span>
-        <span className="ml-auto tabular-nums text-[#888]">{rows.length} rows</span>
+        <span className="truncate text-[#8e8e93]">{meta.subtitle}</span>
+        <span className="ml-auto tabular-nums text-[#8e8e93]">{rows.length} rows</span>
       </div>
 
       {/* Grid */}
-      <div className="min-h-0 flex-1 overflow-auto">
-        <table className="w-max min-w-full border-collapse text-left text-[11px]">
+      <div className="min-h-0 flex-1 overflow-auto bg-white">
+        <table className="w-max min-w-full border-collapse text-left text-[11px] text-[#1a1a1a]">
           <thead>
-            <tr className="bg-[#f7f7f7] text-[10px] uppercase tracking-[0.05em] text-[#666]">
+            <tr className="bg-[#f7f7f7] text-[10px] uppercase tracking-[0.05em] text-[#6b6b6b]">
               {visibleCols.map((col) => (
                 <th
                   key={col.key}
-                  className="sticky top-0 z-10 border-b border-r border-[#e0e0e0] bg-[#f7f7f7] px-2 py-1.5 font-semibold"
+                  className="sticky top-0 z-10 border-b border-r border-[#e4e4e4] bg-[#f7f7f7] px-2 py-1.5 font-semibold"
                   style={{ minWidth: col.width }}
                 >
                   {col.label}
@@ -126,7 +137,7 @@ export function ExcelWindow({
                 key={`${sheetId}-${i}`}
                 className={cn(
                   "transition-colors duration-150 hover:bg-[#f4faf6]",
-                  isSelected && "bg-[#cce4f7] hover:bg-[#bddaf3]",
+                  isSelected && "bg-[#eef6f0] hover:bg-[#e8f5ee]",
                 )}
               >
                 {visibleCols.map((col) => {
@@ -138,7 +149,7 @@ export function ExcelWindow({
                   const hot =
                     isWatch &&
                     typeof raw === "string" &&
-                    (raw.includes("PRIMARY") || raw.includes("Maya") || raw.includes("Final"))
+                    (raw.includes("PRIMARY") || raw.includes("Nora") || raw.includes("Final"))
 
                   return (
                     <td
@@ -147,12 +158,12 @@ export function ExcelWindow({
                         "border-b border-r border-[#eee] px-2 py-1.5 align-top",
                         col.key === "row" &&
                           !isSelected &&
-                          "bg-[#fafafa] text-center text-[#888]",
+                          "bg-[#fafafa] text-center text-[#8e8e93]",
                         col.key === "row" &&
                           isSelected &&
-                          "bg-[#9dc8eb] text-center font-medium text-[#1a3a55]",
-                        hot && !isSelected && "font-medium text-[#b54708]",
-                        isSelected && "border-[#b4d2ea]",
+                          "bg-[#e8f5ee] text-center font-medium text-[#217346]",
+                        hot && !isSelected && "font-medium text-[#c96a00]",
+                        isSelected && "border-[#34d0bd]/30",
                       )}
                       style={{ minWidth: col.width, maxWidth: col.width }}
                     >

@@ -9,9 +9,12 @@ type MailWindowProps = {
   zIndex?: number
   onFocus?: () => void
   delay?: number
-  /** Controlled selection for Sideline “working” demo */
+  className?: string
+  /** Controlled selection for Kit “working” demo */
   selectedId?: string
   onSelectedIdChange?: (id: string) => void
+  /** Kit annotate/select highlight — stays with this window’s stacking order */
+  contextHighlight?: "selected" | "hovered" | null
 }
 
 export function MailWindow({
@@ -19,8 +22,10 @@ export function MailWindow({
   zIndex = 30,
   onFocus,
   delay = 0.5,
+  className,
   selectedId: controlledId,
   onSelectedIdChange,
+  contextHighlight = null,
 }: MailWindowProps) {
   const reduce = useReducedMotion()
   const [internalId, setInternalId] = useState(mailMessages[0]?.id ?? "")
@@ -42,7 +47,16 @@ export function MailWindow({
 
   return (
     <motion.div
-      className="absolute left-[1.5%] top-[9%] flex h-[min(600px,70vh)] w-[min(820px,62vw)] flex-col overflow-hidden rounded-xl border border-black/10 bg-[#f5f5f7] text-[#1d1d1f] shadow-[0_30px_80px_rgba(0,0,0,0.35)]"
+      data-window-id="mail"
+      className={cn(
+        "absolute left-[1%] top-[6%] flex h-[540px] w-[720px] flex-col overflow-hidden rounded-xl border bg-[#ffffff] text-[#1a1a1a] shadow-[0_30px_80px_rgba(0,0,0,0.18)]",
+        contextHighlight === "selected"
+          ? "border-[3px] border-[#34d0bd] shadow-[inset_0_0_0_3px_rgba(52,208,189,0.22)]"
+          : contextHighlight === "hovered"
+            ? "border-[3px] border-[#34d0bd] shadow-[inset_0_0_0_2px_rgba(52,208,189,0.2)]"
+            : "border-black/10",
+        className,
+      )}
       style={{ zIndex }}
       onMouseDown={onFocus}
       initial={
@@ -58,7 +72,7 @@ export function MailWindow({
       }}
     >
       {/* Title bar */}
-      <div className="flex h-11 shrink-0 items-center gap-3 border-b border-black/8 bg-[#ececef] px-3">
+      <div className="flex h-11 shrink-0 items-center gap-3 border-b border-[#e2e2e2] bg-[#f5f5f5] px-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -69,26 +83,26 @@ export function MailWindow({
           <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
           <span className="h-3 w-3 rounded-full bg-[#28c840]" />
         </div>
-        <div className="flex-1 text-center text-[13px] font-medium text-[#3a3a3c]">
-          Inbox — Columbia WSOC Recruiting
+        <div className="flex-1 text-center text-[13px] font-medium text-[#1a1a1a]">
+          Inbox — Recruiting
         </div>
         <div className="w-16" />
       </div>
 
       {/* Toolbar */}
-      <div className="flex h-10 shrink-0 items-center gap-3 border-b border-black/8 bg-white/70 px-3 text-[#6e6e73]">
+      <div className="flex h-10 shrink-0 items-center gap-3 border-b border-[#e2e2e2] bg-[#fafafa] px-3 text-[#6b6b6b]">
         <Archive className="h-4 w-4" />
         <Trash2 className="h-4 w-4" />
         <Reply className="h-4 w-4" />
         <MoreHorizontal className="h-4 w-4" />
-        <div className="ml-auto flex items-center gap-2 rounded-md bg-[#e8e8ed] px-2.5 py-1 text-[12px]">
+        <div className="ml-auto flex items-center gap-2 rounded-md bg-[#f3f3f3] px-2.5 py-1 text-[12px] text-[#6b6b6b] ring-1 ring-[#ebebeb]">
           <Search className="h-3.5 w-3.5" />
           <span>Search Mail</span>
         </div>
       </div>
 
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[150px] shrink-0 flex-col border-r border-black/8 bg-[#f0f0f2] px-2 py-3">
+        <aside className="flex w-[150px] shrink-0 flex-col border-r border-[#e2e2e2] bg-[#f3f3f3] px-2 py-3">
           <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#8e8e93]">
             Favorites
           </div>
@@ -98,8 +112,8 @@ export function MailWindow({
               className={cn(
                 "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px]",
                 folder.id === "inbox"
-                  ? "bg-[#007aff] text-white"
-                  : "text-[#1d1d1f]",
+                  ? "bg-[#0a84ff] text-white"
+                  : "text-[#1a1a1a]",
               )}
             >
               <span>{folder.label}</span>
@@ -120,9 +134,9 @@ export function MailWindow({
           </div>
         </aside>
 
-        <div className="flex w-[260px] shrink-0 flex-col border-r border-black/8 bg-white">
-          <div className="flex items-center justify-between border-b border-black/8 px-3 py-2">
-            <span className="text-[13px] font-semibold">Inbox</span>
+        <div className="flex w-[260px] shrink-0 flex-col border-r border-[#e2e2e2] bg-[#fafafa]">
+          <div className="flex items-center justify-between border-b border-[#e2e2e2] px-3 py-2">
+            <span className="text-[13px] font-semibold text-[#1a1a1a]">Inbox</span>
             <span className="rounded-full bg-[#ff3b30] px-2 py-0.5 text-[10px] font-medium text-white">
               {unread} new
             </span>
@@ -136,8 +150,8 @@ export function MailWindow({
                 onSelect={() => select(msg.id)}
               />
             ))}
-            <div className="border-t border-black/5 px-3 py-4 text-center text-[11px] text-[#8e8e93]">
-              + 200 more from Athlete One / tournament week…
+            <div className="border-t border-[#e2e2e2] px-3 py-4 text-center text-[11px] text-[#8e8e93]">
+              + 600 more from Athlete One / tournament week…
             </div>
           </div>
         </div>
@@ -165,15 +179,15 @@ function MailRow({
       data-mail-id={message.id}
       onClick={onSelect}
       className={cn(
-        "pressable w-full border-b border-black/5 px-3 py-2.5 text-left transition-colors duration-150",
-        selected ? "bg-[#d6e6ff]" : "hover:bg-[#f5f5f7]",
+        "pressable w-full border-b border-[#ebebeb] px-3 py-2.5 text-left transition-colors duration-150",
+        selected ? "bg-[#e8f1ff]" : "hover:bg-[#f4f4f5]",
       )}
     >
       <div className="flex items-start gap-2">
         <span
           className={cn(
             "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-            message.unread ? "bg-[#007aff]" : "bg-transparent",
+            message.unread ? "bg-[#0a84ff]" : "bg-transparent",
           )}
         />
         <div className="min-w-0 flex-1">
@@ -181,7 +195,7 @@ function MailRow({
             <span
               className={cn(
                 "truncate text-[13px]",
-                message.unread ? "font-semibold" : "font-medium text-[#3a3a3c]",
+                message.unread ? "font-semibold text-[#1a1a1a]" : "font-medium text-[#6b6b6b]",
               )}
             >
               {message.from}
@@ -191,7 +205,7 @@ function MailRow({
           <div
             className={cn(
               "truncate text-[12px]",
-              message.unread ? "font-medium text-[#1d1d1f]" : "text-[#3a3a3c]",
+              message.unread ? "font-medium text-[#1a1a1a]" : "text-[#6b6b6b]",
             )}
           >
             {message.subject}
@@ -200,7 +214,7 @@ function MailRow({
             {message.preview}
           </div>
           {message.tag && (
-            <span className="mt-1 inline-flex rounded bg-[#e8e8ed] px-1.5 py-0.5 text-[10px] text-[#3a3a3c]">
+            <span className="mt-1 inline-flex rounded bg-[#f3f3f3] px-1.5 py-0.5 text-[10px] text-[#6b6b6b]">
               {message.tag}
             </span>
           )}
@@ -213,24 +227,24 @@ function MailRow({
 function ReadingPane({ message }: { message: MailMessage }) {
   return (
     <>
-      <div className="border-b border-black/8 px-6 py-4">
-        <h2 className="text-[20px] font-semibold leading-snug tracking-tight">
+      <div className="border-b border-[#e2e2e2] px-6 py-4">
+        <h2 className="text-[20px] font-semibold leading-snug tracking-tight text-[#1a1a1a]">
           {message.subject}
         </h2>
         <div className="mt-3 flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#007aff] text-[12px] font-semibold text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0a84ff] text-[12px] font-semibold text-white">
             {initials(message.from)}
           </span>
           <div className="min-w-0">
-            <div className="text-[13px] font-medium">{message.from}</div>
+            <div className="text-[13px] font-medium text-[#1a1a1a]">{message.from}</div>
             <div className="truncate text-[11px] text-[#8e8e93]">
-              {message.email} · To: recruiting@columbiawsoc.edu
+              {message.email} · To: recruiting@wsoc.edu
             </div>
           </div>
           <div className="ml-auto text-[11px] text-[#8e8e93]">{message.time}</div>
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 text-[13px] leading-relaxed text-[#1d1d1f]">
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 text-[13px] leading-relaxed text-[#3a3a3c]">
         <p className="whitespace-pre-wrap">
           {message.preview}
           {"\n\n"}
@@ -241,7 +255,7 @@ function ReadingPane({ message }: { message: MailMessage }) {
           Best,{"\n"}
           {message.from.split("(")[0].trim()}
         </p>
-        <div className="mt-6 rounded-lg border border-dashed border-black/15 bg-[#f5f5f7] px-4 py-3 text-[12px] text-[#6e6e73]">
+        <div className="mt-6 rounded-lg border border-dashed border-[#d0d0d0] bg-[#fafafa] px-4 py-3 text-[12px] text-[#6b6b6b]">
           2 attachments · Highlight.mp4 · Transcript.pdf
         </div>
       </div>

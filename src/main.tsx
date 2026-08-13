@@ -1,10 +1,10 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import "./index.css"
-import AssistantPrototype from "@/pages/AssistantPrototype"
+import KitPrototype from "@/pages/KitPrototype"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AssistantPrototype />
+    <KitPrototype />
   </StrictMode>,
 )

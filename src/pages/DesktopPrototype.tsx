@@ -15,6 +15,7 @@ import { SidelineCursor } from "@/components/SidelineCursor"
 import { SidelineToolWindow } from "@/components/SidelineToolWindow"
 import { SidePanel } from "@/components/SidePanel"
 import type { ExcelSheetKind } from "@/data/excelSchedules"
+import { cn } from "@/lib/utils"
 
 type WindowId =
   | "mail"
@@ -50,7 +51,7 @@ const PHOENIX_SELECT_STEPS: number[][] = [
   [1, 2, 3, 4],
 ]
 
-/** Inbox messages the ball opens while scanning (ends on Maya) */
+/** Inbox messages the ball opens while scanning (ends on Nora) */
 const MAIL_SCAN_IDS = ["2", "3", "4", "1"] as const
 
 const MENU_LEFT = [
@@ -141,7 +142,7 @@ export default function DesktopPrototype() {
         return
       }
 
-      // 0–45%: scroll/open inbox, linger on Maya
+      // 0–45%: scroll/open inbox, linger on Nora
       if (progress < 0.45) {
         if (agentPhaseRef.current !== "mail") {
           agentPhaseRef.current = "mail"
@@ -224,7 +225,7 @@ export default function DesktopPrototype() {
       <Wallpaper />
 
       {/* Menu bar */}
-      <header className="absolute inset-x-0 top-0 z-[90] flex h-8 items-center justify-between bg-black/35 px-3 text-[12px] text-white/95 backdrop-blur-2xl">
+      <header className="absolute inset-x-0 top-0 z-[90] flex h-8 items-center justify-between bg-white/50 px-3 text-[12px] text-black/80 backdrop-blur-2xl">
         <div className="flex items-center gap-3.5">
           <span className="text-[14px] leading-none" aria-hidden>
             
@@ -235,14 +236,14 @@ export default function DesktopPrototype() {
           ).map((item, i) => (
             <span
               key={item}
-              className={i === 0 ? "font-semibold" : "opacity-90 hidden sm:inline"}
+              className={i === 0 ? "font-semibold" : "opacity-75 hidden sm:inline"}
             >
               {item}
             </span>
           ))}
         </div>
 
-        <div className="flex items-center gap-2.5 opacity-95">
+        <div className="flex items-center gap-2.5 opacity-80">
           <Bluetooth className="hidden h-3.5 w-3.5 md:block" strokeWidth={2} />
           <span className="hidden text-[11px] tabular-nums md:inline">100%</span>
           <Battery className="h-3.5 w-3.5" strokeWidth={2} />
@@ -338,7 +339,7 @@ export default function DesktopPrototype() {
         title="Sideline"
         subtitle="Columbia WSOC · Phoenix Fall · coach stays in control"
         promptEyebrow="From your match grid"
-        promptBody="Maya Chen and Avery Collins light up on the Phoenix sheet. Want a depth read before you expand the full staff view?"
+        promptBody="Nora Ellison and Avery Collins light up on the Phoenix sheet. Want a depth read before you expand the full staff view?"
       />
 
       {sidelineOpen && (
@@ -390,12 +391,15 @@ export default function DesktopPrototype() {
                   setSidePanelOpen(true)
                 }
               }}
-              className="pressable flex h-[52px] w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] shadow-[0_8px_18px_rgba(0,0,0,0.22)]"
+              className={cn(
+                "pressable flex h-[52px] w-[52px] shrink-0 items-center justify-center overflow-hidden shadow-[0_8px_18px_rgba(0,0,0,0.22)]",
+                isAssistant ? "rounded-full bg-white ring-2 ring-white/50" : "rounded-[14px]",
+              )}
               style={{
                 background: isCalendar
                   ? "#fff"
                   : isAssistant
-                    ? "#f2f2f2"
+                    ? "#fff"
                     : "gradient" in app
                       ? app.gradient
                       : "#888",
@@ -473,7 +477,7 @@ function Wallpaper() {
         className="absolute inset-0 h-full w-full object-cover"
         draggable={false}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.12)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(255,255,255,0.18)_100%)]" />
     </div>
   )
 }
@@ -571,9 +575,9 @@ function CalendarDockFace() {
 function AssistantDockIcon() {
   return (
     <img
-      src="/assistant-ball.svg"
+      src="/kit-ball.png"
       alt=""
-      className="h-[92%] w-[92%] max-w-none object-contain"
+      className="h-[82%] w-[82%] max-w-none object-contain"
       draggable={false}
     />
   )
