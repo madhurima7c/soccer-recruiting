@@ -1012,7 +1012,7 @@ function AnnotationLayer({
       {/* Kit V2 annotate chrome — matches Figma 2734:1022 */}
       <div className="pointer-events-none absolute inset-x-0 top-10 z-[315] flex justify-center px-3">
         <div className="pointer-events-auto w-fit max-w-[calc(100%-24px)]">
-          <KitSurface className="!rounded-[22px]">
+          <KitSurface className="!rounded-[22px] !shadow-[0_6px_18px_rgba(0,0,0,0.14)]">
             <div className="flex items-center gap-3 p-2">
               <div className="flex w-[220px] shrink-0 items-center gap-2.5 px-2 py-1">
                 <KitBall size="small" tone="dark" />

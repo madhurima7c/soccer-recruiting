@@ -4,7 +4,9 @@ import {
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from "react"
+import { motion, useReducedMotion } from "motion/react"
 import { Check, PenLine, RotateCcw, Undo2 } from "lucide-react"
 import { DesktopArtboard } from "@/components/DesktopArtboard"
 import { cn } from "@/lib/utils"
@@ -35,6 +37,8 @@ const COLUMNS: { key: keyof ScheduleRow | "row"; label: string; width: string }[
 const SHEETS: {
   id: ExcelSheetKind
   windowId: string
+  short: string
+  mark: string
   filename: string
   className: string
   zIndex: number
@@ -42,22 +46,39 @@ const SHEETS: {
   {
     id: "phoenix-weekend",
     windowId: "sheet-phoenix",
+    short: "Excel · Phoenix",
+    mark: "X",
     filename: "ECNL_Phoenix_Fall_Match_Grid.xlsx",
-    className: "left-[40px] top-[70px] h-[820px] w-[980px]",
+    className: "left-[40px] top-[140px] h-[750px] w-[980px]",
     zIndex: 40,
   },
   {
     id: "playoffs-finals",
     windowId: "sheet-playoffs",
+    short: "Excel · Playoffs",
+    mark: "X",
     filename: "ECNL_Playoffs_Finals_Targets.xlsx",
-    className: "left-[520px] top-[140px] h-[760px] w-[880px]",
+    className: "left-[520px] top-[200px] h-[700px] w-[880px]",
     zIndex: 50,
   },
 ]
 
+function windowIdFromCell(cellId: CellId): string {
+  return cellId.split(":")[0] ?? ""
+}
+
+function windowChip(windowId: string): { id: string; label: string; mark: string } {
+  const sheet = SHEETS.find((s) => s.windowId === windowId)
+  return {
+    id: windowId,
+    mark: sheet?.mark ?? "X",
+    label: sheet?.short ?? "Excel",
+  }
+}
+
 /**
  * Capture-focused prototype: two large Excel sheets + freehand annotation
- * that selects individual cells. Flow 1 remains untouched at /flow1.
+ * that selects individual cells. Annotate chrome matches Flow 1.
  */
 export default function ExcelAnnotateCapture() {
   const [paths, setPaths] = useState<Point[][]>([])
@@ -94,18 +115,54 @@ export default function ExcelAnnotateCapture() {
       if (localPoints.length < 2) return [] as CellId[]
       const clientPoints = localPoints.map(localToClient)
       const hit = new Set<CellId>()
+
+      const windows = SHEETS.flatMap((sheet) => {
+        const el = document.querySelector<HTMLElement>(
+          `[data-window-id="${sheet.windowId}"]`,
+        )
+        if (!el) return []
+        return [
+          {
+            id: sheet.windowId,
+            zIndex: sheet.zIndex,
+            rect: el.getBoundingClientRect(),
+          },
+        ]
+      })
+
+      const frontmostAt = (point: Point): string | null => {
+        let best: { id: string; zIndex: number } | null = null
+        for (const win of windows) {
+          if (
+            point.x < win.rect.left ||
+            point.x > win.rect.right ||
+            point.y < win.rect.top ||
+            point.y > win.rect.bottom
+          ) {
+            continue
+          }
+          if (!best || win.zIndex > best.zIndex) best = win
+        }
+        return best?.id ?? null
+      }
+
       const cells = document.querySelectorAll<HTMLElement>("[data-cell-id]")
       cells.forEach((cell) => {
         const id = cell.dataset.cellId
         if (!id) return
+        const cellWindow = windowIdFromCell(id)
         const rect = cell.getBoundingClientRect()
         for (const point of clientPoints) {
           if (
-            point.x >= rect.left &&
-            point.x <= rect.right &&
-            point.y >= rect.top &&
-            point.y <= rect.bottom
+            point.x < rect.left ||
+            point.x > rect.right ||
+            point.y < rect.top ||
+            point.y > rect.bottom
           ) {
+            continue
+          }
+          // Only select the frontmost sheet at this point
+          if (frontmostAt(point) === cellWindow) {
             hit.add(id)
             break
           }
@@ -123,6 +180,12 @@ export default function ExcelAnnotateCapture() {
       ids.forEach((id) => next.add(id))
       return [...next]
     })
+  }
+
+  const removeWindow = (windowId: string) => {
+    setSelectedCells((current) =>
+      current.filter((cell) => windowIdFromCell(cell) !== windowId),
+    )
   }
 
   const start = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -184,6 +247,11 @@ export default function ExcelAnnotateCapture() {
   }, [])
 
   const selectedSet = new Set(selectedCells)
+  const selectedWindowIds = [
+    ...new Set(selectedCells.map(windowIdFromCell).filter(Boolean)),
+  ]
+  const selectedChips = selectedWindowIds.map(windowChip)
+  const canContinue = selectedCells.length > 0
 
   return (
     <DesktopArtboard className="bg-[#c8dceb] font-sans text-[#1a1a1a]">
@@ -244,37 +312,79 @@ export default function ExcelAnnotateCapture() {
         </svg>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-10 z-[320] flex justify-center px-4">
-        <div className="pointer-events-auto flex w-fit max-w-[calc(100%-24px)] items-center gap-3 rounded-[22px] border border-white/12 bg-[#181a1b] px-3 py-2 text-white shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
-          <div className="flex items-center gap-2 px-1">
-            <PenLine className="h-3.5 w-3.5 text-white/85" />
-            <div>
-              <div className="font-[Geist,Inter,sans-serif] text-[13px] font-medium">
-                Draw over cells to select
+      {/* Kit V2 annotate chrome — matches Flow 1 / Figma 2734:1022 */}
+      <div className="pointer-events-none absolute inset-x-0 top-10 z-[320] flex justify-center px-3">
+        <div className="pointer-events-auto w-fit max-w-[calc(100%-24px)]">
+          <KitSurface className="!rounded-[22px] !shadow-[0_6px_18px_rgba(0,0,0,0.14)]">
+            <div className="flex items-center gap-3 p-2">
+              <div className="flex w-[220px] shrink-0 items-center gap-2.5 px-2 py-1">
+                <KitBall size="small" tone="dark" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <PenLine className="h-3.5 w-3.5 shrink-0 text-white/85" strokeWidth={2} />
+                    <div className="font-[Geist,Inter,sans-serif] text-[14px] font-medium leading-[16.5px] text-white/85">
+                      Draw + choose windows
+                    </div>
+                  </div>
+                  <p className="mt-0.5 text-[10px] leading-[13.75px] text-white/50">
+                    Hover · click · or draw to include
+                  </p>
+                </div>
               </div>
-              <div className="text-[10px] text-white/50">
-                {selectedCells.length
-                  ? `${selectedCells.length} selected · Esc clears`
-                  : "One or two strokes is enough for capture"}
+
+              <div className="flex max-h-[4.75rem] min-w-0 flex-wrap content-center items-center justify-center gap-1.5 overflow-hidden">
+                {selectedChips.length === 0 ? (
+                  <span className="rounded-[14px] border border-dashed border-white/15 px-2.5 py-1 text-[10px] leading-[15px] text-white/40">
+                    No windows selected yet
+                  </span>
+                ) : (
+                  selectedChips.map((chip) => (
+                    <button
+                      key={chip.id}
+                      type="button"
+                      onClick={() => removeWindow(chip.id)}
+                      title="Click to remove"
+                      className="pressable inline-flex shrink-0 items-center gap-1.5 rounded-[14px] border-2 border-[#34d0bd] bg-white/[0.08] py-1 pl-1.5 pr-2"
+                    >
+                      <span className="flex h-[20px] w-[20px] items-center justify-center rounded-[10px] border border-[#34d0bd]/55 bg-[#34d0bd]/18 text-[9px] font-semibold text-[#34d0bd]">
+                        {chip.mark}
+                      </span>
+                      <span className="whitespace-nowrap text-[12px] font-medium text-white/85">
+                        {chip.label}
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setPaths((current) => current.slice(0, -1))}
+                  disabled={!paths.length}
+                  className="pressable rounded-full p-2 text-white/55 hover:bg-white/10 disabled:opacity-30"
+                  aria-label="Undo"
+                >
+                  <Undo2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="pressable rounded-[16px] px-3 py-2 text-[11px] leading-[16.5px] text-white/55 hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirm}
+                  disabled={!canContinue}
+                  className="pressable flex items-center gap-1.5 rounded-[16px] bg-[#34d0bd] px-4 py-2 text-[11px] font-medium leading-[16.5px] text-[#181a1b] hover:bg-[#4ad9c8] disabled:bg-white/15 disabled:text-white/40"
+                >
+                  <Check className="h-3.5 w-3.5" /> Use selection
+                </button>
               </div>
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setPaths((current) => current.slice(0, -1))}
-            disabled={!paths.length}
-            className="pressable rounded-full p-2 text-white/55 hover:bg-white/10 disabled:opacity-30"
-            aria-label="Undo stroke"
-          >
-            <Undo2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={confirm}
-            className="pressable flex items-center gap-1.5 rounded-[16px] bg-[#34d0bd] px-4 py-2 text-[11px] font-medium text-[#181a1b] hover:bg-[#4ad9c8]"
-          >
-            <Check className="h-3.5 w-3.5" /> Use selection
-          </button>
+          </KitSurface>
         </div>
       </div>
 
@@ -328,6 +438,7 @@ function LargeExcelSheet({
           Excel
         </span>
         <span className="truncate text-[12px] font-medium text-[#1a1a1a]">{filename}</span>
+        <span className="ml-auto tabular-nums text-[11px] text-[#8e8e93]">{rows.length} rows</span>
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto bg-white">
@@ -376,6 +487,60 @@ function LargeExcelSheet({
           </tbody>
         </table>
       </div>
+    </div>
+  )
+}
+
+function KitBall({
+  size = "default",
+  tone = "light",
+}: {
+  size?: "small" | "default"
+  tone?: "light" | "dark"
+}) {
+  const reduceMotion = useReducedMotion()
+  const dimensions = size === "small" ? "h-8 w-8" : "h-11 w-11"
+  const image = size === "small" ? "h-7 w-7" : "h-10 w-10"
+  const dark = tone === "dark"
+
+  return (
+    <span
+      className={cn(
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full",
+        dark
+          ? "bg-[#0a0a0a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
+          : "border border-[#b9d6bf] bg-[#e3f1e5] shadow-[0_8px_22px_rgba(25,74,37,0.2)]",
+        dimensions,
+      )}
+    >
+      <motion.img
+        src={dark ? "/kit-ball-bold-white.png?v=3" : "/kit-ball.png"}
+        alt=""
+        draggable={false}
+        className={cn("object-contain", image)}
+        animate={{ y: 0, rotate: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.25 }}
+      />
+    </span>
+  )
+}
+
+function KitSurface({
+  className,
+  children,
+}: {
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-[20px] border border-white/12 text-white shadow-[0_28px_80px_rgba(0,0,0,0.55)]",
+        className,
+      )}
+      style={{ backgroundColor: "#181a1b" }}
+    >
+      <div className="relative z-10">{children}</div>
     </div>
   )
 }
