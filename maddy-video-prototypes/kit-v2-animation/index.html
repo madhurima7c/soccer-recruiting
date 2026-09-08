@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kit V2 — Player Profile Animation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="toolbar">
+        <h1>Kit V2 Animation</h1>
+        <span id="phase-label" class="phase"></span>
+        <button id="btn-export" type="button" class="btn-export">Export MP4</button>
+      </header>
+
+      <dialog id="export-dialog" class="export-dialog">
+        <h2>Export to MP4</h2>
+        <p>
+          Video export runs in the terminal (not in the browser preview). From the
+          <code>kit-v2-animation</code> folder:
+        </p>
+        <ol>
+          <li>Install once: <code>npm install</code></li>
+          <li>Export 1080p: <code>npm run render</code></li>
+        </ol>
+        <dl class="export-specs">
+          <dt>Resolution</dt>
+          <dd>1920 × 1080</dd>
+          <dt>Frame rate</dt>
+          <dd>30 fps</dd>
+          <dt>Duration</dt>
+          <dd>10 seconds (300 frames)</dd>
+          <dt>Output file</dt>
+          <dd><code>out/kit-v2-1080p.mp4</code></dd>
+        </dl>
+        <p class="export-note">
+          First run downloads Playwright Chromium (~2 min). Capture + encode takes ~3–5 min.
+        </p>
+        <div class="export-actions">
+          <button id="btn-copy-export-cmd" type="button">Copy command</button>
+          <button id="btn-close-export" type="button">Close</button>
+        </div>
+      </dialog>
+
+      <div id="stage-viewport">
+        <div id="stage"></div>
+      </div>
+
+      <footer class="controls">
+        <button id="btn-play" type="button">Play</button>
+        <button id="btn-restart" type="button">Restart</button>
+        <label class="speed-label">
+          Speed
+          <select id="speed">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <input id="scrubber" type="range" />
+        <span id="frame-label" class="meta"></span>
+        <span id="time-label" class="meta"></span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

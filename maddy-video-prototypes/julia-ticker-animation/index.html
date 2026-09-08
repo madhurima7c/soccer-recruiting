@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Julia Ticker — Make Offer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="toolbar">
+        <h1>Julia Ticker Animation</h1>
+        <span id="phase-label" class="phase"></span>
+      </header>
+
+      <div id="stage-viewport">
+        <div id="stage"></div>
+      </div>
+
+      <footer class="controls">
+        <button id="btn-play" type="button">Play</button>
+        <button id="btn-restart" type="button">Restart</button>
+        <input id="scrubber" type="range" />
+        <span id="frame-label" class="meta"></span>
+        <span id="time-label" class="meta"></span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
